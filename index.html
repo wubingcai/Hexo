@@ -397,7 +397,13 @@
 <p>​    5.4 查询结果高亮（其实我觉得这个对后端来说没啥用，不过用来给查询结果打标记还是很有用的）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过HighlightBuiilder类对类进行标记</span></span><br><span class="line">HighlightBuilder highlightBuilder = <span class="keyword">new</span> HighlightBuilder();</span><br><span class="line">highlightBuilder.preTags(<span class="string">&quot;&lt;font style=&#x27;color:red&#x27;&gt;&quot;</span>); <span class="comment">// 打上前缀</span></span><br><span class="line">highlightBuilder.postTags(<span class="string">&quot;&lt;/font&gt;&quot;</span>); <span class="comment">// 打上后缀</span></span><br><span class="line">highlightBuilder.field(<span class="string">&quot;title&quot;</span>); <span class="comment">// 定义field</span></span><br><span class="line">searchRequestBuilder.highlighter(highlightBuilder);</span><br></pre></td></tr></table></figure>
 
-<h4 id="七、SpringData-ElasticSearch"><a href="#七、SpringData-ElasticSearch" class="headerlink" title="七、SpringData ElasticSearch"></a>七、SpringData ElasticSearch</h4>
+
+
+
+
+
+
+
       
 
       
@@ -609,6 +615,118 @@
 
 
   
+    <article id="post-Docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/01/03/Docker/">Docker简单入门</a>
+    </h1>
+  
+
+        
+        <a href="/2020/01/03/Docker/" class="archive-article-date">
+  	<time datetime="2020-01-03T10:15:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-01-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="一、Docker概念"><a href="#一、Docker概念" class="headerlink" title="一、Docker概念"></a>一、Docker概念</h4><h5 id="1、Docker的主要特点"><a href="#1、Docker的主要特点" class="headerlink" title="1、Docker的主要特点"></a>1、Docker的主要特点</h5><ul>
+<li>  Docker 是一个开源的应用容器引擎，基于 Go 语言开发。</li>
+<li>  容器完全采用沙箱机制，相互之间不会有接口</li>
+<li>  Docker容器性能开销低</li>
+</ul>
+<p>​    Docker主要应用在开发环境、测试环境、生产环境。Docker可以有效保证三个环境一致。和传统的虚拟机相比，docker不需要虚拟出来的操作系统就可以直接部署应用，直接优势就是启动速度快和占用体积小。</p>
+<h5 id="2、Docker的组成部分"><a href="#2、Docker的组成部分" class="headerlink" title="2、Docker的组成部分"></a>2、Docker的组成部分</h5><p><img src="/.com//image-20220106180701242.png" alt="image-20220106180701242"></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Docker 镜像<br>(Images)</td>
+<td>Docker 镜像是用于创建 Docker 容器的模板。 镜像是基于联合文件系统的一种层式结构，<br>由一系列指令一步一步构建出来。</td>
+</tr>
+<tr>
+<td>Docker 容器<br>(Container)</td>
+<td>容器是独立运行的一个或一组应用。镜像相当于类，容器相当于类的实例</td>
+</tr>
+<tr>
+<td>Docker 客户端<br>(Client)</td>
+<td>Docker 客户端通过命令行或者其他工具使用 Docker API 与 Docker 的守护进程通信。</td>
+</tr>
+<tr>
+<td>Docker 主机<br>(Host)</td>
+<td>一个物理或者虚拟的机器用于执行 Docker 守护进程和容器。</td>
+</tr>
+<tr>
+<td>Docker守护进<br>程</td>
+<td>是Docker服务器端进程，负责支撑Docker 容器的运行以及镜像的管理。</td>
+</tr>
+<tr>
+<td>Docker 仓库<br>DockerHub<br>(Registry)</td>
+<td>Docker 仓库用来保存镜像，可以理解为代码控制中的代码仓库。 Docker Hub提供了庞大<br>的镜像集合供使用。用户也可以将自己本地的镜像推送到Docker仓库供其他人下载。</td>
+</tr>
+</tbody></table>
+<h4 id="二、Docker安装与启动（Linux）"><a href="#二、Docker安装与启动（Linux）" class="headerlink" title="二、Docker安装与启动（Linux）"></a>二、Docker安装与启动（Linux）</h4><h4 id="三、Docker安装与启动（Windows）"><a href="#三、Docker安装与启动（Windows）" class="headerlink" title="三、Docker安装与启动（Windows）"></a>三、Docker安装与启动（Windows）</h4><h4 id="四、Docker常用命令"><a href="#四、Docker常用命令" class="headerlink" title="四、Docker常用命令"></a>四、Docker常用命令</h4><h5 id="1、镜像相关命令"><a href="#1、镜像相关命令" class="headerlink" title="1、镜像相关命令"></a>1、镜像相关命令</h5><h5 id="2、容器相关命令"><a href="#2、容器相关命令" class="headerlink" title="2、容器相关命令"></a>2、容器相关命令</h5><h5 id="3、Docker常用应用的部署"><a href="#3、Docker常用应用的部署" class="headerlink" title="3、Docker常用应用的部署"></a>3、Docker常用应用的部署</h5><h5 id="4、Docker迁移和备份"><a href="#4、Docker迁移和备份" class="headerlink" title="4、Docker迁移和备份"></a>4、Docker迁移和备份</h5><h5 id="5、Docker私有仓库"><a href="#5、Docker私有仓库" class="headerlink" title="5、Docker私有仓库"></a>5、Docker私有仓库</h5><h4 id="五、Docker相关工具"><a href="#五、Docker相关工具" class="headerlink" title="五、Docker相关工具"></a>五、Docker相关工具</h4><h5 id="1、docker-compose"><a href="#1、docker-compose" class="headerlink" title="1、docker-compose"></a>1、docker-compose</h5><h5 id="2、Dockerfile文件"><a href="#2、Dockerfile文件" class="headerlink" title="2、Dockerfile文件"></a>2、Dockerfile文件</h5><h5 id><a href="#" class="headerlink" title></a></h5>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2020/01/03/Docker/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
   
 
 
@@ -698,6 +816,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
             
             <div class="clearfix"></div>
