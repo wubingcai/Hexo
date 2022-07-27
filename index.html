@@ -200,6 +200,158 @@
 
 
   
+    <article id="post-Synchronized的用法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/07/27/Synchronized%E7%9A%84%E7%94%A8%E6%B3%95/">Synchronized的用法</a>
+    </h1>
+  
+
+        
+        <a href="/2022/07/27/Synchronized%E7%9A%84%E7%94%A8%E6%B3%95/" class="archive-article-date">
+  	<time datetime="2022-07-27T12:50:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-07-27</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="Synchronized的用法"><a href="#Synchronized的用法" class="headerlink" title="Synchronized的用法"></a>Synchronized的用法</h4><p>synchronized是Java中的<em>关键字</em>修饰的对象有以下几种</p>
+<ol>
+<li>修饰一个代码块，被修饰的代码块被称为同步语句块，其作用的范围是大括号{}括起来的代码，作用的对象是使用这个代码块的对象</li>
+<li>修饰一个方法，被修饰的方法被称为同步方法，其作用的范围是整个方法，作用的对象是调用这个方法的对象</li>
+<li>修饰一个静态的方法，其作用的范围是整个静态方法，作用的对象是这个类的所有对象</li>
+<li>修饰一个类，其作用的范围是synchronized后面括号括起来的部分，作用的对象是这个类的所有对象</li>
+</ol>
+<h5 id="修饰代码块"><a href="#修饰代码块" class="headerlink" title="修饰代码块"></a>修饰代码块</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.bcai.javaee.synchronizeddemo;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> wubc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span> 2022/7/27 17:14</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DecorateCodeBlock</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SyncThread syncThread = <span class="keyword">new</span> SyncThread();</span><br><span class="line">        Thread thread1 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;1&lt; &quot;</span>);</span><br><span class="line">        Thread thread2 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;2&lt; &quot;</span>);</span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SyncThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SyncThread</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;Thread Name: &quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;:&quot;</span> + (count ++));</span><br><span class="line">                    Thread.sleep(<span class="number">100</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码的运行结果为</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Thread Name: syncThread-&gt;1&lt; :0</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :1</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :2</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :3</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :4</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :5</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :6</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :7</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :8</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :9</span><br></pre></td></tr></table></figure>
+
+<p>注释掉synchronized的时候，运行结果为</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Thread Name: syncThread-&gt;1&lt; :0</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :0</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :1</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :2</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :3</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :4</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :5</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :6</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :7</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :8</span><br></pre></td></tr></table></figure>
+
+<p>当创建线程时候使用一个新的类的时候</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SyncThread syncThread = <span class="keyword">new</span> SyncThread();</span><br><span class="line">SyncThread syncThread2 = <span class="keyword">new</span> SyncThread();</span><br><span class="line">Thread thread1 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;1&lt; &quot;</span>);</span><br><span class="line">Thread thread2 = <span class="keyword">new</span> Thread(syncThread2, <span class="string">&quot;syncThread-&gt;2&lt; &quot;</span>);</span><br><span class="line">thread1.start();</span><br><span class="line">thread2.start();</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Thread Name: syncThread-&gt;1&lt; :0</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :1</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :2</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :3</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :4</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :5</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :6</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :7</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :8</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :9</span><br></pre></td></tr></table></figure>
+
+<p>从运行结果中可以看到，即使使用了synchronized同步代码块，依旧会有不同线程同时使用代码块，这是因为synchronized作用的对象是使用这个代码块的对象，当使用使用不同对象的时候就不会起作用</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">网络上面的解释：</span><br><span class="line">这时创建了两个SyncThread的对象syncThread1和syncThread2，线程thread1执行的是syncThread1对象中的synchronized代码(run)，而线程thread2执行的是syncThread2对象中的synchronized代码(run)；我们知道synchronized锁定的是对象，这时会有两把锁分别锁定syncThread1对象和syncThread2对象，而这两把锁是互不干扰的，不形成互斥，所以两个线程可以同时执行。</span><br></pre></td></tr></table></figure>
+
+<h6 id="当一个线程访问对象的一个synchronize-this-同步代码块时，另一个线程依然可以访问对象中的非synchronized-this-同步代码块"><a href="#当一个线程访问对象的一个synchronize-this-同步代码块时，另一个线程依然可以访问对象中的非synchronized-this-同步代码块" class="headerlink" title="当一个线程访问对象的一个synchronize(this)同步代码块时，另一个线程依然可以访问对象中的非synchronized(this)同步代码块"></a>当一个线程访问对象的一个synchronize(this)同步代码块时，另一个线程依然可以访问对象中的非synchronized(this)同步代码块</h6><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.bcai.javaee.synchronizeddemo;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> wubc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span> 2022/7/27 17:14</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DecorateCodeBlock02</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SyncThread02 syncThread = <span class="keyword">new</span> SyncThread02();</span><br><span class="line">        Thread thread1 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;1&lt; &quot;</span>);</span><br><span class="line">        Thread thread2 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;2&lt; &quot;</span>);</span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SyncThread02</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SyncThread02</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;Thread Name: &quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;:&quot;</span> + (count++));</span><br><span class="line">                    Thread.sleep(<span class="number">100</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Thread Name: &quot;</span> + Thread.currentThread().getName() + count + <span class="string">&quot;这个是非同步的代码块&quot;</span>);</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果为:</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Thread Name: syncThread-&gt;1&lt; :0</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :1</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :2</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :3</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :4</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :5</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; 5这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :6</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; 7这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :7</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; 8这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :8</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; 9这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :9</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; 10这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; 10这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; 10这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; 10这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; 10这个是非同步的代码块</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; 10这个是非同步的代码块</span><br></pre></td></tr></table></figure>
+
+<p>上面的运行结果显示，在Thread2运行的时候，Thread1依旧可以对非同步的代码块进行访问而不受阻塞</p>
+<h5 id="修饰方法"><a href="#修饰方法" class="headerlink" title="修饰方法"></a>修饰方法</h5><p>synchronizec修饰一个方法很简单，就是在方法的前面加上synchronized，synchronized修饰方法和修饰代码块类似，只是作用范围不一样，修饰代码块是大括号括起来的内容，修饰方法是整个方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.bcai.javaee.synchronizeddemo;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> wubc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span> 2022/7/27 17:14</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DecorateMethod01</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SyncMethod syncThread = <span class="keyword">new</span> SyncMethod();</span><br><span class="line">        Thread thread1 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;1&lt; &quot;</span>);</span><br><span class="line">        Thread thread2 = <span class="keyword">new</span> Thread(syncThread, <span class="string">&quot;syncThread-&gt;2&lt; &quot;</span>);</span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SyncMethod</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> count = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SyncMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Thread Name: &quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;:&quot;</span> + (count++));</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unSynchronizedMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Thread Name: &quot;</span> + Thread.currentThread().getName() + count + <span class="string">&quot;这个是非同步的方法&quot;</span>);</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面这段代码的运行结果为</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Thread Name: syncThread-&gt;1&lt; :0</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :1</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :2</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :3</span><br><span class="line">Thread Name: syncThread-&gt;1&lt; :4</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :5</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :6</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :7</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :8</span><br><span class="line">Thread Name: syncThread-&gt;2&lt; :9</span><br></pre></td></tr></table></figure>
+
+<p>修饰方法的写法有两种</p>
+<p>写法一</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// todo</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>写法二</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在用<code>synchronized</code>修饰方法要注意以下几点</p>
+<ol>
+<li><p>synchronized关键字不能被继承</p>
+<p> 虽然synchronized可以用来定义方法，但是synchronized并不属于方法定义的一部分，因此synchronized关键字不能被继承。如果在父类的某个方法使用了synchronized关键字，而在子类中覆盖了这个方法，在子类中的这个方法并不是同步的，必须显式的在子类的这个方法中加上synchronized关键字才可以。还有一种情况是在子类中调用父类中相应的方法，虽然子类中的方法不是同步的，但是子类调用了父类的同步方法，因此，子类中的方法也就相当于是同步了的</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// todo</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Children</span> <span class="keyword">extends</span> <span class="title">Parent</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 调用父类中的同步方法</span></span><br><span class="line">        <span class="keyword">super</span>.method();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>在定义接口方法时不能使用synchronized关键字，构造方法不能使用synchronized关键字，但可以使用synchronized代码块来进行同步</p>
+</li>
+<li><p>修饰一个静态的方法，synchronized也可以用来修饰一个静态方法，用法如下</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 我们知道静态方法时属于类的而不是属于对象的。同样的，synchronized修饰的静态方法锁定的是这个类的所有对象</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.bcai.javaee.synchronizeddemo;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> wubc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span> 2022/7/27 19:35</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DecorateMethod02</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        SyncMethod12 syncMethod = <span class="keyword">new</span> SyncMethod12();</span><br><span class="line">        SyncMethod12 syncMethod2 = <span class="keyword">new</span> SyncMethod12();</span><br><span class="line"></span><br><span class="line">        Thread thread1 = <span class="keyword">new</span> Thread(syncMethod, <span class="string">&quot;syncMethod1&quot;</span>);</span><br><span class="line">        Thread thread2 = <span class="keyword">new</span> Thread(syncMethod2, <span class="string">&quot;syncMethod2&quot;</span>);</span><br><span class="line"></span><br><span class="line">        thread1.start();</span><br><span class="line">        thread2.start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SyncMethod12</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">method1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Thread name: &quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;-&gt;&quot;</span> + (count++));</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SyncMethod12</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        method1();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> 上面的运行结果为</p>
+ <figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Thread name: syncMethod1-&gt;1</span><br><span class="line">Thread name: syncMethod1-&gt;2</span><br><span class="line">Thread name: syncMethod1-&gt;3</span><br><span class="line">Thread name: syncMethod1-&gt;4</span><br><span class="line">Thread name: syncMethod1-&gt;5</span><br><span class="line">Thread name: syncMethod2-&gt;6</span><br><span class="line">Thread name: syncMethod2-&gt;7</span><br><span class="line">Thread name: syncMethod2-&gt;8</span><br><span class="line">Thread name: syncMethod2-&gt;9</span><br><span class="line">Thread name: syncMethod2-&gt;10</span><br></pre></td></tr></table></figure>
+
+<p> 上面代码中<code>syncMethod</code>和<code>syncMethod2</code>是<code>SyncMethod12</code>的两个对象，但在Thread1和Thread2并发时候保持了线程同步，这是因为run中调用了静态方法<code>method1</code>，而静态方法是属于类的，所以两个线程相当于用了同一把锁</p>
+</li>
+</ol>
+<h6 id="修饰一个类"><a href="#修饰一个类" class="headerlink" title="修饰一个类"></a>修饰一个类</h6><p>synchronized关键字还可以用来修饰一个类</p>
+<p>用法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.bcai.javaee.synchronizeddemo;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> wubc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span> 2022/7/27 20:29</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DecorateClass</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        aSyncThread aSyncThread = <span class="keyword">new</span> aSyncThread();</span><br><span class="line">        aSyncThread bSyncThread = <span class="keyword">new</span> aSyncThread();</span><br><span class="line">        Thread aSyncThread1 = <span class="keyword">new</span> Thread(aSyncThread, <span class="string">&quot;aSyncThread1&quot;</span>);</span><br><span class="line">        Thread aSyncThread2 = <span class="keyword">new</span> Thread(bSyncThread, <span class="string">&quot;aSyncThread2&quot;</span>);</span><br><span class="line">        aSyncThread1.start();</span><br><span class="line">        aSyncThread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">aSyncThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> count;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">aSyncThread</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        count = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">aSyncMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 用这种方法来同步整个类</span></span><br><span class="line">        <span class="keyword">synchronized</span> (aSyncThread.class) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;Thread name: &quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;-&gt;&quot;</span> + (count++));</span><br><span class="line">                    Thread.sleep(<span class="number">100</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        aSyncMethod();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 下面这种方法实测不行</span></span><br><span class="line"><span class="comment">//synchronized class ClassName1 &#123; &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的运行结果如下</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Thread name: aSyncThread1-&gt;0</span><br><span class="line">Thread name: aSyncThread1-&gt;1</span><br><span class="line">Thread name: aSyncThread1-&gt;2</span><br><span class="line">Thread name: aSyncThread1-&gt;3</span><br><span class="line">Thread name: aSyncThread1-&gt;4</span><br><span class="line">Thread name: aSyncThread2-&gt;5</span><br><span class="line">Thread name: aSyncThread2-&gt;6</span><br><span class="line">Thread name: aSyncThread2-&gt;7</span><br><span class="line">Thread name: aSyncThread2-&gt;8</span><br><span class="line">Thread name: aSyncThread2-&gt;9</span><br></pre></td></tr></table></figure>
+
+<p>效果和上面synchronized修饰静态方法是一样的，synchronized作用于一个类T时，是给这个类T加锁，T的所有对象用的是同一把锁。</p>
+<h6 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h6><ol>
+<li>无论synchronized关键字加在方法上还是对象上，如果它作用的对象是非静态的，则它取得的锁是对象；如果synchronized作用的对象是一个静态方法或一个类，则它取得的锁是类，该类所有的对象同一把锁</li>
+<li>每个对象只有一个锁(lock)与之相关联，谁拿到那个锁谁就可以运行它所控制的那段代码</li>
+<li>实现同步需要很大的系统开销作为代价，甚至可能造成死锁，所以应该要避免无谓的同步控制</li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">多线程</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Synchronized</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/07/27/Synchronized%E7%9A%84%E7%94%A8%E6%B3%95/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-未修改/SpringMVC/SpringMVC获得请求数据" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1442,79 +1594,6 @@
 
 
   
-    <article id="post-未修改/MyBatis/SSM框架整合" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/03/20/%E6%9C%AA%E4%BF%AE%E6%94%B9/MyBatis/SSM%E6%A1%86%E6%9E%B6%E6%95%B4%E5%90%88/">ssm框架整合</a>
-    </h1>
-  
-
-        
-        <a href="/2022/03/20/%E6%9C%AA%E4%BF%AE%E6%94%B9/MyBatis/SSM%E6%A1%86%E6%9E%B6%E6%95%B4%E5%90%88/" class="archive-article-date">
-  	<time datetime="2022-03-20T04:17:01.306Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-03-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">SSM框架</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/03/20/%E6%9C%AA%E4%BF%AE%E6%94%B9/MyBatis/SSM%E6%A1%86%E6%9E%B6%E6%95%B4%E5%90%88/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next »</a>
@@ -1631,7 +1710,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
+                <a href="javascript:void(0)" class="js-tag color4">多线程</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Synchronized</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1639,7 +1722,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Spring简介</a>
+                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1647,11 +1730,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
+                <a href="javascript:void(0)" class="js-tag color4">Spring简介</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MyBatis</a>
+                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1659,7 +1742,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
+                <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1667,7 +1750,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
+                <a href="javascript:void(0)" class="js-tag color3">MyBatis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
               </li>
             
             <div class="clearfix"></div>
