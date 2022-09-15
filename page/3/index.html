@@ -138,354 +138,241 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Spring" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Postgres/02.权限" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/09/22/Spring/">Spring总结</a>
-    </h1>
-  
-
-        
-        <a href="/2021/09/22/Spring/" class="archive-article-date">
-  	<time datetime="2021-09-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-09-22</time>
-</a>
-        
-      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="一、什么是Spring"><a href="#一、什么是Spring" class="headerlink" title="一、什么是Spring?"></a>一、什么是Spring?</h4><p>Spring是一个轻量级的IOC和AOP的轻量级容器框架  </p>
-<h6 id="1、IOC-控制反转"><a href="#1、IOC-控制反转" class="headerlink" title="1、IOC 控制反转"></a>1、IOC 控制反转</h6><h6 id="2、AOP面向切面编程"><a href="#2、AOP面向切面编程" class="headerlink" title="2、AOP面向切面编程"></a>2、AOP面向切面编程</h6><h4 id="二、Spring的优势有哪些？"><a href="#二、Spring的优势有哪些？" class="headerlink" title="二、Spring的优势有哪些？"></a>二、Spring的优势有哪些？</h4><ol>
-<li><p> 方便解耦，简化开发</p>
+        <h1 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h1><p>一旦一个对象被创建，它会被分配一个所有者。所有者通常是执行创建语句的角色。对于大部分类型的对象，初始状态下只有所有者（或者超级用户）能够对该对象做任何事情。为了允许其他角色使用它，必须分配<em>权限</em>。</p>
+<p>有多种不同的权限：<code>SELECT</code>、<code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code>、<code>TRUNCATE</code>、<code>REFERENCES</code>、<code>TRIGGER</code>、<code>CREATE</code>、<code>CONNECT</code>、<code>TEMPORARY</code>、<code>EXECUTE</code>以及<code>USAGE</code>。可以应用于一个特定对象的权限随着对象的类型（表、函数等）而不同。</p>
+<p>修改或销毁一个对象的权力通常是只有所有者才有的权限。</p>
+<p>一个对象可以通过该对象类型相应的<code>ALTER</code>命令来重新分配所有者，例如</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name OWNER <span class="keyword">TO</span> new_owner;</span><br></pre></td></tr></table></figure>
+
+<p>超级用户总是可以做到这点，普通角色只有同时是对象的当前所有者（或者是拥有角色的一个成员）以及新拥有角色的一个成员时才能做同样的事。</p>
+<p>要分配权限，可以使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-grant.html">GRANT</a>命令。例如，如果<code>joe</code>是一个已有角色，而<code>accounts</code>是一个已有表，更新该表的权限可以按如下方式授权：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> UPDATE <span class="keyword">ON</span> accounts <span class="keyword">TO</span> joe;</span><br></pre></td></tr></table></figure>
+
+<p>用<code>ALL</code>取代特定权限会把与对象类型相关的所有权限全部授权。</p>
+<p>一个特殊的名为<code>PUBLIC</code>的“角色”可以用来向系统中的每一个角色授予一个权限。同时，在数据库中有很多用户时可以设置“组”角色来帮助管理权限。详见<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/user-manag.html">第 21 章</a>。</p>
+<p>为了撤销一个权限，使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-revoke.html">REVOKE</a> 命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">REVOKE</span> <span class="keyword">ALL</span> <span class="keyword">ON</span> accounts <span class="keyword">FROM</span> PUBLIC;</span><br></pre></td></tr></table></figure>
+
+<p>对象拥有者的特殊权限（即执行<code>DROP</code>、<code>GRANT</code>、<code>REVOKE</code>等的权力）总是隐式地属于拥有者，并且不能被授予或撤销。但是对象拥有者可以选择撤销他们自己的普通权限，例如把一个表变得对他们自己和其他人只读。</p>
+<p>一般情况下，只有对象拥有者（或者超级用户）可以授予或撤销一个对象上的权限。但是可以在授予权限时使用“<em><strong>with grant option</strong></em>”来允许接收人将权限转授给其他人。如果后来授予选项被撤销，则所有从接收人那里获得的权限（直接或者通过授权链获得）都将被撤销。更多详情请见<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-grant.html">GRANT</a>和<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-revoke.html">REVOKE</a>参考页。</p>
+<p>有效的权限如下:</p>
+<ul>
+<li><p><code>SELECT</code></p>
+<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-select.html">SELECT</a> 从任何列、或特定的列、表、视图、物化视图、或其他类似表格的对象。 也允许使用 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-copy.html">COPY</a> TO. 还需要这个权限来引用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-update.html">UPDATE</a> 或 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-delete.html">DELETE</a>中现有的列值。 对于序列，这个权限还允许使用<code>currval</code> 函数。对于大对象，此权限允许读取对象。</p>
 </li>
-<li><p> 支持AOP编程</p>
+<li><p><code>INSERT</code></p>
+<p>允许将新行的 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-insert.html">INSERT</a> 加入表、视图等等。 可以在特定列上授予，在这种情况下<code>INSERT</code>命令中只有那些列可以被分配（其他列将因此而收到默认值）。 还允许使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-copy.html">COPY</a> FROM。</p>
 </li>
-<li><p> 声明式事务支持</p>
+<li><p><code>UPDATE</code></p>
+<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-update.html">UPDATE</a> 更新任何列、或指定列、表、视图等等。 (实际上，任何有效的<code>UPDATE</code>命令也需要<code>SELECT</code>权限，因为它必须引用表列来确定要更新的行，和/或计算列的新值。) <code>SELECT ... FOR UPDATE</code>和<code>SELECT ... FOR SHARE</code>除了<code>SELECT</code>权限外，还需要至少一列上的这个权限。 对于序列，这个权限允许使用 <code>nextval</code> 和 <code>setval</code> 函数。对于大对象，此权限允许写入或截断对象。</p>
 </li>
-<li><p> 集成junit</p>
+<li><p><code>DELETE</code></p>
+<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-delete.html">DELETE</a> 从表、视图等等中删除行. (实际上，任何有效的<code>DELETE</code>命令也需要<code>SELECT</code>权限，因为它必须引用表列来确定要删除的行。)</p>
 </li>
-<li><p> 支持集成各种框架</p>
+<li><p><code>TRUNCATE</code></p>
+<p>允许在表、视图等等上 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-truncate.html">TRUNCATE</a> 。</p>
 </li>
-<li><p> 能降低J2EE使用难度，对API进行了封装</p>
+<li><p><code>REFERENCES</code></p>
+<p>允许创建引用表或表的特定列的外键约束。</p>
 </li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Spring//" class="article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/09/22/Spring/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-HEXO插入图片(转载)" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2021/02/23/HEXO%E6%8F%92%E5%85%A5%E5%9B%BE%E7%89%87(%E8%BD%AC%E8%BD%BD)/">Hexo插入图片（来源于转载）</a>
-    </h1>
-  
-
-        
-        <a href="/2021/02/23/HEXO%E6%8F%92%E5%85%A5%E5%9B%BE%E7%89%87(%E8%BD%AC%E8%BD%BD)/" class="archive-article-date">
-  	<time datetime="2021-02-23T12:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-02-23</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="Hexo插入图片（来源于转载）"><a href="#Hexo插入图片（来源于转载）" class="headerlink" title="Hexo插入图片（来源于转载）"></a>Hexo插入图片（来源于转载）</h4><p>作者：DCBXZ<br>链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f72aaad7b852">https://www.jianshu.com/p/f72aaad7b852</a><br>来源：简书</p>
-<ol>
-<li><p>安装插件，在hexo根目录执行</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-asset-image --save</span><br></pre></td></tr></table></figure></li>
-<li><p>打开hexo的配置文件_config.yml<br> 找到 post_asset_folder，把这个选项从false改成true</p>
+<li><p><code>TRIGGER</code></p>
+<p>允许在表、视图等等上创建触发器。</p>
 </li>
-<li><p>打开  /node_modules/hexo-asset-image/index.js   替换内容为：</p>
- <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"><span class="keyword">var</span> cheerio = <span class="built_in">require</span>(<span class="string">&#x27;cheerio&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// http://stackoverflow.com/questions/14480345/how-to-get-the-nth-occurrence-in-a-string</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getPosition</span>(<span class="params">str, m, i</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> str.split(m, i).join(m).length;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> version = <span class="built_in">String</span>(hexo.version).split(<span class="string">&#x27;.&#x27;</span>);</span><br><span class="line">hexo.extend.filter.register(<span class="string">&#x27;after_post_render&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;</span><br><span class="line">  <span class="keyword">var</span> config = hexo.config;</span><br><span class="line">  <span class="keyword">if</span>(config.post_asset_folder)&#123;</span><br><span class="line">        <span class="keyword">var</span> link = data.permalink;</span><br><span class="line">    <span class="keyword">if</span>(version.length &gt; <span class="number">0</span> &amp;&amp; <span class="built_in">Number</span>(version[<span class="number">0</span>]) == <span class="number">3</span>)</span><br><span class="line">       <span class="keyword">var</span> beginPos = getPosition(link, <span class="string">&#x27;/&#x27;</span>, <span class="number">1</span>) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">       <span class="keyword">var</span> beginPos = getPosition(link, <span class="string">&#x27;/&#x27;</span>, <span class="number">3</span>) + <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// In hexo 3.1.1, the permalink of &quot;about&quot; page is like &quot;.../about/index.html&quot;.</span></span><br><span class="line">    <span class="keyword">var</span> endPos = link.lastIndexOf(<span class="string">&#x27;/&#x27;</span>) + <span class="number">1</span>;</span><br><span class="line">    link = link.substring(beginPos, endPos);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> toprocess = [<span class="string">&#x27;excerpt&#x27;</span>, <span class="string">&#x27;more&#x27;</span>, <span class="string">&#x27;content&#x27;</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; toprocess.length; i++)&#123;</span><br><span class="line">      <span class="keyword">var</span> key = toprocess[i];</span><br><span class="line"> </span><br><span class="line">      <span class="keyword">var</span> $ = cheerio.load(data[key], &#123;</span><br><span class="line">        <span class="attr">ignoreWhitespace</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">xmlMode</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">lowerCaseTags</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">decodeEntities</span>: <span class="literal">false</span></span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">      $(<span class="string">&#x27;img&#x27;</span>).each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> ($(<span class="built_in">this</span>).attr(<span class="string">&#x27;src&#x27;</span>))&#123;</span><br><span class="line">            <span class="comment">// For windows style path, we replace &#x27;\&#x27; to &#x27;/&#x27;.</span></span><br><span class="line">            <span class="keyword">var</span> src = $(<span class="built_in">this</span>).attr(<span class="string">&#x27;src&#x27;</span>).replace(<span class="string">&#x27;\\&#x27;</span>, <span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">            <span class="keyword">if</span>(!<span class="regexp">/http[s]*.*|\/\/.*/</span>.test(src) &amp;&amp;</span><br><span class="line">               !<span class="regexp">/^\s*\//</span>.test(src)) &#123;</span><br><span class="line">              <span class="comment">// For &quot;about&quot; page, the first part of &quot;src&quot; can&#x27;t be removed.</span></span><br><span class="line">              <span class="comment">// In addition, to support multi-level local directory.</span></span><br><span class="line">              <span class="keyword">var</span> linkArray = link.split(<span class="string">&#x27;/&#x27;</span>).filter(<span class="function"><span class="keyword">function</span>(<span class="params">elem</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">return</span> elem != <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">              &#125;);</span><br><span class="line">              <span class="keyword">var</span> srcArray = src.split(<span class="string">&#x27;/&#x27;</span>).filter(<span class="function"><span class="keyword">function</span>(<span class="params">elem</span>)</span>&#123;</span><br><span class="line">                <span class="keyword">return</span> elem != <span class="string">&#x27;&#x27;</span> &amp;&amp; elem != <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">              &#125;);</span><br><span class="line">              <span class="keyword">if</span>(srcArray.length &gt; <span class="number">1</span>)</span><br><span class="line">                srcArray.shift();</span><br><span class="line">              src = srcArray.join(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">              $(<span class="built_in">this</span>).attr(<span class="string">&#x27;src&#x27;</span>, config.root + link + src);</span><br><span class="line">              <span class="built_in">console</span>.info&amp;&amp;<span class="built_in">console</span>.info(<span class="string">&quot;update link as:--&gt;&quot;</span>+config.root + link + src);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.info&amp;&amp;<span class="built_in">console</span>.info(<span class="string">&quot;no src attr, skipped...&quot;</span>);</span><br><span class="line">            <span class="built_in">console</span>.info&amp;&amp;<span class="built_in">console</span>.info($(<span class="built_in">this</span>));</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">      data[key] = $.html();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></li>
-<li><p>现在就可以插入图片了，比如hexo new post photo之后<br>  就在source/_posts生成photo.md文件和photo文件夹，我们把要插入的图片复制到photo文件夹内，<br>  在photo.md文件里面按markdown的标准写</p>
+<li><p><code>CREATE</code></p>
+<p>对于数据库，允许在数据库中创建新的模式和发布。对于模式，允许在模式中创建新对象。要重命名现有对象，你必须拥有对象 ***and***所包含模式的此权限。对于表空间，允许在表空间中创建表、索引和临时文件，并允许创建将表空间作为默认表空间的数据库。（注意，撤销此特权不会更改已有对象的位置。）</p>
 </li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">hexo</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/hexo//" class="article-tag-list-link color5">hexo</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2021/02/23/HEXO%E6%8F%92%E5%85%A5%E5%9B%BE%E7%89%87(%E8%BD%AC%E8%BD%BD)/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Docker" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2020/01/03/Docker/">Docker简单入门</a>
-    </h1>
-  
-
-        
-        <a href="/2020/01/03/Docker/" class="archive-article-date">
-  	<time datetime="2020-01-03T10:15:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-01-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="一、Docker概念"><a href="#一、Docker概念" class="headerlink" title="一、Docker概念"></a>一、Docker概念</h4><h5 id="1、Docker的主要特点"><a href="#1、Docker的主要特点" class="headerlink" title="1、Docker的主要特点"></a>1、Docker的主要特点</h5><ul>
-<li>  Docker 是一个开源的应用容器引擎，基于 Go 语言开发。</li>
-<li>  容器完全采用沙箱机制，相互之间不会有接口</li>
-<li>  Docker容器性能开销低</li>
+<li><p><code>CONNECT</code></p>
+<p>允许受让者连接到数据库。此权限在连接启动时进行检查(加之<code>pg_hba.conf</code>施加的任何约束).</p>
+</li>
+<li><p><code>TEMPORARY</code></p>
+<p>允许在使用数据库时创建临时表。</p>
+</li>
+<li><p><code>EXECUTE</code></p>
+<p>允许调用函数或过程，包括使用在函数之上实现的任何运算符。这是适用于函数和过程的唯一权限类型。</p>
+</li>
+<li><p><code>USAGE</code></p>
+<p>对于程序语言，允许使用语言来创建该语言的函数。 这是适用于过程语言的唯一权限类型。对于模式，允许访问模式中包含的对象（假设对象自己的权限要求也已得到满足）。 从本质上讲，这允许受让者“look up”模式中的对象。如果没有此权限，仍可以看到对象名称，例如通过查询系统目录。 此外，在撤消此权限后，现有会话可能还具有以前执行过此查找的语句，因此这不是阻止对象访问的彻底安全的方法。对于序列, 允许使用<code>currval</code> 和 <code>nextval</code> 函数.对于类型和域，允许在创建表、函数和其他模式对象时使用类型或域。 （注意，此权限不控制类型的全部 “usage” ，例如查询中出现的类型的值。 它仅防止创建依赖于类型的对象。 此权限的主要目的是控制哪些用户可以对类型创建依赖项，这可能会防止所有者以后更改类型。 ）对于外部数据包装器，允许使用外部数据包装器创建新服务器。对于外部服务器，允许使用服务器创建外部表。受让者还可以创建、更改或删除与该服务器关联的自己的用户映射。</p>
+</li>
 </ul>
-<p>​    Docker主要应用在开发环境、测试环境、生产环境。Docker可以有效保证三个环境一致。和传统的虚拟机相比，docker不需要虚拟出来的操作系统就可以直接部署应用，直接优势就是启动速度快和占用体积小。</p>
-<h5 id="2、Docker的组成部分"><a href="#2、Docker的组成部分" class="headerlink" title="2、Docker的组成部分"></a>2、Docker的组成部分</h5><p><img src="/2020/01/03/Docker/image-20220106200805280.png" alt="image-20220106200805280"></p>
+<p>其他命令所需的权限罗列在相应命令的参考页上。</p>
+<p>在创建对象时，PostgreSQL默认将某些类型对象的权限授予<code>PUBLIC</code>。 默认情况下，在表、表列、序列、外部数据包装器、外部服务器、大型对象、模式或表空间上，不向<code>PUBLIC</code>授予权限。 对于其他类型的对象，授予 <code>PUBLIC</code>的默认权限如下所示： 针对数据库的<code>CONNECT</code>和<code>TEMPORARY</code>（创建临时表）权限; 针对函数和程序的<code>EXECUTE</code>权限;以及针对语言和数据类型（包括域）的<code>USAGE</code>权限。 当然，对象所有者可以<code>REVOKE</code>默认权限和特别授予的权限。 （为了最大程度的安全性，在创建对象的同一事务中发出<code>REVOKE</code>;那么就没有其他用户能够使用该对象的窗口。） 此外，可以使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-alterdefaultprivileges.html">ALTER DEFAULT PRIVILEGES</a>命令取代这些默认权限设置。</p>
+<p><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/ddl-priv.html#PRIVILEGE-ABBREVS-TABLE">表 5.1</a>显示了<em>ACL</em>（访问控制列表）值中用于这些权限类型的单字母缩写。 你将在下面列出的 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/app-psql.html">psql</a> 命令的输出中，或者在查看系统目录的 ACL 列时看到这些字母。</p>
+<p><strong>表 5.1. ACL 权限缩写</strong></p>
 <table>
 <thead>
 <tr>
-<th>名称</th>
-<th>解释</th>
+<th>权限</th>
+<th>缩写</th>
+<th>适用对象类型</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Docker 镜像<br>(Images)</td>
-<td>Docker 镜像是用于创建 Docker 容器的模板。 镜像是基于联合文件系统的一种层式结构，<br>由一系列指令一步一步构建出来。</td>
+<td><code>SELECT</code></td>
+<td><code>r</code> (“读”)</td>
+<td><code>LARGE OBJECT</code>, <code>SEQUENCE</code>, <code>TABLE</code> (and table-like objects), table column</td>
 </tr>
 <tr>
-<td>Docker 容器<br>(Container)</td>
-<td>容器是独立运行的一个或一组应用。镜像相当于类，容器相当于类的实例</td>
+<td><code>INSERT</code></td>
+<td><code>a</code> (“增补”)</td>
+<td><code>TABLE</code>, table column</td>
 </tr>
 <tr>
-<td>Docker 客户端<br>(Client)</td>
-<td>Docker 客户端通过命令行或者其他工具使用 Docker API 与 Docker 的守护进程通信。</td>
+<td><code>UPDATE</code></td>
+<td><code>w</code> (“写”)</td>
+<td><code>LARGE OBJECT</code>, <code>SEQUENCE</code>, <code>TABLE</code>, table column</td>
 </tr>
 <tr>
-<td>Docker 主机<br>(Host)</td>
-<td>一个物理或者虚拟的机器用于执行 Docker 守护进程和容器。</td>
+<td><code>DELETE</code></td>
+<td><code>d</code></td>
+<td><code>TABLE</code></td>
 </tr>
 <tr>
-<td>Docker守护进<br>程</td>
-<td>是Docker服务器端进程，负责支撑Docker 容器的运行以及镜像的管理。</td>
+<td><code>TRUNCATE</code></td>
+<td><code>D</code></td>
+<td><code>TABLE</code></td>
 </tr>
 <tr>
-<td>Docker 仓库<br>DockerHub<br>(Registry)</td>
-<td>Docker 仓库用来保存镜像，可以理解为代码控制中的代码仓库。 Docker Hub提供了庞大<br>的镜像集合供使用。用户也可以将自己本地的镜像推送到Docker仓库供其他人下载。</td>
+<td><code>REFERENCES</code></td>
+<td><code>x</code></td>
+<td><code>TABLE</code>, table column</td>
+</tr>
+<tr>
+<td><code>TRIGGER</code></td>
+<td><code>t</code></td>
+<td><code>TABLE</code></td>
+</tr>
+<tr>
+<td><code>CREATE</code></td>
+<td><code>C</code></td>
+<td><code>DATABASE</code>, <code>SCHEMA</code>, <code>TABLESPACE</code></td>
+</tr>
+<tr>
+<td><code>CONNECT</code></td>
+<td><code>c</code></td>
+<td><code>DATABASE</code></td>
+</tr>
+<tr>
+<td><code>TEMPORARY</code></td>
+<td><code>T</code></td>
+<td><code>DATABASE</code></td>
+</tr>
+<tr>
+<td><code>EXECUTE</code></td>
+<td><code>X</code></td>
+<td><code>FUNCTION</code>, <code>PROCEDURE</code></td>
+</tr>
+<tr>
+<td><code>USAGE</code></td>
+<td><code>U</code></td>
+<td><code>DOMAIN</code>, <code>FOREIGN DATA WRAPPER</code>, <code>FOREIGN SERVER</code>, <code>LANGUAGE</code>, <code>SCHEMA</code>, <code>SEQUENCE</code>, <code>TYPE</code></td>
 </tr>
 </tbody></table>
-<p>docker镜像的结构<img src="/2020/01/03/Docker/Docker%5Cimage-20220106211349977.png" alt="image-20220106211349977"></p>
-<h4 id="二、Docker安装与启动（Linux）"><a href="#二、Docker安装与启动（Linux）" class="headerlink" title="二、Docker安装与启动（Linux）"></a>二、Docker安装与启动（Linux）</h4><p>这个安装的方法直接百度就能找到，也没遇到啥坑，就不说了</p>
-<ol>
-<li><p>一般的安装命令</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get remove docker docker-engine docker.io containerd runc</span><br></pre></td></tr></table></figure></li>
-<li><p>也可以使用daocloud来安装</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sSL https://get.daocloud.io/docker | sh</span><br></pre></td></tr></table></figure>
-<p> 启动控制的话可以使用</p>
- <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start|stop|restart|status docker</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h4 id="三、Docker常用命令"><a href="#三、Docker常用命令" class="headerlink" title="三、Docker常用命令"></a>三、Docker常用命令</h4><h5 id="1、镜像相关命令"><a href="#1、镜像相关命令" class="headerlink" title="1、镜像相关命令"></a>1、镜像相关命令</h5><ul>
-<li><p>  查看镜像     <code>docker images</code></p>
-</li>
-<li><p>  搜索仓库中的镜像    <code>docker search 镜像名称</code></p>
-</li>
-<li><p>  拉镜像    <code>docker pull 镜像名称</code>    如果不指定版本的话默认是最新版本</p>
-</li>
-<li><p>  删除镜像    <code>docker rmi 镜像名称</code>      删除指定镜像</p>
-</li>
-</ul>
-<h5 id="2、容器相关命令"><a href="#2、容器相关命令" class="headerlink" title="2、容器相关命令"></a>2、容器相关命令</h5><ul>
-<li><p>查看容器</p>
-<ul>
-<li>  查看正在运行的容器    <code>doker ps</code></li>
-<li>查看所有容器    <code>docker ps -a</code></li>
-</ul>
-</li>
-<li><p>创建并启动容器</p>
-<p>  可以基于已有的镜像来创建启动容器，创建与启动容器的命令：  <code>docker run</code></p>
-<p>  参数说明</p>
-<ul>
-<li><p>  -i    表示运行容器    </p>
-</li>
-<li><p>  -t    表示容器启动后会进入其命令行模式，加入这个参数后创建容器之后便分配一个伪终端能立刻登录进去</p>
-</li>
-<li><p>  -v    表示目录映射，可以用多个-v参数进行多个映射，映射的格式为  <code>-v 宿主机目录:容器内目录</code></p>
-</li>
-<li><p>  -d    表示创建一个守护式进程，在exit后，容器不会停止</p>
-</li>
-<li><p>-p    表示端口映射，可以映射多个， 格式为 <code>-p 宿主机端口:容器内目录</code></p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 这里贴几个demo</span></span><br><span class="line">docker pull centos:7</span><br><span class="line">docker run -it --name=mycentos0 centos:7 /bin/bash</span><br><span class="line">docker run -di --name=mycentos1 centos:7</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>启动容器</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 已经存在守护式容器的情况</span></span><br><span class="line">docker exec -it myContainer /bin/bash</span><br><span class="line"><span class="meta">#</span><span class="bash"> 启动已经存在的容器</span></span><br><span class="line">docker start myContainerName</span><br></pre></td></tr></table></figure></li>
-<li><p>停止容器</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 非守护式容器，在伪终端</span></span><br><span class="line">exit</span><br><span class="line"><span class="meta">#</span><span class="bash"> 守护式容器</span></span><br><span class="line">docker stop myContainerName</span><br></pre></td></tr></table></figure></li>
-<li><p>文件拷贝</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> docker cp 需要拷贝的文件或目录 容器名称:容器目录</span></span><br><span class="line">docker cp myFile myContainerName:/</span><br><span class="line"><span class="meta">#</span><span class="bash"> 反过来从容器拷到宿主机</span></span><br><span class="line">docker cp myContainerName:/myFile ./</span><br></pre></td></tr></table></figure></li>
-<li><p>目录挂载</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -di -v /usr/local/test:/usr/local/test --name=mycentos3 centos:7</span><br></pre></td></tr></table></figure></li>
-<li><p>查看容器ip地址</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect myContainer</span><br></pre></td></tr></table></figure></li>
-<li><p>删除容器</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rm myContainer</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h5 id="3、Docker常用应用的部署"><a href="#3、Docker常用应用的部署" class="headerlink" title="3、Docker常用应用的部署"></a>3、Docker常用应用的部署</h5><ul>
-<li><p>mysql5.7</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker pull centos/mysql-57-centos7</span><br><span class="line"></span><br><span class="line">docker run -di --name=mysql5.7 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root centos/mysql-</span><br><span class="line">57-centos7</span><br></pre></td></tr></table></figure></li>
-<li><p>tomcat</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">docker pull tomcat</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 创建tomcat容器;并挂载了webapps目录</span></span><br><span class="line">docker run -di --name=mytomcat -p 9000:8080 -v </span><br><span class="line">/usr/local/tomcat/webapps:/usr/local/tomcat/webapps tomcat</span><br><span class="line"><span class="meta">#</span><span class="bash"> 如果出现 WARNING: IPv4 forwarding is disabled. Networking will not work.</span></span><br><span class="line"><span class="meta">#</span><span class="bash">执行如下操作</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 1、编辑 sysctl.conf</span></span><br><span class="line">vi /etc/sysctl.conf</span><br><span class="line"><span class="meta">#</span><span class="bash"> 2、在上述打开的文件中后面添加</span> </span><br><span class="line">net.ipv4.ip_forward=1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 3、重启network</span></span><br><span class="line">systemctl restart network</span><br></pre></td></tr></table></figure></li>
-<li><p>nginx</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull nginx</span><br></pre></td></tr></table></figure></li>
-<li><p>redis</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull redis</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h5 id="4、Docker迁移和备份"><a href="#4、Docker迁移和备份" class="headerlink" title="4、Docker迁移和备份"></a>4、Docker迁移和备份</h5><ul>
-<li><p>将docke容器保存为镜像</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker commit myContainer myImage</span><br></pre></td></tr></table></figure></li>
-<li><p>镜像备份</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save -o 文件路径.tar imageName</span><br></pre></td></tr></table></figure></li>
-<li><p>镜像恢复和迁移</p>
-<p>  使用docker load命令可根据tar文件恢复docker镜像</p>
-  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load -i 文件</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h5 id="5、Docker私有仓库"><a href="#5、Docker私有仓库" class="headerlink" title="5、Docker私有仓库"></a>5、Docker私有仓库</h5><p>​    docker官方仓库 <a target="_blank" rel="noopener" href="https://hub.docker.com,不过一般改成国内的镜像站,windows可以直接在docker/">https://hub.docker.com，不过一般改成国内的镜像站，windows可以直接在Docker</a> Desktop里面修改，Linux修改 /etc/docker/daemon.json，添加:</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">&quot;registry-mirrors&quot;</span>: [<span class="string">&quot;http://hub-mirror.c.163.com&quot;</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>​    上面仓库可以换成其他源，比如</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">https://registry.docker-cn.com</span><br><span class="line"> </span><br><span class="line">http://hub-mirror.c.163.com</span><br><span class="line"> </span><br><span class="line">https://3laho3y3.mirror.aliyuncs.com</span><br><span class="line"> </span><br><span class="line">http://f1361db2.m.daocloud.io</span><br><span class="line"> </span><br><span class="line">https://mirror.ccs.tencentyun.com</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/ddl-priv.html#PRIVILEGES-SUMMARY-TABLE">表 5.2</a> 使用上面所示的缩写总结了每种类型 SQL 对象可用的权限. 它还显示可用于检查每种对象类型的特权设置的 psql 命令。</p>
+<p><strong>表 5.2. 访问权限摘要</strong></p>
+<table>
+<thead>
+<tr>
+<th>对象类型</th>
+<th>所有权限</th>
+<th>默认 <code>PUBLIC</code> 权限</th>
+<th>psql 命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DATABASE</code></td>
+<td><code>CTc</code></td>
+<td><code>Tc</code></td>
+<td><code>\l</code></td>
+</tr>
+<tr>
+<td><code>DOMAIN</code></td>
+<td><code>U</code></td>
+<td><code>U</code></td>
+<td><code>\dD+</code></td>
+</tr>
+<tr>
+<td><code>FUNCTION</code> or <code>PROCEDURE</code></td>
+<td><code>X</code></td>
+<td><code>X</code></td>
+<td><code>\df+</code></td>
+</tr>
+<tr>
+<td><code>FOREIGN DATA WRAPPER</code></td>
+<td><code>U</code></td>
+<td>none</td>
+<td><code>\dew+</code></td>
+</tr>
+<tr>
+<td><code>FOREIGN SERVER</code></td>
+<td><code>U</code></td>
+<td>none</td>
+<td><code>\des+</code></td>
+</tr>
+<tr>
+<td><code>LANGUAGE</code></td>
+<td><code>U</code></td>
+<td><code>U</code></td>
+<td><code>\dL+</code></td>
+</tr>
+<tr>
+<td><code>LARGE OBJECT</code></td>
+<td><code>rw</code></td>
+<td>none</td>
+<td></td>
+</tr>
+<tr>
+<td><code>SCHEMA</code></td>
+<td><code>UC</code></td>
+<td>none</td>
+<td><code>\dn+</code></td>
+</tr>
+<tr>
+<td><code>SEQUENCE</code></td>
+<td><code>rwU</code></td>
+<td>none</td>
+<td><code>\dp</code></td>
+</tr>
+<tr>
+<td><code>TABLE</code> (and table-like objects)</td>
+<td><code>arwdDxt</code></td>
+<td>none</td>
+<td><code>\dp</code></td>
+</tr>
+<tr>
+<td>Table column</td>
+<td><code>arwx</code></td>
+<td>none</td>
+<td><code>\dp</code></td>
+</tr>
+<tr>
+<td><code>TABLESPACE</code></td>
+<td><code>C</code></td>
+<td>none</td>
+<td><code>\db+</code></td>
+</tr>
+<tr>
+<td><code>TYPE</code></td>
+<td><code>U</code></td>
+<td><code>U</code></td>
+<td><code>\dT+</code></td>
+</tr>
+</tbody></table>
+<p>已授予特定对象的权限显示为<code>aclitem</code>项的列表，其中每个<code>aclitem</code>项描述了特定授予者授予给一个被授与者的权限。 例如，<code>calvin=r*w/hobbes</code> 指明角色<code>calvin</code>具有<code>SELECT</code>（<code>r</code>）权限和授予选项（<code>*</code>）以及不可授予权限<code>UPDATE</code>（<code>w</code>），均由角色<code>hobbes</code>授予。 如果<code>calvin</code>对由其他授予人授予的同一对象也具有一些权限，那将显示为单独的<code>aclitem</code>条目。 <code>aclitem</code> 中的空受赠方字段代表<code>PUBLIC</code>。</p>
+<p>例如，假设用户<code>miriam</code>创建了表<code>mytable</code>并且:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GRANT SELECT ON mytable TO PUBLIC;</span><br><span class="line">GRANT SELECT, UPDATE, INSERT ON mytable TO admin;</span><br><span class="line">GRANT SELECT (col1), UPDATE (col1) ON mytable TO miriam_rw;</span><br></pre></td></tr></table></figure>
 
-<p>​    可以用<code>docker info</code>查看有没有成功</p>
-<p>​    然后也可以搭建私有仓库</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需要拉一个仓库的镜像</span></span><br><span class="line">docker pull registry</span><br><span class="line"><span class="comment"># 启动私有仓库</span></span><br><span class="line">docker run -di --name=myRegistry -p 5000:5000 registry</span><br><span class="line"><span class="comment"># 可以打开浏览器 ip:5000/v2/_catalog 看到输出json的信息就代表成功了</span></span><br><span class="line"><span class="comment"># 然后修改 /etc/docker/daemon.json</span></span><br><span class="line"><span class="comment"># 添加信任key，让docker信任私有仓库</span></span><br><span class="line">&#123;<span class="string">&quot;insecure-registries&quot;</span>:[<span class="string">&quot;ip:5000&quot;</span>]&#125;</span><br><span class="line">然后重启docker和registry容器</span><br></pre></td></tr></table></figure>
+<p>则 psql的 <code>\dp</code> 命令将显示:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">=&gt; \dp mytable</span><br><span class="line">                                  Access privileges</span><br><span class="line"> Schema |  Name   | Type  |   Access privileges   |   Column privileges   | Policies</span><br><span class="line">-−-−-−-−+-−-−-−-−-+-−-−-−-+-−-−-−-−-−-−-−-−-−-−-−-+-−-−-−-−-−-−-−-−-−-−-−-+-−-−-−-−-−</span><br><span class="line"> public | mytable | table | miriam=arwdDxt/miriam+| col1:                +|</span><br><span class="line">        |         |       | =r/miriam            +|   miriam_rw=rw/miriam |</span><br><span class="line">        |         |       | admin=arw/miriam      |                       |</span><br><span class="line">(1 row)</span><br></pre></td></tr></table></figure>
 
-<p>​    将镜像上传到私有仓库</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 给镜像打标记，标记为私有仓库的镜像</span></span><br><span class="line">docker tag myExistImages IP:5000/imageName</span><br><span class="line"><span class="meta">#</span><span class="bash"> 再重启私有仓库容器</span></span><br><span class="line">docker restart registry</span><br><span class="line"><span class="meta">#</span><span class="bash"> 上传打过标记的镜像</span></span><br><span class="line">docker pull IP:5000/imageName</span><br></pre></td></tr></table></figure>
 
-<p>​    从私有仓库所在服务器拉镜像</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull IP:5000/imageName</span><br></pre></td></tr></table></figure>
 
-<p>​    从其他仓库拉镜像</p>
-<p>​    这个需要修改文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 假设私有仓库的地址为 0.0.0.0</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改 /usr/lib/systemd/system/docker.server</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 在ExecStart= 这个下面添加</span></span><br><span class="line">--add-registry=192.168.12.135:5000 --insecure-registry=192.168.12.135:5000 \</span><br><span class="line"><span class="meta">#</span><span class="bash"> 然后重新加载docker配置文件</span></span><br><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br><span class="line"><span class="meta">#</span><span class="bash"> 之后就可以从私有仓库拉镜像了</span></span><br></pre></td></tr></table></figure>
-
-<p>​    附图docker仓库的运行图<img src="/2020/01/03/Docker/image-20220106213344857.png" alt="image-20220106213344857"></p>
+<p>如果“Access privileges”列对于给定对象为空，则表示该对象具有默认权限（也就是说，它在相关系统目录中的权限条目为空）。 默认权限始终包含所有者的所有权限，并且可以包括 <code>PUBLIC</code> 的一些权限，具体取决于对象类型，如上所述。 对象上的第一个<code>GRANT</code>或<code>REVOKE</code>将实例化默认权限（例如，生成<code>miriam_arwdDxt/miriam</code>），然后根据指定的请求修改它们。 类似的，只有具有非默认特权的列的条目才显示在“Column privileges”中。（注意：为此目的，“default privileges”始终表示对象类型的内置缺省权限。其权限受<code>ALTER DEFAULT PRIVILEGES</code> 命令影响的对象将始终显示一个显式权限条目，其中包含 <code>ALTER</code>。）</p>
+<p>注意所有者的隐式授予选项没有在访问权限显示中标记。仅当授予选项被显式授予给某人时才会出现<code>*</code>。</p>
 
       
 
@@ -494,22 +381,961 @@
     <div class="article-info article-info-index">
       
       
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
       
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2020/01/03/Docker/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/08/25/Postgres/02.%E6%9D%83%E9%99%90/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Postgres/01.奇奇怪怪的东西" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>转义字符串可以使用<code>\n</code>之类的，但是不能加<code>&#39;&#39;</code>，需要加引号需要使用<code>E</code>开头，比如<code>E&#39;\n&#39;</code></p>
+</li>
+<li><p>对于上面的第一种情况，可以使用<code>standard_conforming_strings=off</code>，PostgreSQL对常规字符串常量和转义字符串常量中的反斜线转义都识别</p>
+</li>
+<li><p>如果想要使用Unicode可以使用<code>U&amp;&#39;d\0061t\+000061&#39;</code></p>
+</li>
+<li><p>位串常量可以使用<code>X</code></p>
+</li>
+<li><p>Postgres 类型转换的三种方式</p>
+<ul>
+<li><p>```<br>type ‘string’<br>‘string’::type<br>CAST ( ‘string’ AS type )</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- 一个`case`没办法得到`having`后面的结果，因为`case`会在`having`之前计算</span><br><span class="line"></span><br><span class="line">- 调用函数的三种奇奇怪怪的方法</span><br><span class="line"></span><br><span class="line">  对于函数</span><br><span class="line"></span><br><span class="line">  ```sql</span><br><span class="line">  CREATE FUNCTION concat_lower_or_upper(a text, b text, uppercase boolean DEFAULT false)</span><br><span class="line">  RETURNS text</span><br><span class="line">  AS</span><br><span class="line">  $$</span><br><span class="line">   SELECT CASE</span><br><span class="line">          WHEN $3 THEN UPPER($1 || &#x27; &#x27; || $2)</span><br><span class="line">          ELSE LOWER($1 || &#x27; &#x27; || $2)</span><br><span class="line">          END;</span><br><span class="line">  $$</span><br><span class="line">  LANGUAGE SQL IMMUTABLE STRICT;</span><br></pre></td></tr></table></figure></li>
+<li><p>位置记号</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> concat_lower_or_upper(<span class="string">&#x27;Hello&#x27;</span>, <span class="string">&#x27;World&#x27;</span>, <span class="literal">true</span>);</span><br></pre></td></tr></table></figure></li>
+<li><p>命名记号</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> concat_lower_or_upper(a <span class="operator">=</span><span class="operator">&gt;</span> <span class="string">&#x27;Hello&#x27;</span>, b <span class="operator">=</span><span class="operator">&gt;</span> <span class="string">&#x27;World&#x27;</span>);</span><br><span class="line"><span class="comment">-- 为了向后兼容性，基于 &quot;:=&quot; 的旧语法仍被支持</span></span><br><span class="line"><span class="keyword">SELECT</span> concat_lower_or_upper(a :<span class="operator">=</span> <span class="string">&#x27;Hello&#x27;</span>, uppercase :<span class="operator">=</span> <span class="literal">true</span>, b :<span class="operator">=</span> <span class="string">&#x27;World&#x27;</span>);</span><br></pre></td></tr></table></figure></li>
+<li><p>混合记号：闲着没事上面两种混着用，不过不能把位置记号的位置打乱</p>
+</li>
+<li><p><em><strong>命名的和混合的调用记号法当前不能在调用聚集函数时使用（但是当聚集函数被用作窗口函数时它们可以被使用）。</strong></em></p>
+</li>
+</ul>
+</li>
+<li><p>生成列不能被直接写入. 在<code>INSERT</code> 或 <code>UPDATE</code> 命令中, 不能为生成列指定值, 但是可以指定关键字<code>DEFAULT</code>。</p>
+</li>
+<li><p>生成表达式只能使用不可变函数，并且不能使用子查询或以任何方式引用当前行以外的任何内容。</p>
+</li>
+<li><p>约束</p>
+<ul>
+<li><p>检查约束<code>check()</code></p>
+<ul>
+<li><p>检查约束可以约束同表的多个列</p>
+</li>
+<li><p>我们将前两个约束称为列约束，而第三个约束为表约束，因为它独立于任何一个列定义。列约束也可以写成表约束，但反过来不行，因为一个列约束只能引用它所依附的那一个列（PostgreSQL并不强制要求这个规则，但是如果我们希望表定义能够在其他数据库系统中工作，那就应该遵循它）。上述例子也可以写成</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> products (</span><br><span class="line">    product_no <span class="type">integer</span>,</span><br><span class="line">    name text,</span><br><span class="line">    price <span class="type">numeric</span>,</span><br><span class="line">    <span class="keyword">CHECK</span> (price <span class="operator">&gt;</span> <span class="number">0</span>),</span><br><span class="line">    discounted_price <span class="type">numeric</span>,</span><br><span class="line">    <span class="keyword">CHECK</span> (discounted_price <span class="operator">&gt;</span> <span class="number">0</span>),</span><br><span class="line">    <span class="keyword">CHECK</span> (price <span class="operator">&gt;</span> discounted_price)</span><br><span class="line">);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>可以使用<code>CONSTRAINT</code>为约束指定名称，意义在于能使约束更清晰</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> products (</span><br><span class="line">    product_no <span class="type">integer</span>,</span><br><span class="line">    name text,</span><br><span class="line">    price <span class="type">numeric</span> <span class="keyword">CONSTRAINT</span> positive_price <span class="keyword">CHECK</span> (price <span class="operator">&gt;</span> <span class="number">0</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure></li>
+<li><p>外键约束<code>reference</code></p>
+<ul>
+<li><p>例如我们有一个使用过多次的产品表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> products (</span><br><span class="line">    product_no <span class="type">integer</span> <span class="keyword">PRIMARY</span> KEY,</span><br><span class="line">    name text,</span><br><span class="line">    price <span class="type">numeric</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure></li>
+<li><p>让我们假设我们还有一个存储这些产品订单的表。我们希望保证订单表中只包含真正存在的产品的订单。因此我们在订单表中定义一个引用产品表的外键约束：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> orders (</span><br><span class="line">    order_id <span class="type">integer</span> <span class="keyword">PRIMARY</span> KEY,</span><br><span class="line">    product_no <span class="type">integer</span> <span class="keyword">REFERENCES</span> products (product_no),</span><br><span class="line">    quantity <span class="type">integer</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure></li>
+<li><p>现在就不可能创建包含不存在于产品表中的<code>product_no</code>值（非空）的订单。</p>
+</li>
+</ul>
+</li>
+<li><p>限制删除和级联删除</p>
+<ul>
+<li>限制删除<code>on delete restrict</code><ul>
+<li><code>restrict</code>约束被检查时如果有任何引用行存在就会报错</li>
+</ul>
+</li>
+<li>级联删除<code>on delete cascade</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>修改表的约束可以写成表约束</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> products <span class="keyword">ADD</span> <span class="keyword">CHECK</span> (name <span class="operator">&lt;&gt;</span> <span class="string">&#x27;&#x27;</span>);</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> products <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> some_name <span class="keyword">UNIQUE</span> (product_no);</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> products <span class="keyword">ADD</span> <span class="keyword">FOREIGN</span> KEY (product_group_id) <span class="keyword">REFERENCES</span> product_groups;</span><br></pre></td></tr></table></figure></li>
+<li><p>如果不想或者不能写成表约束，可以写成</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> products <span class="keyword">ALTER</span> <span class="keyword">COLUMN</span> product_no <span class="keyword">SET</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>; <span class="comment">-- 非空约束没有名字</span></span><br></pre></td></tr></table></figure></li>
+<li><p>移除约束 </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> products <span class="keyword">drop</span> <span class="keyword">constraint</span> const_name</span><br></pre></td></tr></table></figure></li>
+<li><p>如果需要移除一个被某些别的东西依赖的约束，也需要加上<code>CASCADE</code>。一个例子是一个外键约束依赖于被引用列上的一个唯一或者主键约束</p>
+</li>
+<li><p>重命名</p>
+<ul>
+<li><p>列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> products rename <span class="keyword">column</span> <span class="keyword">to</span> new_name;</span><br></pre></td></tr></table></figure></li>
+<li><p>表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> products rename <span class="keyword">to</span> newtablename;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><em><strong>在索引列上的<code>IS NULL</code>或<code>IS NOT NULL</code>条件也可以在B-tree索引中使用。</strong></em></p>
+</li>
+<li><p>优化器也会将B-tree索引用于涉及到模式匹配操作符<code>LIKE</code>和<code>~</code> 的查询</p>
+</li>
+<li><p>多列索引最多支持32列，这个东西是写在源代码中的 ，如果有需要可以更改，不过得重新编译Postgres</p>
+</li>
+<li><p>```sql<br>– 创建一个hash索引<br>– Hash索引只能处理简单等值比较。不论何时当一个索引列涉及到一个使用了=操作符的比较时，查询规划器将考虑使用一个Hash索引<br>CREATE INDEX name ON table USING HASH (column);</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line">- 在PostgreSQL当前支持的索引类型中，只有B-tree可以产生排序后的输出，其他索引类型会把行以一种没有指定的且与实现相关的顺序返回</span><br><span class="line"></span><br><span class="line">- 我们可以在创建B-tree索引时通过`ASC`、`DESC`、`NULLS FIRST`和`NULLS LAST`选项来改变索引的排序</span><br><span class="line"></span><br><span class="line">  ```sql</span><br><span class="line">  create index idx_name on table_name(column_name nulls first);</span><br><span class="line">  create index idx_name on table_name(column_name desc nulls last);</span><br><span class="line">  -- 这些东西在单列索引中会显得冗余，在多列索引中，可以使用</span><br><span class="line">  ... (column_name asc, y desc)或者(column_name desc, y asc)来定义索引针对特殊情况</span><br></pre></td></tr></table></figure></li>
+<li><p>只有查询子句中在索引列上使用了索引操作符类中的操作符并且通过<code>AND</code>连接时才能使用单一索引。例如，给定一个<code>(a, b)</code> 上的索引，查询条件<code>WHERE a = 5 AND b = 6</code>可以使用该索引，而查询<code>WHERE a = 5 OR b = 6</code>不能直接使用该索引</p>
+</li>
+<li><p>幸运的是，PostgreSQL具有组合多个索引（包括多次使用同一个索引）的能力来处理那些不 能用单个索引扫描实现的情况。系统能在多个索引扫描之间安排<code>AND</code>和<code>OR</code>条件。例如， <code>WHERE x = 42 OR x = 47 OR x = 53 OR x = 99</code>这样一个查询可以被分解成为四个独立的在<code>x</code>上索引扫描，每一个扫描使用其中一个条件。这些查询的结果将被“或”起来形成最后的结果。</p>
+</li>
+<li><p>为了组合多个索引，系统扫描每一个所需的索引并在内存中准备一个<em>位图</em>用于指示表中符合索引条件的行的位置。然后这些位图会被根据查询的需要“与”和“或”起来。最后，实际的表行将被访问并返回。表行将被以物理顺序访问，因为位图就是以这种顺序布局的。这意味着原始索引中的任何排序都会被丢失，并且如果存在一个<code>ORDER BY</code>子句就需要一个单独的排序步骤。由于这个原因以及每一个附加的索引都需要额外的时间，即使有额外的索引可用，规划器有时也会选择使用单一索引扫描。</p>
+</li>
+<li><p>多列索引会比组合索引更快</p>
+</li>
+<li><p>唯一索引</p>
+<ul>
+<li><code>CREATE UNIQUE INDEX name ON table (column [, ...]);</code></li>
+<li>只有B+树才能被声明成唯一索引</li>
+<li>PostgreSQL会自动为定义了一个唯一约束或主键的表创建一个唯一索引。该索引包含组成主键或唯一约束的所有列（可能是一个多列索引），它也是用于强制这些约束的机制。</li>
+</ul>
+</li>
+<li><p>postgres这个骚东西还能创建表达式索引表达式索引要加两层括号</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SELECT * FROM test1 WHERE lower(col1) = &#x27;value&#x27;;</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX test1_lower_col1_idx <span class="keyword">ON</span> test1 (<span class="built_in">lower</span>(col1));</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> INDEX test1_uniq_int <span class="keyword">ON</span> tests ((<span class="built_in">floor</span>(double_col)))</span><br><span class="line"><span class="comment">-- SELECT * FROM people WHERE (first_name || &#x27; &#x27; || last_name) = &#x27;John Smith&#x27;;</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX people_names <span class="keyword">ON</span> people ((first_name <span class="operator">||</span> <span class="string">&#x27; &#x27;</span> <span class="operator">||</span> last_name));</span><br></pre></td></tr></table></figure></li>
+<li><p>索引表达式的维护代价较为昂贵，因为在每一个行被插入或更新时都得为它重新计算相应的表达式。然而，索引表达式在进行索引搜索时却***不***需要重新计算，因为它们的结果已经被存储在索引中了。在上面两个例子中，系统将会发现查询的条件是<code>WHERE indexedcolumn = &#39;constant&#39;</code>，因此查询的速度将等同于其他简单索引查询。因此，表达式索引对于检索速度远比插入和更新速度重要的情况非常有用。</p>
+</li>
+<li><p>pg还可以创建部分索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX access_log_client_ip_ix <span class="keyword">ON</span> access_log (client_ip)</span><br><span class="line"><span class="keyword">WHERE</span> <span class="keyword">NOT</span> (client_ip <span class="operator">&gt;</span> inet <span class="string">&#x27;192.168.100.0&#x27;</span> <span class="keyword">AND</span></span><br><span class="line">           client_ip <span class="operator">&lt;</span> inet <span class="string">&#x27;192.168.100.255&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 部分索引查询要求公值能被预知，因此部分索引最适合于数据分布不会改变的情况。这样的索引也可以偶尔被重建来适应新的数据分布，但是这会增加维护负担。</span></span><br><span class="line"><span class="keyword">CREATE</span> INDEX orders_unbilled_index <span class="keyword">ON</span> orders (order_nr)</span><br><span class="line">    <span class="keyword">WHERE</span> billed <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 使用上个索引的查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> billed <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">true</span> <span class="keyword">AND</span> order_nr <span class="operator">&lt;</span> <span class="number">10000</span>;</span><br><span class="line"><span class="comment">-- 上面的索引也可以用于涉及到相关列的查询，不过效果不咋的</span></span><br><span class="line"><span class="comment">-- 下面这个查询不会使用上述索引</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> order_nr <span class="operator">=</span> <span class="number">3501</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 上例也显示索引列和谓词中使用的列并不需要匹配。PostgreSQL支持使用任意谓词的部分索引，只要其中涉及的只有被索引表的列。然而，记住谓词必须匹配在将要受益于索引的查询中使用的条件。更准确地，只有当系统能识别查询的WHERE条件从数学上索引的谓词时，一个部分索引才能被用于一个查询。PostgreSQL并不能给出一个精致的定理证明器来识别写成不同形式在数学上等价的表达式（一方面创建这种证明器极端困难，另一方面即便能创建出来对于实用也过慢）。系统可以识别简单的不等蕴含，例如“x &lt; 1”蕴含“x &lt; 2”；否则谓词条件必须准确匹配查询的WHERE条件中的部分，或者索引将不会被识别为可用。匹配发生在查询规划期间而不是运行期间。因此，参数化查询子句无法配合一个部分索引工作。例如，对于参数的所有可能值来说，一个具有参数“x &lt; ?”的预备查询绝不会蕴含“x &lt; 2”。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 部分索引的第三种可能的用途并不要求索引被用于查询。其思想是在一个表的子集上创建一个唯一索引，如下例所示。这对那些满足索引谓词的行强制了唯一性，而对那些不满足的行则没有影响。</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 假设我们有一个描述测试结果的表。我们希望保证其中对于一个给定的主题和目标组合只有一个“成功”项，但其中可能会有任意多个“不成功”项。实现它的方式是：</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> tests (</span><br><span class="line">    subject text,</span><br><span class="line">    target text,</span><br><span class="line">    success <span class="type">boolean</span>,</span><br><span class="line">    ...</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> INDEX tests_success_constraint <span class="keyword">ON</span> tests (subject, target)</span><br><span class="line">    <span class="keyword">WHERE</span> success;</span><br><span class="line"><span class="comment">-- 通过使用部分索引子句只处理空列值，该索引只允许索引列中有一个空值，并且用一个表达式索引子句来索引 true 来替代 null:</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">UNIQUE</span> INDEX tests_target_one_null <span class="keyword">ON</span> tests ((target <span class="keyword">IS</span> <span class="keyword">NULL</span>)) <span class="keyword">WHERE</span> target <span class="keyword">IS</span> <span class="keyword">NULL</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p><em>记住建立一个部分索引意味着我们知道的至少和查询规划器所知的一样多，尤其是我们知道什么时候一个索引会是有益的。构建这些知识需要经验和对于PostgreSQL中索引工作方式的理解。在大部分情况下，一个部分索引相对于一个普通索引的优势很小。</em></p>
+</li>
+<li><p>一个索引定义可以为索引中的每一列都指定一个<em>操作符类</em>。 这个东西存在的意义是：存在多个操作符类的原因是，对于某些数据类型可能会有多于一种的有意义的索引行为。例如，我们可能想要对一种复数数据类型按照绝对值排序或者按照实数部分排序。我们可以通过为该数据类型定义两个操作符类来实现，并且在创建一个索引时选择合适的类。</p>
+</li>
+<li><p><code>COPY</code>在 PostgreSQL表和标准文件系统文件之间 移动数据。<code>COPY TO</code>把一个表的内容复制 **<em>到*<strong>一个文件，而<code>COPY FROM</code> 则</strong></em>从***一个文件复制数据到一个表（把数据追加到表中原有数据）。<code>COPY TO</code>也能复制一个 <code>SELECT</code>查询的结果。</p>
+</li>
+<li><p>postgres查看配置文件所在路径 <code>show config_file</code>，需要superuser</p>
+</li>
+<li><p>两种锁模式之间真正的区别是它们有着不同的冲突锁模式集合（参考<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/explicit-locking.html#TABLE-LOCK-COMPATIBILITY">表 13.2</a>）。 两个事务在同一时刻不能在同一个表上持有属于相互冲突模式的锁（但是，一个事务决不会和自身冲突。例如，它可以在同一个表上获得<code>ACCESS EXCLUSIVE</code>锁然后接着获取<code>ACCESS SHARE</code>锁）。非冲突锁模式可以由许多事务同时持有。 请特别注意有些锁模式是自冲突的（例如，在一个时刻<code>ACCESS EXCLUSIVE</code>锁不能被多于一个事务持有)而其他锁模式不是自冲突的（例如，<code>ACCESS SHARE</code>锁可以被多个事务持有)。</p>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/25/Postgres/01.%E5%A5%87%E5%A5%87%E6%80%AA%E6%80%AA%E7%9A%84%E4%B8%9C%E8%A5%BF/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/03.SpringBoot实战" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="SpringBoot实战"><a href="#SpringBoot实战" class="headerlink" title="SpringBoot实战"></a>SpringBoot实战</h3><h5 id="一、自定义配置"><a href="#一、自定义配置" class="headerlink" title="一、自定义配置"></a>一、自定义配置</h5><h6 id="1、编写自己配置类"><a href="#1、编写自己配置类" class="headerlink" title="1、编写自己配置类"></a>1、编写自己配置类</h6><p>如果想要自定义配置，我们只需要编写自己的配置类，Spring Boot发现我们的配置类之后会把自动配置的优先级降低，使用自定义配置。主要依赖注解<code>@ConditionalOnMissing</code>实现</p>
+<p>对于<code>DataSourceAutoConfiguration</code>自动配置类来说</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AutoConfiguration(</span></span><br><span class="line"><span class="meta">    before = &#123;SqlInitializationAutoConfiguration.class&#125;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(&#123;DataSource.class, EmbeddedDatabaseType.class&#125;)</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean(</span></span><br><span class="line"><span class="meta">    type = &#123;&quot;io.r2dbc.spi.ConnectionFactory&quot;&#125;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(&#123;DataSourceProperties.class&#125;)</span></span><br><span class="line"><span class="meta">@Import(&#123;DataSourcePoolMetadataProvidersConfiguration.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataSourceAutoConfiguration</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>@ConditionalOnMissing</code>的作用是当已经存在注解中指定的Bean时，被修饰的类就不会被注册成Bean，这样能保证只有一个Bean的存在，用在配置中能够保证优先自定义配置生效</li>
+<li><code>@ConditionalOnClass</code>注解主要是说明classpath中必须有<code>DataSource.class</code>, <code>EmbeddedDatabaseType.class</code>两个类存在</li>
+</ul>
+<h6 id="2、配置文件配置"><a href="#2、配置文件配置" class="headerlink" title="2、配置文件配置"></a>2、配置文件配置</h6><p>自定义配置也可以通过配置文件进行配置，配置文件的优先级是：</p>
+<ol>
+<li>命令行参数</li>
+<li>Java:comp/env里面的参JNDI属性</li>
+<li>JVM属性变量</li>
+<li>操作系统环境变量</li>
+<li>随机生成的带<code>random.*</code>前缀的属性</li>
+<li>应用程序以外的<code>application.*</code>配置文件<ul>
+<li>位置一：在相对于应用程序运行的<code>./config</code>目录</li>
+<li>位置二：在应用程序运行的目录</li>
+</ul>
+</li>
+<li>打包在程序内的<code>application.*</code>配置文件<ul>
+<li>位置一：在<code>config</code>包中</li>
+<li>位置二：在<code>classpath</code>根目录</li>
+</ul>
+</li>
+<li>通过@PropertySource标注的属性源</li>
+<li>默认属性</li>
+</ol>
+<h5 id="二、测试"><a href="#二、测试" class="headerlink" title="二、测试"></a>二、测试</h5><h5 id="三、深入Actuator"><a href="#三、深入Actuator" class="headerlink" title="三、深入Actuator"></a>三、深入Actuator</h5>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/23/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/03.SpringBoot%E5%AE%9E%E6%88%98/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/02.粗略笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p><code>@ContextConfiguration</code>在加载Spring应用上下文的时候做了很多事情，但是它没能完整的加载Spring Boot，Spring Boot最终是由SpringApplcation加载的。这个东西可以显式加载，也可使用SpringBootServletInitializer。Spring Application不仅加载应用程序上下文，还会开启日志，加载外部属性（application.yml或application.properties），以及其他的Spring Boot特性，使用<code>@ContextConfiguration</code>得不到这些特性，对应SpringApplication的加载方式，有<code>@SpringApplicationConfiguration</code>注解</p>
+<ul>
+<li>SpringBoot 起步依赖主要是根据 <code>classpath</code>中是否包含相关的stater</li>
+</ul>
+</li>
+<li><p>ComponentScan的目录是在启动类的包及其子包中</p>
+</li>
+<li><p><code>@Profile</code>的作用：正常情况下，不管哪个profile处于激活状态，Java配置类中申明的所有Bean都会被创建，如果我们需要根据profile来创建Bean，@Profile可以实现这样的功能</p>
+</li>
+<li><p><code>@ConfigurationProperties</code>的作用</p>
+<ul>
+<li><p>场景一：使用<code>@ConfigurationProperties</code>和<code>@Component</code>注解到Bean上，这里<code>@Componet</code>代指同一类Bean的注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将类定义成一个Bean</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="comment">// 表示使用配置文件中前缀是fuck的值来初始化Bean的属性</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;fuck&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoBean</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">action</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Demo Bean is Created, Name is &quot;</span> + <span class="keyword">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">---</span><br><span class="line"><span class="comment">// 配置文件中</span></span><br><span class="line">fuck:</span><br><span class="line">  name: <span class="string">&quot;花泽香菜&quot;</span></span><br><span class="line">---</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line">Demo Bean is Created, Name is 花泽香菜</span><br></pre></td></tr></table></figure></li>
+<li><p>场景二：使用<code>@ConfigurationProperties</code>和<code>@Bean</code>注解在配置类的<code>Bean</code>定义方法上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;fuck&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> DemoBean2 <span class="title">getDemoBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  DemoBean2 demoBean2 = <span class="keyword">new</span> DemoBean2();</span><br><span class="line">  demoBean2.setName(<span class="string">&quot;哎呀卧槽&quot;</span>);</span><br><span class="line">  demoBean2.setPassword(UUID.randomUUID().toString());</span><br><span class="line">  <span class="keyword">this</span>.demoBean2 = demoBean2;</span><br><span class="line">  <span class="keyword">return</span> demoBean2;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 配置文件中同上</span></span><br><span class="line"><span class="comment">// @ConfigurationProperties会使用配置文件中的值覆盖自定义的值，为空则不覆盖</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line">DemoBean2(name=花泽香菜, password=ced9bf47-b0e3-4bb5-9eb6-eda7a7315f9a)</span><br></pre></td></tr></table></figure></li>
+<li><p>场景三：使用<code>@ConfigurationProperties</code>注解到普通类，然后再通过<code>@EnableConfigurationProperties</code>定义为<code>Bean</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;fuck&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoBean3</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">action</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;name is &quot;</span> + <span class="keyword">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 在其他类中可以</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(&#123;DemoBean3.class&#125;)</span></span><br><span class="line"><span class="comment">// 这样就能将DemoBean3注入到IoC容器中并根据配置文件初始化属性</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>关于<code>@EnableConfigurationProperties</code>注解的使用：</p>
+<p><em><code>@EnableConfigurationProperties</code>的作用是把springboot配置文件中的值与我们的xxxProperties.java的属性进行绑定，需要配合@ConfigurationProperties使用。</em></p>
+<p>首先我想说的是，不使用@EnableConfigurationProperties能否进行属性绑定呢？答案是肯定的！我们只需要给xxxProperties.java加上@Component注解，把它放到容器中，即可实现属性绑定。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>@RestController</code>注解</p>
+<ul>
+<li>类似于<code>@Controller</code>和<code>@Service</code>之类的能够被识别</li>
+<li>告诉Spring，控制器的所有处理方法直接写入响应体中，而不是将值放到模型中进行渲染</li>
+<li><code>@RestController</code> = <code>@Controller</code> + <code>@ResponseBody</code></li>
+</ul>
+</li>
+<li><p>```java<br>  @GetMapping(“/{id}”)<br>  public Integer getInteger(@PathVariable(“id”) Long id) {</p>
+<pre><code>// ...
+</code></pre>
+<p>  }<br>}</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- ```java</span><br><span class="line">  @RestController </span><br><span class="line">  // @RequestMapping中的produces属性表示该Controller的所有方法只会处理Accept头信息包含&quot;application/json&quot;的请求</span><br><span class="line">  // 这个Controller不仅会限制API只会生成Json的结果，同时还会允许其他控制器处理相同路径的请求，前提是这些请求不要求Json格式的输出</span><br><span class="line">  // 如果为了允许xml格式的输出，可以将produces设置成</span><br><span class="line">  /**</span><br><span class="line">      @RequestMapping(path=&quot;/design&quot; produces=&quot;application/json text/xml&quot;)</span><br><span class="line">   */</span><br><span class="line">  @RequestMapping(path=&quot;/design&quot;,              ⇽--- 处理针对“/design”的请求 </span><br><span class="line">                  produces=&quot;application/json&quot;) </span><br><span class="line">  // @CrossOrigin允许来自任何域的客户端消费该API</span><br><span class="line">  @CrossOrigin(origins=&quot;*&quot;)                        ⇽--- 允许跨域请求 </span><br><span class="line">  public class DesignTacoController &#123; &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/23/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/02.%E7%B2%97%E7%95%A5%E7%AC%94%E8%AE%B0/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/01.疑问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ol>
+<li><code>@AutoConfiguration</code>是干嘛用的？</li>
+<li></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/23/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-JVM/05.jmap命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="jmap命令"><a href="#jmap命令" class="headerlink" title="jmap命令"></a>jmap命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# jmap -h</span><br><span class="line">Usage:</span><br><span class="line">    jmap [option] &lt;pid&gt;</span><br><span class="line">        (to connect to running process)</span><br><span class="line">    jmap [option] &lt;executable &lt;core&gt;</span><br><span class="line">        (to connect to a core file)</span><br><span class="line">    jmap [option] [server_id@]&lt;remote server IP or hostname&gt;</span><br><span class="line">        (to connect to remote debug server)</span><br><span class="line"></span><br><span class="line">where &lt;option&gt; is one of:</span><br><span class="line">    &lt;none&gt;               to print same info as Solaris pmap</span><br><span class="line">    -heap                to print java heap summary</span><br><span class="line">    -histo[:live]        to print histogram of java object heap; if the &quot;live&quot;</span><br><span class="line">                         suboption is specified, only count live objects</span><br><span class="line">    -clstats             to print class loader statistics</span><br><span class="line">    -finalizerinfo       to print information on objects awaiting finalization</span><br><span class="line">    -dump:&lt;dump-options&gt; to dump java heap in hprof binary format</span><br><span class="line">                         dump-options:</span><br><span class="line">                           live         dump only live objects; if not specified,</span><br><span class="line">                                        all objects in the heap are dumped.</span><br><span class="line">                           format=b     binary format</span><br><span class="line">                           file=&lt;file&gt;  dump heap to &lt;file&gt;</span><br><span class="line">                         Example: jmap -dump:live,format=b,file=heap.bin &lt;pid&gt;</span><br><span class="line">    -F                   force. Use with -dump:&lt;dump-options&gt; &lt;pid&gt; or -histo</span><br><span class="line">                         to force a heap dump or histogram when &lt;pid&gt; does not</span><br><span class="line">                         respond. The &quot;live&quot; suboption is not supported</span><br><span class="line">                         in this mode.</span><br><span class="line">    -h | -help           to print this help message</span><br><span class="line">    -J&lt;flag&gt;             to pass &lt;flag&gt; directly to the runtime system</span><br></pre></td></tr></table></figure>
+
+<p>这个<code>jmap</code>usage部分和jstack一样，都是可以使用ip和jps得到的信息来使用</p>
+<p>参数解释：</p>
+<p>option： 选项参数。<br>pid： 需要打印配置信息的进程ID。<br>executable： 产生核心dump的Java可执行文件。<br>core： 需要打印配置信息的核心文件。<br>server-id 可选的唯一id，如果相同的远程主机上运行了多台调试服务器，用此选项参数标识服务器。<br>remote server IP or hostname 远程调试服务器的IP地址或主机名。<br>option解释</p>
+<p>no option： 查看进程的内存映像信息,类似 Solaris pmap 命令。<br>heap： 显示Java堆详细信息<br>histo[:live]： 显示堆中对象的统计信息<br>clstats：打印类加载器信息<br>finalizerinfo： 显示在F-Queue队列等待Finalizer线程执行finalizer方法的对象<br>dump:<dump-options>：生成堆转储快照<br>F： 当-dump没有响应时，使用-dump或者-histo参数. 在这个模式下,live子参数无效.<br>help：打印帮助信息<br>J<flag>：指定传递给运行jmap的JVM的参数</flag></dump-options></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/20/JVM/05.jmap%E5%91%BD%E4%BB%A4/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-JVM/04.jstack命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="Jstack命令"><a href="#Jstack命令" class="headerlink" title="Jstack命令"></a>Jstack命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Usage:</span><br><span class="line">    jstack [-l] &lt;pid&gt;</span><br><span class="line">        (to connect to running process)</span><br><span class="line">    jstack -F [-m] [-l] &lt;pid&gt;</span><br><span class="line">        (to connect to a hung process)</span><br><span class="line">    jstack [-m] [-l] &lt;executable&gt; &lt;core&gt;</span><br><span class="line">        (to connect to a core file)</span><br><span class="line">    jstack [-m] [-l] [server_id@]&lt;remote server IP or hostname&gt;</span><br><span class="line">        (to connect to a remote debug server)</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">    -F  to force a thread dump. Use when jstack &lt;pid&gt; does not respond (process is hung)</span><br><span class="line">    -m  to print both java and native frames (mixed mode)</span><br><span class="line">    -l  long listing. Prints additional information about locks</span><br><span class="line">    -h or -help to print this help message</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>jstack命令用于打印指定Java进程、核心文件或远程调试服务器的Java线程的Java堆栈跟踪信息</li>
+<li>jstack命令可以生成JVM当前时刻的线程快照。线程快照是当前JVM内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是<strong>定位线程出现长时间停顿的原因</strong>，如<strong>线程间死锁、死循环、请求外部资源导致的长时间等待</strong>等。</li>
+<li>如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息，从而可以轻松地知道java程序是如何崩溃和在程序何处发生问题。</li>
+<li>当指定的进程在64位Java虚拟机上运行时，可能需要指定-J-d64选项，例如:jstack -J-d64 -m pid。</li>
+</ol>
+<h3 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h3><blockquote>
+<p>jstack [ options ] pid</p>
+</blockquote>
+<p>pid：Java进程的ID，可以通过jps命令查询到。</p>
+<blockquote>
+<p>jstack [ options ] executable core</p>
+</blockquote>
+<p>executable： 产生core dump的Java可执行程序，这个也可以通过jps查询到</p>
+<p>core：要打印的堆栈跟踪的核心文件</p>
+<blockquote>
+<p>jstack [ options ] [ server-id@ ] remote-hostname-or-IP</p>
+</blockquote>
+<p>server-id：当多个DEBUG服务器在同一远程主机上运行时，可使用的可选唯一ID。</p>
+<p>remote-hostname-or-IP：远程DEBUG的服务器主机名或IP地址</p>
+<h3 id="options-参数说明"><a href="#options-参数说明" class="headerlink" title="options 参数说明"></a>options 参数说明</h3><blockquote>
+<p>-F</p>
+</blockquote>
+<p>当 jstack [-l] pid 没有响应时，强制打印一个堆栈转储。</p>
+<blockquote>
+<p>-l</p>
+</blockquote>
+<p>打印关于锁的其他信息，比如拥有的java.util.concurrent ownable同步器的列表。</p>
+<blockquote>
+<p>-m</p>
+</blockquote>
+<p>打印包含Java和本机C/ C++帧的混合模式堆栈跟踪。</p>
+<blockquote>
+<p>-h</p>
+</blockquote>
+<p>打印帮助信息</p>
+<blockquote>
+<p>-help</p>
+</blockquote>
+<p>打印帮助信息</p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/04.jstack%E5%91%BD%E4%BB%A4.assets/image-20220820173824312.png" alt="image-20220820173824312"></p>
+<h4 id="分析日志文件"><a href="#分析日志文件" class="headerlink" title="分析日志文件"></a>分析日志文件</h4><p>这里写一个死锁</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLockDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Thread a = <span class="keyword">new</span> MyThreadA();</span><br><span class="line">        Thread b = <span class="keyword">new</span> MyThreadB();</span><br><span class="line">        a.setName(<span class="string">&quot;线程A&quot;</span>);</span><br><span class="line">        a.start();</span><br><span class="line">        b.setName(<span class="string">&quot;线程B&quot;</span>);</span><br><span class="line">        b.start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThreadA</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;================B===================&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (A.A) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】开始执行&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">synchronized</span> (B.B) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】执行结束。B.B = &quot;</span> + B.B + <span class="string">&quot;; A.A = &quot;</span> + A.A);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThreadB</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;================B===================&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (B.B) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】开始执行&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">synchronized</span> (A.A) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】执行结束。B.B = &quot;</span> + B.B + <span class="string">&quot;; A.A = &quot;</span> + A.A);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Integer A = <span class="keyword">new</span> Integer(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Integer B = <span class="keyword">new</span> Integer(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>jstack -l pid</code>拿到的线程日志如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br></pre></td><td class="code"><pre><span class="line">2022-08-20 17:44:01</span><br><span class="line">Full thread dump OpenJDK 64-Bit Server VM (25.345-b01 mixed mode):</span><br><span class="line"></span><br><span class="line">&quot;Attach Listener&quot; #14 daemon prio=9 os_prio=31 tid=0x000000015180e800 nid=0x5903 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;DestroyJavaVM&quot; #13 prio=5 os_prio=31 tid=0x0000000151009000 nid=0x2903 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;线程B&quot; #12 prio=5 os_prio=31 tid=0x0000000151082800 nid=0xa803 waiting for monitor entry [0x0000000171fbe000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at MyThreadB.run(DeadLockDemo.java:46)</span><br><span class="line">	- waiting to lock &lt;0x000000076ad91398&gt; (a java.lang.Integer)</span><br><span class="line">	- locked &lt;0x000000076aed8ec0&gt; (a java.lang.Integer)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;线程A&quot; #11 prio=5 os_prio=31 tid=0x0000000151081800 nid=0xa903 waiting for monitor entry [0x0000000171db2000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at MyThreadA.run(DeadLockDemo.java:28)</span><br><span class="line">	- waiting to lock &lt;0x000000076aed8ec0&gt; (a java.lang.Integer)</span><br><span class="line">	- locked &lt;0x000000076ad91398&gt; (a java.lang.Integer)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Service Thread&quot; #10 daemon prio=9 os_prio=31 tid=0x0000000152072000 nid=0x3f03 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C1 CompilerThread3&quot; #9 daemon prio=9 os_prio=31 tid=0x0000000131009000 nid=0x3d03 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread2&quot; #8 daemon prio=9 os_prio=31 tid=0x0000000132009000 nid=0x4003 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread1&quot; #7 daemon prio=9 os_prio=31 tid=0x0000000132008800 nid=0x3b03 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread0&quot; #6 daemon prio=9 os_prio=31 tid=0x000000015303e800 nid=0x3a03 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Monitor Ctrl-Break&quot; #5 daemon prio=5 os_prio=31 tid=0x000000015103d000 nid=0x4403 runnable [0x0000000170f5e000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at java.net.SocketInputStream.socketRead0(Native Method)</span><br><span class="line">	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:171)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:141)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)</span><br><span class="line">	- locked &lt;0x000000076ac7c188&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.InputStreamReader.read(InputStreamReader.java:184)</span><br><span class="line">	at java.io.BufferedReader.fill(BufferedReader.java:161)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:324)</span><br><span class="line">	- locked &lt;0x000000076ac7c188&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:389)</span><br><span class="line">	at com.intellij.rt.execution.application.AppMainV2$1.run(AppMainV2.java:49)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Signal Dispatcher&quot; #4 daemon prio=9 os_prio=31 tid=0x0000000153039800 nid=0x4503 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Finalizer&quot; #3 daemon prio=8 os_prio=31 tid=0x0000000153033800 nid=0x3403 in Object.wait() [0x0000000170a2e000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x000000076ab08ef8&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)</span><br><span class="line">	- locked &lt;0x000000076ab08ef8&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)</span><br><span class="line">	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:216)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Reference Handler&quot; #2 daemon prio=10 os_prio=31 tid=0x0000000153030800 nid=0x3203 in Object.wait() [0x0000000170822000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x000000076ab06c08&gt; (a java.lang.ref.Reference$Lock)</span><br><span class="line">	at java.lang.Object.wait(Object.java:502)</span><br><span class="line">	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)</span><br><span class="line">	- locked &lt;0x000000076ab06c08&gt; (a java.lang.ref.Reference$Lock)</span><br><span class="line">	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;VM Thread&quot; os_prio=31 tid=0x000000015202a000 nid=0x3103 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#0&quot; os_prio=31 tid=0x000000015100c000 nid=0x1d07 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#1&quot; os_prio=31 tid=0x0000000151017800 nid=0x1e03 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#2&quot; os_prio=31 tid=0x0000000153808800 nid=0x2b03 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#3&quot; os_prio=31 tid=0x0000000153809000 nid=0x2c03 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#4&quot; os_prio=31 tid=0x000000015380a000 nid=0x5303 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#5&quot; os_prio=31 tid=0x000000015380a800 nid=0x2f03 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#6&quot; os_prio=31 tid=0x000000015380b800 nid=0x5203 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#7&quot; os_prio=31 tid=0x000000015380c000 nid=0x5003 runnable </span><br><span class="line"></span><br><span class="line">&quot;VM Periodic Task Thread&quot; os_prio=31 tid=0x0000000152073000 nid=0x5603 waiting on condition </span><br><span class="line"></span><br><span class="line">JNI global references: 15</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Found one Java-level deadlock:</span><br><span class="line">=============================</span><br><span class="line">&quot;线程B&quot;:</span><br><span class="line">  waiting to lock monitor 0x000000015202d8c0 (object 0x000000076ad91398, a java.lang.Integer),</span><br><span class="line">  which is held by &quot;线程A&quot;</span><br><span class="line">&quot;线程A&quot;:</span><br><span class="line">  waiting to lock monitor 0x00000001520300a0 (object 0x000000076aed8ec0, a java.lang.Integer),</span><br><span class="line">  which is held by &quot;线程B&quot;</span><br><span class="line"></span><br><span class="line">Java stack information for the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line">&quot;线程B&quot;:</span><br><span class="line">	at MyThreadB.run(DeadLockDemo.java:46)</span><br><span class="line">	- waiting to lock &lt;0x000000076ad91398&gt; (a java.lang.Integer)</span><br><span class="line">	- locked &lt;0x000000076aed8ec0&gt; (a java.lang.Integer)</span><br><span class="line">&quot;线程A&quot;:</span><br><span class="line">	at MyThreadA.run(DeadLockDemo.java:28)</span><br><span class="line">	- waiting to lock &lt;0x000000076aed8ec0&gt; (a java.lang.Integer)</span><br><span class="line">	- locked &lt;0x000000076ad91398&gt; (a java.lang.Integer)</span><br><span class="line"></span><br><span class="line">Found 1 deadlock.</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上面文件中能够找到<code>deadlock</code>说明发现了死锁</p>
+<p>通过下面部分可以定位到类和行数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Java stack information for the threads listed above:</span><br><span class="line">===================================================</span><br><span class="line">&quot;线程B&quot;:</span><br><span class="line">	at MyThreadB.run(DeadLockDemo.java:46)</span><br><span class="line">	- waiting to lock &lt;0x000000076ad91398&gt; (a java.lang.Integer)</span><br><span class="line">	- locked &lt;0x000000076aed8ec0&gt; (a java.lang.Integer)</span><br><span class="line">&quot;线程A&quot;:</span><br><span class="line">	at MyThreadA.run(DeadLockDemo.java:28)</span><br><span class="line">	- waiting to lock &lt;0x000000076aed8ec0&gt; (a java.lang.Integer)</span><br><span class="line">	- locked &lt;0x000000076ad91398&gt; (a java.lang.Integer)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>state = BLOCKED 表明线程的状态是阻塞的。</strong></p>
+<p><em><strong>通过com.example.MyThreadB.run()</strong> @bci=69, <strong>line=47</strong> (Interpreted frame)</em> 和*<strong>com.example.MyThreadA.run()</strong> @bci=69, <strong>line=29</strong> (Interpreted frame)*定位到了出现死锁的具体的类和行数。</p>
+<blockquote>
+<p><strong>Waiting on condition（等待资源）</strong></p>
+</blockquote>
+<p>该状态出现在线程等待某个条件的发生。最常见的情况是线程在等待网络的读写，比如当网络数据没有准备好读时，线程处于这种等待状态。而一旦有数据准备好读之后，线程会重新激活，读取并处理数据。</p>
+<p><strong>如果发现有大量的线程都在处在 Wait on condition，从线程堆栈看，正等待网络读写，这可能是一个网络瓶颈的征兆，</strong>因为网络阻塞导致线程无法执行，原因有两种：一种情况是网络非常忙，几 乎消耗了所有的带宽，仍然有大量数据等待网络读写；另一种情况也可能是网络空闲，但由于路由等问题，导致包无法正常的到达。</p>
+<p>另外一种出现 Wait on condition的常见情况是该线程在 sleep，等待 sleep的时间到了时候，将被唤醒。</p>
+<p><em>代码和日志分析参见下文【<strong>Blocked（阻塞）</strong>】部分的分析。</em></p>
+<blockquote>
+<p><strong>Waiting on monitor entry（等待获取监视器）</strong></p>
+</blockquote>
+<p>Monitor是 Java中用以实现线程之间的互斥与协作的主要手段，它可以看成是对象或者 Class的锁。每一个对象都有，也仅有一个 monitor。</p>
+<p><em>代码和日志分析参见下文【<strong>Blocked（阻塞）</strong>】部分的分析。</em></p>
+<p>测试代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Thread myThread = <span class="keyword">new</span> Thread() &#123;</span><br><span class="line">            <span class="meta">@SneakyThrows</span></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread());</span><br><span class="line">                    TimeUnit.SECONDS.sleep(<span class="number">60</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;; <span class="comment">// 到这一步，线程的状态是NEW</span></span><br><span class="line">        <span class="comment">// 给线程起个名字，方便排查问题</span></span><br><span class="line">        myThread.setName(<span class="string">&quot;测试线程&quot;</span>);</span><br><span class="line">        <span class="comment">// 到这一步，线程的状态是RUNNABLE</span></span><br><span class="line">        myThread.start();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (myThread) &#123;</span><br><span class="line">            System.out.println(Thread.currentThread());</span><br><span class="line">            TimeUnit.SECONDS.sleep(<span class="number">60</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>jstack -l</code> 信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br></pre></td><td class="code"><pre><span class="line">2022-08-20 18:20:25</span><br><span class="line">Full thread dump OpenJDK 64-Bit Server VM (25.345-b01 mixed mode):</span><br><span class="line"></span><br><span class="line">&quot;Attach Listener&quot; #12 daemon prio=9 os_prio=31 tid=0x0000000140017800 nid=0x5803 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;测试线程&quot; #11 prio=5 os_prio=31 tid=0x00000001420b5000 nid=0xa903 waiting for monitor entry [0x000000017248e000]</span><br><span class="line">   java.lang.Thread.State: BLOCKED (on object monitor)</span><br><span class="line">	at BlockTestDemo$1.run(BlockTestDemo.java:12)</span><br><span class="line">	- waiting to lock &lt;0x000000076ac2d150&gt; (a BlockTestDemo$1)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Service Thread&quot; #10 daemon prio=9 os_prio=31 tid=0x00000001420b3800 nid=0x4303 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C1 CompilerThread3&quot; #9 daemon prio=9 os_prio=31 tid=0x0000000141026000 nid=0x4503 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread2&quot; #8 daemon prio=9 os_prio=31 tid=0x0000000141025800 nid=0x4103 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread1&quot; #7 daemon prio=9 os_prio=31 tid=0x0000000141024800 nid=0x4603 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;C2 CompilerThread0&quot; #6 daemon prio=9 os_prio=31 tid=0x0000000141023800 nid=0x3e03 waiting on condition [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Monitor Ctrl-Break&quot; #5 daemon prio=5 os_prio=31 tid=0x000000014206f000 nid=0x4803 runnable [0x000000017163a000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line">	at java.net.SocketInputStream.socketRead0(Native Method)</span><br><span class="line">	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:171)</span><br><span class="line">	at java.net.SocketInputStream.read(SocketInputStream.java:141)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)</span><br><span class="line">	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)</span><br><span class="line">	- locked &lt;0x000000076ac7c158&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.InputStreamReader.read(InputStreamReader.java:184)</span><br><span class="line">	at java.io.BufferedReader.fill(BufferedReader.java:161)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:324)</span><br><span class="line">	- locked &lt;0x000000076ac7c158&gt; (a java.io.InputStreamReader)</span><br><span class="line">	at java.io.BufferedReader.readLine(BufferedReader.java:389)</span><br><span class="line">	at com.intellij.rt.execution.application.AppMainV2$1.run(AppMainV2.java:49)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Signal Dispatcher&quot; #4 daemon prio=9 os_prio=31 tid=0x0000000142030000 nid=0x3d03 runnable [0x0000000000000000]</span><br><span class="line">   java.lang.Thread.State: RUNNABLE</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Finalizer&quot; #3 daemon prio=8 os_prio=31 tid=0x000000014201b800 nid=0x4e03 in Object.wait() [0x000000017110a000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x000000076ab08ef8&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)</span><br><span class="line">	- locked &lt;0x000000076ab08ef8&gt; (a java.lang.ref.ReferenceQueue$Lock)</span><br><span class="line">	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)</span><br><span class="line">	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:216)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;Reference Handler&quot; #2 daemon prio=10 os_prio=31 tid=0x0000000142019000 nid=0x3303 in Object.wait() [0x0000000170efe000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait(Native Method)</span><br><span class="line">	- waiting on &lt;0x000000076ab06c08&gt; (a java.lang.ref.Reference$Lock)</span><br><span class="line">	at java.lang.Object.wait(Object.java:502)</span><br><span class="line">	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)</span><br><span class="line">	- locked &lt;0x000000076ab06c08&gt; (a java.lang.ref.Reference$Lock)</span><br><span class="line">	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;main&quot; #1 prio=5 os_prio=31 tid=0x0000000140808800 nid=0x1603 waiting on condition [0x000000016fa86000]</span><br><span class="line">   java.lang.Thread.State: TIMED_WAITING (sleeping)</span><br><span class="line">	at java.lang.Thread.sleep(Native Method)</span><br><span class="line">	at java.lang.Thread.sleep(Thread.java:342)</span><br><span class="line">	at java.util.concurrent.TimeUnit.sleep(TimeUnit.java:386)</span><br><span class="line">	at BlockTestDemo.main(BlockTestDemo.java:28)</span><br><span class="line">	- locked &lt;0x000000076ac2d150&gt; (a BlockTestDemo$1)</span><br><span class="line"></span><br><span class="line">   Locked ownable synchronizers:</span><br><span class="line">	- None</span><br><span class="line"></span><br><span class="line">&quot;VM Thread&quot; os_prio=31 tid=0x0000000142014000 nid=0x3203 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#0&quot; os_prio=31 tid=0x000000014080c000 nid=0x1f07 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#1&quot; os_prio=31 tid=0x0000000140817800 nid=0x2103 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#2&quot; os_prio=31 tid=0x0000000140818800 nid=0x2b03 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#3&quot; os_prio=31 tid=0x0000000140819000 nid=0x5403 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#4&quot; os_prio=31 tid=0x000000014081a000 nid=0x2e03 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#5&quot; os_prio=31 tid=0x000000014081a800 nid=0x5303 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#6&quot; os_prio=31 tid=0x000000014081b800 nid=0x3003 runnable </span><br><span class="line"></span><br><span class="line">&quot;ParGC Thread#7&quot; os_prio=31 tid=0x000000014081c000 nid=0x5103 runnable </span><br><span class="line"></span><br><span class="line">&quot;VM Periodic Task Thread&quot; os_prio=31 tid=0x00000001420b4800 nid=0x5603 waiting on condition </span><br><span class="line"></span><br><span class="line">JNI global references: 15</span><br></pre></td></tr></table></figure>
+
+<p>日志分析</p>
+<ul>
+<li><p><strong>日志格式</strong></p>
+</li>
+<li><ul>
+<li>**”*测试线程*“**代表线程的名称。在实际开发中，要取一个和业务相关、见名知意的名字，便于排查问题。</li>
+<li>“***prio=5***”表示线程的优先级。</li>
+<li>“***os_prio=0***”表示操作系统级别的优先级。</li>
+<li>“<em><strong>tid=0x000000001b27b000</strong></em>”表示线程id。</li>
+<li>“<em><strong>nid=0x1d68</strong></em>”表示操作系统映射的线程id。</li>
+<li>“<em><strong>waiting for monitor entry</strong></em>”表示线程正在获取锁。</li>
+<li>“0x000000001bbcf000”表示线程栈的起始地址。</li>
+</ul>
+</li>
+<li></li>
+<li><p>从程序输出信息可以看出，main线程首先获取到了”测试线程”对象上的锁，然后执行sleep操作，main线程的状态变为<strong>TIMED_WAINTING</strong>，而”测试线程” 并没有获取到这个锁，因此进入<strong>BLOCKED</strong>状态。</p>
+</li>
+<li><p>“测试线程”正在waiting to lock &lt;0x00000000d6349040&gt;，即试图在地址为0x00000000d6349040所在的对象获取锁；而该对象却被main线程加了锁（locked &lt;0x00000000d6349040&gt;）。</p>
+</li>
+<li><p>“main”线程正在waiting on condition [0x000000000342f000]，说明正在等待某个条件触发。而“测试线程”waiting for monitor entry [0x000000001bbcf000]，说明该线程正在等待获取锁。</p>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/20/JVM/04.jstack%E5%91%BD%E4%BB%A4/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-JVM/03.jstat命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="jstat命令"><a href="#jstat命令" class="headerlink" title="jstat命令"></a>jstat命令</h3><p>平时我们对运行中的系统，如果要检查他的JVM的整体运行情况，比较实用的工具之一，就是jstat<br>他可以轻易的让你看到当前运行中的系统，他的JVM内的Eden、Survivor、老年代的内存使用情况，还有Young GC和Full gC的执行次数以及耗时。<br>通过这些指标，我们可以轻松的分析出当前系统的运行情况，判断当前系统的内存使用压力以及GC压力，还有就是内存分配是否合<br>理。</p>
+<p><code>jstat -gc PID</code><br>运行这个命令之后会看到如下列，给大家解释一下：</p>
+<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820162127722.png" alt="image-20220820162127722">S0C：这是From Survivor区的大小<br>S1C：这是To Survivor区的大小<br>S0U：这是From Survivor区当前使用的内存大小<br>S1U：这是To Survivor区当前使用的内存大小<br>EC：这是Eden区的大小<br>EU：这是Eden区当前使用的内存大小<br>OC：这是老年代的大小<br>OU：这是老年代当前使用的内存大小<br>MC：这是方法区（永久代、元数据区）的大小<br>MU：这是方法区（永久代、元数据区)的当前使用的内存大小<br>YGC：这是系统运行迄今为止的Young GC次数<br>YGCT：这是Young GC的耗时<br>FGC：这是系统运行迄今为止的Full GC次数<br>FGCT：这是Full GC的耗时<br>GCT：这是所有GC的总耗时</p>
+<h6 id="其他的jstat命令"><a href="#其他的jstat命令" class="headerlink" title="其他的jstat命令"></a>其他的jstat命令</h6><p>除了上面的jstat -gc命令是最常用的以外，他还有一些命令可以看到更多详细的信息，如下所示：<br>jstat -gccapacity PID：堆内存分析</p>
+<p><img src="/Users/wubingcai/Documents/笔记/JVM/03.jstat命令.assets/image-20220820162504832.png" alt="image-20220820162504832" style="zoom:150%;">jstat -gcnew PID：年轻代GC分析，这里的TT和MTT可以看到对象在年轻代存活的年龄和存活的最大年龄</p>
+<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820165301981.png" alt="image-20220820165301981">jstat -gcnewcapacity PID：年轻代内存分析<br>jstat -gcold PID：老年代GC分析<br>jstat -gcoldcapacity PID：老年代内存分析<br>jstat -gcmetacapacity PID：元数据区内存分析</p>
+<p><strong>jstat -gc PID 1000 10</strong><br>这行命令，他的意思就是每隔1秒钟更新出来最新的一行jstat统计信息，一共执行10次jstat统计<br>通过这个命令，你可以非常灵活的对线上机器通过固定频率输出统计信息，观察每隔一段时间的jvm中的Eden区对象<br>占用变化。<br>比如给大家举个例子，执行这个命令之后，第一秒先显示出来Eden区使用了200MB内存，第二秒显示出来的那行统计<br>信息里，发信Eden区使用了205MB内存，第三秒显示出来的那行统计信息里，发现Eden区使用了209MB内存，以此<br>类推。<br>此时你可以轻易的推断出来，这个系统大概每秒钟会新增5MB左右的对象。</p>
+<p>而且这里大家可以根据自己系统的情况灵活多变的使用，比如你们系统负载很低，不一定每秒都有请求，那么可以把<br>上面的1秒钟调整为1分钟，甚至10分钟，去看你们系统每隔1分钟或者10分钟大概增长多少对象。<br>还有就是一般系统都有高峰和日常两种状态，比如系统高峰期用的人很多，此时你就应该在系统高峰期去用上述命令<br>看看高峰期的对象增长速率。然后你再得在非高峰的日常时间段内看看对象的增长速率。<br>按照上述思路，基本上你可以对线上系统的高峰和日常两个时间段内的对象增长速率有很清晰的了解。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-JVM/02.jps命令" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="JPS命令"><a href="#JPS命令" class="headerlink" title="JPS命令"></a>JPS命令</h3><p><strong>jps</strong>(Java Virtual Machine Process Status Tool)是java提供的一个显示当前所有java进程pid的命令，适合在linux/unix平台上简单察看当前java进程的一些简单情况。</p>
+<p>很多人都是用过unix系统里的ps命令，这个命令主要是用来显示当前系统的进程情况，有哪些进程以及进程id。jps 也是一样，它的作用是显示当前系统的java进程情况及进程id</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/02.jps命令.assets/image-20220820161113726.png" alt="image-20220820161113726" style="zoom:50%;">
+
+<h4 id="常用参数"><a href="#常用参数" class="headerlink" title="常用参数"></a>常用参数</h4><ul>
+<li><code>-q</code>  只显示pid，不显示class名称，jar文件名和传递给main方法的参数</li>
+</ul>
+<img src="/Users/wubingcai/Documents/笔记/JVM/02.jps命令.assets/image-20220820161220711.png" alt="image-20220820161220711" style="zoom:50%;">
+
+<ul>
+<li> <code>-m</code> 输出传递给main方法的参数，在嵌入式jvm上可能是null</li>
+</ul>
+<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/02.jps%E5%91%BD%E4%BB%A4.assets/image-20220820161440446.png" alt="image-20220820161440446"></p>
+<ul>
+<li><code>-l </code> 输出应用程序main class的完整package名或者应用程序的jar文件完整路径名</li>
+</ul>
+<img src="/Users/wubingcai/Documents/笔记/JVM/02.jps命令.assets/image-20220820161610868.png" alt="image-20220820161610868" style="zoom:50%;">
+
+<ul>
+<li><code>-v</code> 输出传递给JVM的参数</li>
+</ul>
+<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/02.jps%E5%91%BD%E4%BB%A4.assets/image-20220820161639318.png" alt="image-20220820161639318"></p>
+<ul>
+<li><code>-V</code> 隐藏输出传递给JVM的参数</li>
+</ul>
+<img src="/Users/wubingcai/Documents/笔记/JVM/02.jps命令.assets/image-20220820161703223.png" alt="image-20220820161703223" style="zoom:50%;">
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/20/JVM/02.jps%E5%91%BD%E4%BB%A4/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-JVM/01.JVM入门" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="JVM-入门"><a href="#JVM-入门" class="headerlink" title="JVM 入门"></a>JVM 入门</h3><h4 id="一、类的加载过程"><a href="#一、类的加载过程" class="headerlink" title="一、类的加载过程"></a>一、类的加载过程</h4><h6 id="加载过程介绍"><a href="#加载过程介绍" class="headerlink" title="加载过程介绍"></a>加载过程介绍</h6><p>如果JVM想要执行这个.class文件，我们需要将其装进一个类加载器中，这个JVM加载器就像是一个搬运工一样，会把所有的<code>.class</code>文件搬进JVM中</p>
+<img src="/Users/wubingcai/Library/Application Support/typora-user-images/image-20220819201314861.png" alt="image-20220819201314861" style="zoom:33%;">
+
+<p>重点知识</p>
+<ul>
+<li>Java文件通过便编译之后变成<code>.class</code>文件</li>
+<li>字节码文件通过类加载器被搬运到JVM虚拟机中</li>
+<li>虚拟机主要的5大块：<strong>方法区</strong>，<strong>堆</strong>为线程共享区域，有线程安全问题；<strong>栈</strong>和<strong>本地方法栈</strong>和<strong>计数器</strong>都是独享区域，不存在线程安全问题。JVM调优主要围绕堆、栈两大块进行</li>
+<li>方法区里面有运行时常量池，静态变量都存储在这里面<img src="/Users/wubingcai/Library/Application Support/typora-user-images/image-20220819210827265.png" alt="image-20220819210827265" style="zoom:50%;"></li>
+</ul>
+<h6 id="类加载流程"><a href="#类加载流程" class="headerlink" title="类加载流程"></a>类加载流程</h6><p>类加载过程包含了加载、验证、准备、解析、初始化五个阶段。在这五个阶段中，加载、验证、准备和初始化这四个阶段顺序是确定的，而解析阶段不一定，它在某些情况下可以在初始化阶段之后开始，这是为了支持Java的运行时绑定（也称为动态绑定或者晚期绑定）。这几个阶段只是按顺序开始，而不是按顺序进行或者完成。这些阶段通常是交叉的运行，通常在一个阶段的运行过程中调用另一个流程。</p>
+<p>![image-20220819212911233](/Users/wubingcai/Library/Application Support/typora-user-images/image-20220819212911233.png)</p>
+<p>​        </p>
+<ol>
+<li>加载：查找并加载类的二进制数据，在Java堆中创建一个java.lang.Class类对象</li>
+<li>连接：连接包含三个部分内容：<ol>
+<li>验证：文件格式，元数据，字节码，符号引用验证</li>
+<li>准备：为类的静态变量分配空间，并将其初始化成默认值</li>
+<li>解析：把类中的符号引用转换成直接引用</li>
+</ol>
+</li>
+<li>初始化：为类的静态变量赋予正确的初始值</li>
+<li>使用：new出对象进行使用</li>
+<li>卸载：执行垃圾回收</li>
+</ol>
+<h6 id="类加载器-（双亲委派机制）"><a href="#类加载器-（双亲委派机制）" class="headerlink" title="类加载器 （双亲委派机制）"></a>类加载器 （双亲委派机制）</h6><p>加载一个类的顺序也是有优先级的，类加载器从最底层开始网上的顺序是：</p>
+<ol>
+<li>BootStrap ClassLoader：rt.jar</li>
+<li>Extension ClassLoader：加载拓展的jar包</li>
+<li>App ClassLoader：指定classpath下面的jar包</li>
+<li>Custom ClassLoader：自定义的类加载器</li>
+</ol>
+<h4 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h4><h6 id="如何确定对象已经死亡"><a href="#如何确定对象已经死亡" class="headerlink" title="如何确定对象已经死亡"></a>如何确定对象已经死亡</h6><p>通常，判断一个对象是否死亡有两种判断方法</p>
+<ol>
+<li><p>引用计数算法</p>
+<p>为对象添加一个引用计数器，当对象被引用的时候，引用计数器+1，当对象引用失效的时候，引用计数器-1，当计数器为0的时候说明对象没有被引用</p>
+</li>
+<li><p>可达性分析算法</p>
+<p>通过一系列被称之为“GC Root”的根节点开始，沿着引用链进行搜索，凡是在引用链上的对象都不会被回收<img src="/Users/wubingcai/Library/Application Support/typora-user-images/image-20220819224534303.png" alt="image-20220819224534303" style="zoom: 50%;"></p>
+<p>上图中，绿色部分在GC Root的引用链中，不会被回收，灰色部分不在GC Root引用链中，会被判定成垃圾回收对象</p>
+</li>
+</ol>
+<h6 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h6><ul>
+<li><strong>标记-清除算法</strong></li>
+</ul>
+<p>标记清除算法通过对无效的对象进行标记，然后清除</p>
+<img src="/Users/wubingcai/Library/Application Support/typora-user-images/image-20220819225946945.png" alt="image-20220819225946945" style="zoom:50%;">
+
+<ul>
+<li><strong>复制算法</strong></li>
+</ul>
+<p>复制算法就是把Java堆分成两块，每次垃圾回收只使用其中一块，然后把存活对象全部移动到另外区域</p>
+<img src="https://mmbiz.qpic.cn/mmbiz_png/sXFqMxQoVLH1sibhR8TTTyfnDtlcUfyyVsrwDmnL4FsHG6W6K5JU0pa873EqstmBwZ6wicDAOek72LCQ5ShQbCqw/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片" style="zoom: 50%;">
+
+<ul>
+<li><strong>标记-整理算法</strong></li>
+</ul>
+<p>标记-整理算法就是一种折中的垃圾回收算法，在对象整理的过程中，和前面两种方法执行的步骤是一样的。但是，进行标记之后，存活的对象会移动到堆的另一边，然后清理存活对象以外的区域就可以了。这样做的好处是能够避免内存碎片，避免堆内存空间浪费。但是，这种方法每次进行垃圾回收的时候都要暂停所有的用户线程，特别是对老年代的对象回收，需要更长的时间，这种方法对用户的体验不是很好。<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640.png" alt="图片" style="zoom:50%;"></p>
+<h4 id="二、运行时数据区域"><a href="#二、运行时数据区域" class="headerlink" title="二、运行时数据区域"></a>二、运行时数据区域</h4><h6 id="什么是运行时数据区域"><a href="#什么是运行时数据区域" class="headerlink" title="什么是运行时数据区域"></a>什么是运行时数据区域</h6><p>Java程序在运行的时，会为JVM单独划出一块内存区域，而这块内存区域又可以划分出一块运行时数据区，运行时数据区大致可以分成五个部分</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220819234522309.png" alt="图片" style="zoom:50%;">
+
+<h6 id="Java堆（Heap）"><a href="#Java堆（Heap）" class="headerlink" title="Java堆（Heap）"></a>Java堆（Heap）</h6><p>栈管运行，堆管存储。则虚拟机栈负责运行代码，而虚拟机负责存储数据</p>
+<p>Java堆区具有下面几个特点：</p>
+<ul>
+<li>存储的是我们new来的对象，不存放基本类型和对象引用</li>
+<li>由于创建了大量的对象，垃圾回收器主要作用于堆</li>
+<li>线程共享区域，是线程不安全的</li>
+<li>能够发生OutOfMemoryError</li>
+</ul>
+<p>堆区又能分为<code>新生代</code>和<code>老年代</code>，其中，新生代又能分为<code>Eden区</code>, <code>Survivor1区</code>, <code>Survivor2区</code></p>
+<h6 id="虚拟机栈（JVM-Stacks）"><a href="#虚拟机栈（JVM-Stacks）" class="headerlink" title="虚拟机栈（JVM Stacks）"></a>虚拟机栈（JVM Stacks）</h6><ul>
+<li><p>Java虚拟机栈是线程私有的，每个线程独占一个虚拟机栈，虚拟机栈的生命周期和线程的生命周期相同 </p>
+</li>
+<li><p>虚拟机栈描述的是Java方法执行的内存模型：每个方法执行的时候都会同时创建一个虚拟机栈帧（Stack Frame）用于存储局部变量表、操作栈、动态链接、方法出口等信息。每个方法被调用直至完成的过程就对应虚拟机栈中出入栈的操作</p>
+</li>
+<li><p>存放基础数据类型（boolean, byte, char, short, int, float, long, double）以及对象的引用（reference类型，不等同于对象本身，根据不同的虚拟机实现，可能是指向对象起始地址的引用指针，也可能是一个代表对象的句柄或者其他与此对象相关的位置信息）和return Address类型（指向了一条字节码指令的地址）</p>
+</li>
+<li><p>这个区域可能有两种异常：如果线程请求的栈深度大于虚拟机栈的大小，就会抛出<code>StackOverflowError</code>异常，如果虚拟机栈可以扩建，当内存不够的时候会抛出<code>OutOfMemoryError</code>异常</p>
+</li>
+</ul>
+<h6 id="本地方法栈（Native-Method-Stacks）"><a href="#本地方法栈（Native-Method-Stacks）" class="headerlink" title="本地方法栈（Native Method Stacks）"></a>本地方法栈（Native Method Stacks）</h6><p>本地方法栈与虚拟机栈所发挥的作用是非常相似的，其区别不过是虚拟机栈为虚拟机执行Java方法（也就是字节码）服务，而本地方法栈则是为虚拟机使用到的Native方法服务。</p>
+<p>虚拟机规范中对本地方法栈中的方法使用的语言、使用方式与数据结构并没有强制规定，因此具体的虚拟机可以自由实现它。甚至有的虚拟机（譬如Sun HotSpot虚拟机）直接就把本地方法栈和虚拟机栈合二为一。与虚拟机栈一样，本地方法栈区域也会抛出StackOverflowError和OutOfMemoryError异常。</p>
+<h6 id="方法区（Method-Area）"><a href="#方法区（Method-Area）" class="headerlink" title="方法区（Method Area）"></a>方法区（Method Area）</h6><p>方法区的主要特点如下：</p>
+<ul>
+<li>线程共享区域，是线程不安全的</li>
+<li>用于存储已被虚拟机加载的类信息、常量、静态变量、即时编译器编译后的代码等数据</li>
+<li>当方法区无法满足内存分配的要求时，会抛出OOM异常</li>
+</ul>
+<h6 id="程序计数器（Program-Counter-Register）"><a href="#程序计数器（Program-Counter-Register）" class="headerlink" title="程序计数器（Program Counter Register）"></a>程序计数器（Program Counter Register）</h6><p>作用就是记录当前线程所执行的位置。这样，当线程重新获得CPU的执行权的时候，就直接从记录的位置开始执行，分支，循环，跳转，异常处理等都是依赖程序计数器来完成</p>
+<h4 id="JVM堆内存"><a href="#JVM堆内存" class="headerlink" title="JVM堆内存"></a>JVM堆内存</h4><h6 id="堆内存结构"><a href="#堆内存结构" class="headerlink" title="堆内存结构"></a>堆内存结构</h6><p>Java堆区可以划分成新生代和老年代，新生代又可以进一步划分成Eden区，S1区，S2区具体比例参数如图：</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820001645272.png" alt="图片" style="zoom:50%;">
+
+<h6 id="GC类型"><a href="#GC类型" class="headerlink" title="GC类型"></a>GC类型</h6><ul>
+<li>Minor GC/ Young GC：针对新生代的垃圾回收</li>
+<li>Major GC/Old GC：针对老年代的垃圾回收</li>
+<li>Full GC：针对整个Java堆以及方法区的垃圾回收</li>
+</ul>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820001942749.png" alt="图片" style="zoom:50%;">
+
+<h6 id="Minor-GC工作原理"><a href="#Minor-GC工作原理" class="headerlink" title="Minor GC工作原理"></a>Minor GC工作原理</h6><p>通常情况下，初次被创建的对象存放在新生代的Eden区中，当第一次触发Minor GC，Eden区存活的对象被转移至Survivor区的某一区域。以后再触发Minor GC的时候，Eden区的对象连同一块Survivor区的对象一起被转移到另外一块Survivor区中。可以看到，这两块Survivor区我们每次只使用其中的一块，这样也仅仅是浪费了一块Survivor区。</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820003402061.png" alt="图片" style="zoom: 67%;">
+
+
+
+<h6 id="Full-GC工作原理"><a href="#Full-GC工作原理" class="headerlink" title="Full GC工作原理"></a>Full GC工作原理</h6><p>老年代是存储长期存活的对象的，占满时就会触发Full GC，期间会停止所有的线程等待GC的完成，所以对于响应时间要求高的应用应该去尽量减少Full GC从而避免响应时间超时的问题</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820003633265.png" alt="图片" style="zoom: 50%;">
+
+<h4 id="GC日志"><a href="#GC日志" class="headerlink" title="GC日志"></a>GC日志</h4><h6 id="开启GC日志"><a href="#开启GC日志" class="headerlink" title="开启GC日志"></a>开启GC日志</h6><img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820113947776.png" alt="图片" style="zoom: 50%;">
+
+<h6 id="理解GC日志"><a href="#理解GC日志" class="headerlink" title="理解GC日志"></a>理解GC日志</h6><p>Minor GC日志</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820114012573.png" alt="图片" style="zoom: 67%;">
+
+<p>Full GC日志</p>
+<img src="/Users/wubingcai/Documents/笔记/JVM/01.JVM入门.assets/640-20220820114136927.png" alt="图片" style="zoom:67%;">
+
+<h4 id="JVM常用命令"><a href="#JVM常用命令" class="headerlink" title="JVM常用命令"></a>JVM常用命令</h4><p>Sun JDK监控和故障处理的常用命令有<code>jps</code>, <code>jstat</code>, <code>jmap</code>, <code>jhat</code>, <code>jstack</code>, <code>jinfo</code></p>
+<ul>
+<li>jps: JVM Process Status Tool，显示所有系统内的HotSpot虚拟机进程</li>
+<li>jstat: JVM statistics Monitioring 用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载，内存，垃圾收集，JIT编译等运行数据</li>
+<li>jmap:  dump堆到文件中，可用于对文件的分析</li>
+<li>Jhat: 原生用来分析dump文件的工具，不过现在不用了</li>
+<li>Jstack: Jstack用于生成当前的线程快照。线程快照是当前虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位长时间卡顿的线程，如线程间死锁，死循环，请求外部资源导致的长时间等待。线程出现停顿的时候通过jstack来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做什么事，或者等待什么资源</li>
+</ul>
+<h4 id="线程监测工具"><a href="#线程监测工具" class="headerlink" title="线程监测工具"></a>线程监测工具</h4><ul>
+<li>jconsole</li>
+<li>VisualVM</li>
+</ul>
+<h4 id="JVM调优"><a href="#JVM调优" class="headerlink" title="JVM调优"></a>JVM调优</h4><h6 id="选择合适的垃圾回收器"><a href="#选择合适的垃圾回收器" class="headerlink" title="选择合适的垃圾回收器"></a>选择合适的垃圾回收器</h6><ul>
+<li>CPU单核：Serial垃圾收集器是唯一选择</li>
+<li>CPU多核：关注吞吐量，选择PS+PO组合</li>
+<li>CPU多核：用户关注停顿时间，JDK在1.6～1.7，选择CMS</li>
+<li>CPU多核：用户关注停顿时间，JDK在1.8以上，JVM可用内存在6G以上，选择G1</li>
+</ul>
+<p>参数配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 设置Serial垃圾收集器（新生代）</span></span><br><span class="line">开启 -XX:+UseSerialGC</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置PS+PO，新生代使用功能Parallel Scavenge 老年代将会使用Parallel Old收集器</span></span><br><span class="line">开启 -XX:+UseParallelOldGC</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> CMS垃圾收集器（老年代）</span></span><br><span class="line">开启 -XX:+UseConcMarkSweepGC</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 开启G1垃圾收集器</span></span><br><span class="line">开启 -XX:+UseG1GC</span><br></pre></td></tr></table></figure>
+
+<h6 id="调整内存大小"><a href="#调整内存大小" class="headerlink" title="调整内存大小"></a>调整内存大小</h6><ul>
+<li><p>现象：垃圾收集频率非常频繁</p>
+</li>
+<li><p>原因：如果内存太小就会导致频繁进行垃圾收集才能释放出足够的空间来创建新的对象，这个时候需要增加堆内存</p>
+</li>
+<li><p>tips：如果垃圾回收次数非常频繁，但是每次能够回收的对象非常小，这个时候并非是内存太小，可能是内存泄漏导致对象无法回收，从而造成频繁GC</p>
+</li>
+</ul>
+<p>参数配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 设置堆初始值</span></span><br><span class="line">指令1: -Xms2G</span><br><span class="line">指令2: -XX:InitialHeapSize=2048m</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 设置堆区最大值</span></span><br><span class="line">指令1: -Xmx2G</span><br><span class="line">指令2: -XX:MaxHeapSize=2048m</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 新生代内存配置</span></span><br><span class="line">指令1: -Xmn512m</span><br><span class="line">指令2: -XX:MaxNewSize=512m</span><br></pre></td></tr></table></figure>
+
+<h6 id="设置符合预期的停顿时间"><a href="#设置符合预期的停顿时间" class="headerlink" title="设置符合预期的停顿时间"></a>设置符合预期的停顿时间</h6><p>现象：程序间歇性卡顿</p>
+<p>原因：如果没有确定的停顿时间设置，垃圾收集器以吞吐量为主，那么垃圾收集的时间就会不稳定</p>
+<p>注意：不要设置不切实际的停顿时间，单次时间越短也意味着需要更多的GC次数才能回收完原有数量的垃圾</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> GC停顿时间</span></span><br><span class="line">-XX:MaxGcPauseMillis</span><br></pre></td></tr></table></figure>
+
+
+
+<h6 id="调整内存区域大小比例"><a href="#调整内存区域大小比例" class="headerlink" title="调整内存区域大小比例"></a>调整内存区域大小比例</h6><p>现象：某个区域的GC频繁，其他地方正常</p>
+<p>原因：如果对应区域空间不足，导致需要频繁GC来释放空间，在JVM堆内存无法增减空间的情况下，可以调整内存区域的比例</p>
+<p>注意：也许并不是空间不足，可能是发生了内存泄漏</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> survivor和Eden区的内存比例</span></span><br><span class="line">-XX:SurvivorRatio=6 # S区和Eden区占新生代的比例为1:6，两个S区2:6</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 新生代和老年代的占比</span></span><br><span class="line">-XX:NewRatio=4 #表示新生代：老年代=1:4 即老年代占整个堆的4/5， 默认值是2</span><br></pre></td></tr></table></figure>
+
+<h6 id="调整对象升老年代的年龄"><a href="#调整对象升老年代的年龄" class="headerlink" title="调整对象升老年代的年龄"></a>调整对象升老年代的年龄</h6><p>现象：老年代频繁GC，每次回收的对象很多</p>
+<p>原因：如果升代年龄少，新生代的对象很快就进入老年代了，导致老年代对象变多，而这些对象在随后的很短时间会被回收，这时候可以调整对象的升代年龄，让对象不那么容易进入老年代解决老年代空间不足频繁GC的情况</p>
+<p>注意：增加了年龄之后，这些对象在新生代占用的时间变长可能导致新生代的GC频率增加并且频繁复制这些对象也会导致新生代的GC时间变长</p>
+<p>配置参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 进入老年代最小的GC年龄，年轻代对象转换成老年代的最小年龄值，默认值7</span></span><br><span class="line">-XX: InitialTenuringThreshol=7</span><br></pre></td></tr></table></figure>
+
+<h6 id="调整大对象的标准"><a href="#调整大对象的标准" class="headerlink" title="调整大对象的标准"></a>调整大对象的标准</h6><p>现象：老年代频繁GC，每次回收的对象很多，而且单个对象的体积都很大</p>
+<p>原因：如果大量的大对象直接被分配到老年代，导致老年代容易被填满而造成频繁GC，可设置对象直接进入老年代的标准</p>
+<p>注意：这些大对象进入新生代后会造成新生代的GC频繁</p>
+<p>配置参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 新生代可容纳的最大对象，大于则直接会被分配到老年代，0代表没有限制</span></span><br><span class="line">-XX:PretenureSizeThreshold=100000</span><br></pre></td></tr></table></figure>
+
+<h6 id="调整触发GC的时机"><a href="#调整触发GC的时机" class="headerlink" title="调整触发GC的时机"></a>调整触发GC的时机</h6><p>现象：CMS，G1经常Full GC，程序卡顿严重</p>
+<p>原因：G1和CMS部分GC是并行的，业务线程和垃圾收集线程一起工作，也就说明垃圾收集的过程中业务线程会产生新的对象，所以在GC时候，需要预留一部分内存空间来容纳新产生的对象，如果这个时候内存空间不足以容纳新产生的对象，那么JVM就会停止并发暂停所有业务线程（STW）来保证垃圾收集的正常进行。这个时候可以调整GC触发的时机（比如老年代占用60%就触发GC），这样可以预留足够的空间来让业务线程创建的对象有足够的内存空间分配</p>
+<p>注意：提早触发GC会增加老年代GC的频率</p>
+<p>配置参数</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 使用多少比例的老年代后开始CMS收集，默认是68%，如果频繁发生SerialOld卡顿，应该调小</span></span><br><span class="line">-XX:CMSInitiatingOccupancyFraction</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> G1混合垃圾回收周期中要包括的旧区域设置占用阈值，默认占用率是65%</span></span><br><span class="line">-XX:G1MixedGCLiveThresholdPercent=65</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="调整JVM本地内存大小"><a href="#调整JVM本地内存大小" class="headerlink" title="调整JVM本地内存大小"></a>调整JVM本地内存大小</h4><p>现象：GC的次数，时间和垃圾回收的对象都正常，堆内存空间充足，但是报OOM</p>
+<p>原因：JVM除了堆内存之外还有一块堆外内存，这片内存被叫做本地内存。这块内存不足了不会触发GC，只有在堆内存区域触发的时候顺带会把本地内存回收了，而一旦本地内存分配不足就会直接报OOM异常。</p>
+<p>注意：本地内存异常的时候除了上面的现象之外，异常信息可能是OutOfMemoryError：Direct buffer memory。解决方式除了调整本地内存大小之外，也可以在出现此异常时进行捕获，手动触发GC（System.gc()）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">XX:MaxDirectMemorySize</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="调试实战"><a href="#调试实战" class="headerlink" title="调试实战"></a>调试实战</h4><h6 id="网站流量浏览量暴增后，网站反应页面响很慢"><a href="#网站流量浏览量暴增后，网站反应页面响很慢" class="headerlink" title="网站流量浏览量暴增后，网站反应页面响很慢"></a>网站流量浏览量暴增后，网站反应页面响很慢</h6><p>1、问题推测：在测试环境测速度比较快，但是一到生产就变慢，所以推测可能是因为垃圾收集导致的业务线程停顿。</p>
+<p>2、定位：为了确认推测的正确性，在线上通过jstat -gc 指令 看到JVM进行GC 次数频率非常高，GC所占用的时间非常长，所以基本推断就是因为GC频率非常高，所以导致业务线程经常停顿，从而造成网页反应很慢。</p>
+<p>3、解决方案：因为网页访问量很高，所以对象创建速度非常快，导致堆内存容易填满从而频繁GC，所以这里问题在于新生代内存太小，所以这里可以增加JVM内存就行了，所以初步从原来的2G内存增加到16G内存。</p>
+<p>4、第二个问题：增加内存后的确平常的请求比较快了，但是又出现了另外一个问题，就是不定期的会间断性的卡顿，而且单次卡顿的时间要比之前要长很多。</p>
+<p>5、问题推测：练习到是之前的优化加大了内存，所以推测可能是因为内存加大了，从而导致单次GC的时间变长从而导致间接性的卡顿。</p>
+<p>6、定位：还是通过jstat -gc 指令 查看到 的确FGC次数并不是很高，但是花费在FGC上的时间是非常高的,根据GC日志 查看到单次FGC的时间有达到几十秒的。</p>
+<p>7、解决方案： 因为JVM默认使用的是PS+PO的组合，PS+PO垃圾标记和收集阶段都是STW，所以内存加大了之后，需要进行垃圾回收的时间就变长了，所以这里要想避免单次GC时间过长，所以需要更换并发类的收集器，因为当前的JDK版本为1.7，所以最后选择CMS垃圾收集器，根据之前垃圾收集情况设置了一个预期的停顿的时间，上线后网站再也没有了卡顿问题。</p>
+<h6 id="后台导出数据引发的OOM"><a href="#后台导出数据引发的OOM" class="headerlink" title="后台导出数据引发的OOM"></a>后台导出数据引发的OOM</h6><p><strong>问题描述：</strong>公司的后台系统，偶发性的引发OOM异常，堆内存溢出。</p>
+<p>1、因为是偶发性的，所以第一次简单的认为就是堆内存不足导致，所以单方面的加大了堆内存从4G调整到8G。</p>
+<p>2、但是问题依然没有解决，只能从堆内存信息下手，通过开启了-XX:+HeapDumpOnOutOfMemoryError参数 获得堆内存的dump文件。</p>
+<p>3、VisualVM 对  堆dump文件进行分析，通过VisualVM查看到占用内存最大的对象是String对象，本来想跟踪着String对象找到其引用的地方，但dump文件太大，跟踪进去的时候总是卡死，而String对象占用比较多也比较正常，最开始也没有认定就是这里的问题，于是就从线程信息里面找突破点。</p>
+<p>4、通过线程进行分析，先找到了几个正在运行的业务线程，然后逐一跟进业务线程看了下代码，发现有个引起我注意的方法，导出订单信息。</p>
+<p>5、因为订单信息导出这个方法可能会有几万的数据量，首先要从数据库里面查询出来订单信息，然后把订单信息生成excel，这个过程会产生大量的String对象。</p>
+<p>6、为了验证自己的猜想，于是准备登录后台去测试下，结果在测试的过程中发现到处订单的按钮前端居然没有做点击后按钮置灰交互事件，结果按钮可以一直点，因为导出订单数据本来就非常慢，使用的人员可能发现点击后很久后页面都没反应，结果就一直点，结果就大量的请求进入到后台，堆内存产生了大量的订单对象和EXCEL对象，而且方法执行非常慢，导致这一段时间内这些对象都无法被回收，所以最终导致内存溢出。</p>
+<p>7、知道了问题就容易解决了，最终没有调整任何JVM参数，只是在前端的导出订单按钮上加上了置灰状态，等后端响应之后按钮才可以进行点击，然后减少了查询订单信息的非必要字段来减少生成对象的体积，然后问题就解决了。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/19/JVM/01.JVM%E5%85%A5%E9%97%A8/">展开全文 >></a>
         </p>
       
 
@@ -541,7 +1367,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">« Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+      <a class="extend prev" rel="prev" href="/page/2/">« Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/4/">Next »</a>
     </nav>
   
 
@@ -639,15 +1465,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">前后端分离</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -659,14 +1489,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">前后端分离</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">JDBCTemplate_Spring</a>
               </li>
              
@@ -675,7 +1497,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
+                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -691,15 +1513,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Spring文件上传</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring文件上传</a>
               </li>
             
             <div class="clearfix"></div>
