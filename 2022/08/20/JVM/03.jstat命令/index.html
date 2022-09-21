@@ -15,14 +15,14 @@
 <meta property="og:site_name" content="WuBingCai">
 <meta property="og:description" content="jstat命令平时我们对运行中的系统，如果要检查他的JVM的整体运行情况，比较实用的工具之一，就是jstat他可以轻易的让你看到当前运行中的系统，他的JVM内的Eden、Survivor、老年代的内存使用情况，还有Young GC和Full gC的执行次数以及耗时。通过这些指标，我们可以轻松的分析出当前系统的运行情况，判断当前系统的内存使用压力以及GC压力，还有就是内存分配是否合理。 jstat">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820162127722.png">
-<meta property="og:image" content="http://example.com/Users/wubingcai/Documents/笔记/JVM/03.jstat命令.assets/image-20220820162504832.png">
-<meta property="og:image" content="http://example.com/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820165301981.png">
+<meta property="og:image" content="http://example.com/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820162127722.png">
+<meta property="og:image" content="http://example.com/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820162504832.png">
+<meta property="og:image" content="http://example.com/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820165301981.png">
 <meta property="article:published_time" content="2022-08-20T08:18:25.665Z">
-<meta property="article:modified_time" content="2022-08-20T08:59:12.245Z">
+<meta property="article:modified_time" content="2022-09-21T07:52:14.168Z">
 <meta property="article:author" content="WuBingCai">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820162127722.png">
+<meta name="twitter:image" content="http://example.com/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820162127722.png">
   
     <link rel="alternative" href="/atom.xml" title="WuBingCai" type="application/atom+xml">
   
@@ -149,10 +149,10 @@
       
         <h3 id="jstat命令"><a href="#jstat命令" class="headerlink" title="jstat命令"></a>jstat命令</h3><p>平时我们对运行中的系统，如果要检查他的JVM的整体运行情况，比较实用的工具之一，就是jstat<br>他可以轻易的让你看到当前运行中的系统，他的JVM内的Eden、Survivor、老年代的内存使用情况，还有Young GC和Full gC的执行次数以及耗时。<br>通过这些指标，我们可以轻松的分析出当前系统的运行情况，判断当前系统的内存使用压力以及GC压力，还有就是内存分配是否合<br>理。</p>
 <p><code>jstat -gc PID</code><br>运行这个命令之后会看到如下列，给大家解释一下：</p>
-<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820162127722.png" alt="image-20220820162127722">S0C：这是From Survivor区的大小<br>S1C：这是To Survivor区的大小<br>S0U：这是From Survivor区当前使用的内存大小<br>S1U：这是To Survivor区当前使用的内存大小<br>EC：这是Eden区的大小<br>EU：这是Eden区当前使用的内存大小<br>OC：这是老年代的大小<br>OU：这是老年代当前使用的内存大小<br>MC：这是方法区（永久代、元数据区）的大小<br>MU：这是方法区（永久代、元数据区)的当前使用的内存大小<br>YGC：这是系统运行迄今为止的Young GC次数<br>YGCT：这是Young GC的耗时<br>FGC：这是系统运行迄今为止的Full GC次数<br>FGCT：这是Full GC的耗时<br>GCT：这是所有GC的总耗时</p>
+<p><img src="/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820162127722.png" alt="image-20220820162127722">S0C：这是From Survivor区的大小<br>S1C：这是To Survivor区的大小<br>S0U：这是From Survivor区当前使用的内存大小<br>S1U：这是To Survivor区当前使用的内存大小<br>EC：这是Eden区的大小<br>EU：这是Eden区当前使用的内存大小<br>OC：这是老年代的大小<br>OU：这是老年代当前使用的内存大小<br>MC：这是方法区（永久代、元数据区）的大小<br>MU：这是方法区（永久代、元数据区)的当前使用的内存大小<br>YGC：这是系统运行迄今为止的Young GC次数<br>YGCT：这是Young GC的耗时<br>FGC：这是系统运行迄今为止的Full GC次数<br>FGCT：这是Full GC的耗时<br>GCT：这是所有GC的总耗时</p>
 <h6 id="其他的jstat命令"><a href="#其他的jstat命令" class="headerlink" title="其他的jstat命令"></a>其他的jstat命令</h6><p>除了上面的jstat -gc命令是最常用的以外，他还有一些命令可以看到更多详细的信息，如下所示：<br>jstat -gccapacity PID：堆内存分析</p>
-<p><img src="/Users/wubingcai/Documents/笔记/JVM/03.jstat命令.assets/image-20220820162504832.png" alt="image-20220820162504832" style="zoom:150%;">jstat -gcnew PID：年轻代GC分析，这里的TT和MTT可以看到对象在年轻代存活的年龄和存活的最大年龄</p>
-<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/03.jstat%E5%91%BD%E4%BB%A4.assets/image-20220820165301981.png" alt="image-20220820165301981">jstat -gcnewcapacity PID：年轻代内存分析<br>jstat -gcold PID：老年代GC分析<br>jstat -gcoldcapacity PID：老年代内存分析<br>jstat -gcmetacapacity PID：元数据区内存分析</p>
+<p><img src="/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820162504832.png" alt="image-20220820162504832" style="zoom:150%;">jstat -gcnew PID：年轻代GC分析，这里的TT和MTT可以看到对象在年轻代存活的年龄和存活的最大年龄</p>
+<p><img src="/2022/08/20/JVM/03.jstat%E5%91%BD%E4%BB%A4/image-20220820165301981.png" alt="image-20220820165301981">jstat -gcnewcapacity PID：年轻代内存分析<br>jstat -gcold PID：老年代GC分析<br>jstat -gcoldcapacity PID：老年代内存分析<br>jstat -gcmetacapacity PID：元数据区内存分析</p>
 <p><strong>jstat -gc PID 1000 10</strong><br>这行命令，他的意思就是每隔1秒钟更新出来最新的一行jstat统计信息，一共执行10次jstat统计<br>通过这个命令，你可以非常灵活的对线上机器通过固定频率输出统计信息，观察每隔一段时间的jvm中的Eden区对象<br>占用变化。<br>比如给大家举个例子，执行这个命令之后，第一秒先显示出来Eden区使用了200MB内存，第二秒显示出来的那行统计<br>信息里，发信Eden区使用了205MB内存，第三秒显示出来的那行统计信息里，发现Eden区使用了209MB内存，以此<br>类推。<br>此时你可以轻易的推断出来，这个系统大概每秒钟会新增5MB左右的对象。</p>
 <p>而且这里大家可以根据自己系统的情况灵活多变的使用，比如你们系统负载很低，不一定每秒都有请求，那么可以把<br>上面的1秒钟调整为1分钟，甚至10分钟，去看你们系统每隔1分钟或者10分钟大概增长多少对象。<br>还有就是一般系统都有高峰和日常两种状态，比如系统高峰期用的人很多，此时你就应该在系统高峰期去用上述命令<br>看看高峰期的对象增长速率。然后你再得在非高峰的日常时间段内看看对象的增长速率。<br>按照上述思路，基本上你可以对线上系统的高峰和日常两个时间段内的对象增长速率有很清晰的了解。</p>
 
@@ -317,27 +317,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">CSS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -349,47 +333,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">前后端分离</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JDBCTemplate_Spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SpringBoot</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Spring简介</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MyBatis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring文件上传</a>
+                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
               </li>
             
             <div class="clearfix"></div>

@@ -15,12 +15,12 @@
 <meta property="og:site_name" content="WuBingCai">
 <meta property="og:description" content="Jstack命令123456789101112131415Usage:    jstack [-l] &lt;pid&gt;        (to connect to running process)    jstack -F [-m] [-l] &lt;pid&gt;        (to connect to a hung process)    jstack [-m] [-l] &lt;e">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/04.jstack%E5%91%BD%E4%BB%A4.assets/image-20220820173824312.png">
+<meta property="og:image" content="http://example.com/2022/08/20/JVM/04.jstack%E5%91%BD%E4%BB%A4/image-20220820173824312.png">
 <meta property="article:published_time" content="2022-08-20T09:00:03.021Z">
-<meta property="article:modified_time" content="2022-08-20T10:25:10.480Z">
+<meta property="article:modified_time" content="2022-09-21T07:52:28.852Z">
 <meta property="article:author" content="WuBingCai">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/04.jstack%E5%91%BD%E4%BB%A4.assets/image-20220820173824312.png">
+<meta name="twitter:image" content="http://example.com/2022/08/20/JVM/04.jstack%E5%91%BD%E4%BB%A4/image-20220820173824312.png">
   
     <link rel="alternative" href="/atom.xml" title="WuBingCai" type="application/atom+xml">
   
@@ -187,7 +187,7 @@
 <p>-help</p>
 </blockquote>
 <p>打印帮助信息</p>
-<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/JVM/04.jstack%E5%91%BD%E4%BB%A4.assets/image-20220820173824312.png" alt="image-20220820173824312"></p>
+<h2 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h2><p><img src="/2022/08/20/JVM/04.jstack%E5%91%BD%E4%BB%A4/image-20220820173824312.png" alt="image-20220820173824312"></p>
 <h4 id="分析日志文件"><a href="#分析日志文件" class="headerlink" title="分析日志文件"></a>分析日志文件</h4><p>这里写一个死锁</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DeadLockDemo</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Thread a = <span class="keyword">new</span> MyThreadA();</span><br><span class="line">        Thread b = <span class="keyword">new</span> MyThreadB();</span><br><span class="line">        a.setName(<span class="string">&quot;线程A&quot;</span>);</span><br><span class="line">        a.start();</span><br><span class="line">        b.setName(<span class="string">&quot;线程B&quot;</span>);</span><br><span class="line">        b.start();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThreadA</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;================B===================&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (A.A) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】开始执行&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">synchronized</span> (B.B) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】执行结束。B.B = &quot;</span> + B.B + <span class="string">&quot;; A.A = &quot;</span> + A.A);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThreadB</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;================B===================&quot;</span>);</span><br><span class="line">        <span class="keyword">synchronized</span> (B.B) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】开始执行&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">synchronized</span> (A.A) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">&quot;线程【&quot;</span> + Thread.currentThread().getName() + <span class="string">&quot;】执行结束。B.B = &quot;</span> + B.B + <span class="string">&quot;; A.A = &quot;</span> + A.A);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Integer A = <span class="keyword">new</span> Integer(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> Integer B = <span class="keyword">new</span> Integer(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -404,27 +404,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">CSS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -436,47 +420,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">前后端分离</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JDBCTemplate_Spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SpringBoot</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Spring简介</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MyBatis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring文件上传</a>
+                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
               </li>
             
             <div class="clearfix"></div>

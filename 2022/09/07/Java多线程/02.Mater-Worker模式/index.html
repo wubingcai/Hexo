@@ -15,12 +15,12 @@
 <meta property="og:site_name" content="WuBingCai">
 <meta property="og:description" content="Master-Worker模式Master-Worker模式是常用的并行模式之一，它的核心思想是：系统由两类进程协同工作，即Master进程和Worker进程，Master负责接收和分配任务，Wroker负责处理子任务。当各个Worker进程将子任务处理完成后，将结果返回给Master进程，由Master进程进行汇总，从而得到最终的结果，其具体处理过程如下图所示：   Master进程为主要进程，">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/Users/wubingcai/Documents/笔记/Java多线程/02.Mater-Worker模式.assets/20141113102527554.png">
+<meta property="og:image" content="http://example.com/2022/09/07/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/20141113102527554.png">
 <meta property="article:published_time" content="2022-09-07T06:59:23.323Z">
-<meta property="article:modified_time" content="2022-09-07T07:56:04.477Z">
+<meta property="article:modified_time" content="2022-09-21T07:47:30.383Z">
 <meta property="article:author" content="WuBingCai">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/Users/wubingcai/Documents/笔记/Java多线程/02.Mater-Worker模式.assets/20141113102527554.png">
+<meta name="twitter:image" content="http://example.com/2022/09/07/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/20141113102527554.png">
   
     <link rel="alternative" href="/atom.xml" title="WuBingCai" type="application/atom+xml">
   
@@ -146,7 +146,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="Master-Worker模式"><a href="#Master-Worker模式" class="headerlink" title="Master-Worker模式"></a>Master-Worker模式</h2><p>Master-Worker模式是常用的并行模式之一，它的核心思想是：系统由两类进程协同工作，即Master进程和Worker进程，Master负责接收和分配任务，Wroker负责处理子任务。当各个Worker进程将子任务处理完成后，将结果返回给Master进程，由Master进程进行汇总，从而得到最终的结果，其具体处理过程如下图所示：</p>
-<img src="/Users/wubingcai/Documents/笔记/Java多线程/02.Mater-Worker模式.assets/20141113102527554.png" alt="img" style="zoom:67%;">
+<img src="/2022/09/07/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/20141113102527554.png" alt="img" style="zoom:67%;">
 
 <p>Master进程为主要进程，它维护一个Worker进程队列、子任务队列和子结果集。Worker进程队列中的Worker进程不停从任务队列中提取要处理的子任务，并将结果写入结果集</p>
 <p>示例</p>
@@ -316,27 +316,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">CSS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -348,47 +332,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">前后端分离</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JDBCTemplate_Spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SpringBoot</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Spring简介</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MyBatis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring文件上传</a>
+                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
               </li>
             
             <div class="clearfix"></div>

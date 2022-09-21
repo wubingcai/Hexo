@@ -138,67 +138,6 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Java多线程/00.Callabel接口" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Callable接口"><a href="#Callable接口" class="headerlink" title="Callable接口"></a>Callable接口</h2><h4 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h4><p>创建一个新的线程可以使用<code>new Thread()</code>, <code>实现Runnable</code>两种方式实现，但是上面两种方式都无法获取线程的返回值。这时可以使用<code>Callable</code>接口来实现</p>
-<p><code>Runnable接口</code>和<code>Callable</code>接口</p>
-<ul>
-<li>两者都可以用来创建线程</li>
-<li><code>Runnable</code>接口不能获取接口的结果，<code>Callable</code>接口可以</li>
-<li><code>Runnable</code>接口不能抛出异常，<code>Callable</code>接口可以抛出异常</li>
-</ul>
-<p><code>Callable</code>接口的特征</p>
-<ul>
-<li>为了实现<code>Runnable</code>需要实现不返回任何内容的<code>run()</code>方法，而对于<code>Callable</code>，需要实现返回结果的<code>call()</code>方法</li>
-<li><code>call()</code>方法可以引发异常，<code>run()</code>方法不能</li>
-<li>为了实现<code>Runnable</code>接口必须重写<code>call()</code>方法</li>
-<li><code>Callable</code>在<code>Thread()</code>构造方法中不能直接替换<code>Runnable</code>, 因为<code>Thread</code>构造方法中没有<code>Callable</code></li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/06/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/00.Callabel%E6%8E%A5%E5%8F%A3/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
     <article id="post-Java多线程/01.Future模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -207,7 +146,7 @@
         <h2 id="Future模式"><a href="#Future模式" class="headerlink" title="Future模式"></a>Future模式</h2><p>Future模式的核心在于：去除了主函数的等待时间，并使得原本需要等待的时间段可以用于处理其他业务逻辑（根据《Java程序性能优化》）。</p>
 <p>Future模式有点类似于商品订单。在网上购物时，提交订单后，在收货的这段时间里无需一直在家里等候，可以先干别的事情。类推到程序设计中时，当提交请求时，期望得到答复时，如果这个答复可能很慢。传统的时一直等待到这个答复收到时再去做别的事情，但如果利用Future设计模式就无需等待答复的到来，在等待答复的过程中可以干其他事情。</p>
 <p>例如如下的请求调用过程时序图。当call请求发出时，需要很长的时间才能返回。左边的图需要一直等待，等返回数据后才能继续其他操作；而右边的Future模式的图中客户端则无需等到可以做其他的事情。服务器段接收到请求后立即返回结果给客户端，这个结果并不是真实的结果（是虚拟的结果），也就是先获得一个假数据，然后执行其他操作。</p>
-<p><img src="/Users/wubingcai/Documents/%E7%AC%94%E8%AE%B0/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/01.Future%E6%A8%A1%E5%BC%8F.assets/20141112192253656.png" alt="img"></p>
+<p><img src="/2022/09/06/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/01.Future%E6%A8%A1%E5%BC%8F/20141112192253656.png" alt="img"></p>
 <h2 id="Future模式Java实现"><a href="#Future模式Java实现" class="headerlink" title="Future模式Java实现"></a>Future模式Java实现</h2><p>由于Future是非常常用的多线程设计模式，因此在JDK中内置了Future模式的实现。这些类在java.util.concurrent包里面。其中最为重要的是FutureTask类，它实现了Runnable接口，作为单独的线程运行。在其run()方法中，通过Sync内部类调用Callable接口，并维护Callable接口的返回对象。当使用FutureTask.get()方法时，将返回Callable接口的返回对象。</p>
 <h4 id="Future接口"><a href="#Future接口" class="headerlink" title="Future接口"></a><code>Future</code>接口</h4><p>当<code>call()</code>方法调用完成时，结果必须存储在主线程已知的对象中，以便主线程可以知道该线程返回的结果。为了实现这个目的，可以使用<code>Future</code>对象</p>
 <p>可以将<code>Future</code>视为保存对象的结果，即时现在不保存，在<code>call()</code>方法得到返回结果之后也会保存</p>
@@ -391,7 +330,7 @@
 </ol>
 <h3 id="三种用法"><a href="#三种用法" class="headerlink" title="三种用法"></a>三种用法</h3><ol>
 <li><h6 id="直接填写class数组的方式"><a href="#直接填写class数组的方式" class="headerlink" title="直接填写class数组的方式"></a>直接填写class数组的方式</h6><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(&#123;className1.class, className2.class ...&#125;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">classDemo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用@Import相当于在使用Bean的地方注册Bean</span></span><br><span class="line"><span class="comment">// @Component之类的是在Bean内注册Bean</span></span><br></pre></td></tr></table></figure></li>
-<li><h6 id="ImportSelector方式-重点"><a href="#ImportSelector方式-重点" class="headerlink" title="ImportSelector方式[重点]"></a>ImportSelector方式[重点]</h6><img src="/Users/wubingcai/Documents/笔记/SpringBoot实战笔记/04.@Import注解.assets/image-20220902115353711.png" alt="image-20220902115353711" style="zoom: 50%;">
+<li><h6 id="ImportSelector方式-重点"><a href="#ImportSelector方式-重点" class="headerlink" title="ImportSelector方式[重点]"></a>ImportSelector方式[重点]</h6><img src="/2022/09/02/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/04.@Import%E6%B3%A8%E8%A7%A3/image-20220902115353711.png" alt="image-20220902115353711" style="zoom: 50%;">
 
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(ImportSelectorDemoService.class)</span></span><br><span class="line"><span class="meta">@Component(value = &quot;useDemoService&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseDemoService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    DemoService demoService;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">useDemo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        demoService.demo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -770,9 +709,286 @@
 
 
   
+    <article id="post-Postgres/02.权限" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h1><p>一旦一个对象被创建，它会被分配一个所有者。所有者通常是执行创建语句的角色。对于大部分类型的对象，初始状态下只有所有者（或者超级用户）能够对该对象做任何事情。为了允许其他角色使用它，必须分配<em>权限</em>。</p>
+<p>有多种不同的权限：<code>SELECT</code>、<code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code>、<code>TRUNCATE</code>、<code>REFERENCES</code>、<code>TRIGGER</code>、<code>CREATE</code>、<code>CONNECT</code>、<code>TEMPORARY</code>、<code>EXECUTE</code>以及<code>USAGE</code>。可以应用于一个特定对象的权限随着对象的类型（表、函数等）而不同。</p>
+<p>修改或销毁一个对象的权力通常是只有所有者才有的权限。</p>
+<p>一个对象可以通过该对象类型相应的<code>ALTER</code>命令来重新分配所有者，例如</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name OWNER <span class="keyword">TO</span> new_owner;</span><br></pre></td></tr></table></figure>
+
+<p>超级用户总是可以做到这点，普通角色只有同时是对象的当前所有者（或者是拥有角色的一个成员）以及新拥有角色的一个成员时才能做同样的事。</p>
+<p>要分配权限，可以使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-grant.html">GRANT</a>命令。例如，如果<code>joe</code>是一个已有角色，而<code>accounts</code>是一个已有表，更新该表的权限可以按如下方式授权：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> UPDATE <span class="keyword">ON</span> accounts <span class="keyword">TO</span> joe;</span><br></pre></td></tr></table></figure>
+
+<p>用<code>ALL</code>取代特定权限会把与对象类型相关的所有权限全部授权。</p>
+<p>一个特殊的名为<code>PUBLIC</code>的“角色”可以用来向系统中的每一个角色授予一个权限。同时，在数据库中有很多用户时可以设置“组”角色来帮助管理权限。详见<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/user-manag.html">第 21 章</a>。</p>
+<p>为了撤销一个权限，使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-revoke.html">REVOKE</a> 命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">REVOKE</span> <span class="keyword">ALL</span> <span class="keyword">ON</span> accounts <span class="keyword">FROM</span> PUBLIC;</span><br></pre></td></tr></table></figure>
+
+<p>对象拥有者的特殊权限（即执行<code>DROP</code>、<code>GRANT</code>、<code>REVOKE</code>等的权力）总是隐式地属于拥有者，并且不能被授予或撤销。但是对象拥有者可以选择撤销他们自己的普通权限，例如把一个表变得对他们自己和其他人只读。</p>
+<p>一般情况下，只有对象拥有者（或者超级用户）可以授予或撤销一个对象上的权限。但是可以在授予权限时使用“<em><strong>with grant option</strong></em>”来允许接收人将权限转授给其他人。如果后来授予选项被撤销，则所有从接收人那里获得的权限（直接或者通过授权链获得）都将被撤销。更多详情请见<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-grant.html">GRANT</a>和<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-revoke.html">REVOKE</a>参考页。</p>
+<p>有效的权限如下:</p>
+<ul>
+<li><p><code>SELECT</code></p>
+<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-select.html">SELECT</a> 从任何列、或特定的列、表、视图、物化视图、或其他类似表格的对象。 也允许使用 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-copy.html">COPY</a> TO. 还需要这个权限来引用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-update.html">UPDATE</a> 或 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-delete.html">DELETE</a>中现有的列值。 对于序列，这个权限还允许使用<code>currval</code> 函数。对于大对象，此权限允许读取对象。</p>
+</li>
+<li><p><code>INSERT</code></p>
+<p>允许将新行的 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-insert.html">INSERT</a> 加入表、视图等等。 可以在特定列上授予，在这种情况下<code>INSERT</code>命令中只有那些列可以被分配（其他列将因此而收到默认值）。 还允许使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-copy.html">COPY</a> FROM。</p>
+</li>
+<li><p><code>UPDATE</code></p>
+<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-update.html">UPDATE</a> 更新任何列、或指定列、表、视图等等。 (实际上，任何有效的<code>UPDATE</code>命令也需要<code>SELECT</code>权限，因为它必须引用表列来确定要更新的行，和/或计算列的新值。) <code>SELECT ... FOR UPDATE</code>和<code>SELECT ... FOR SHARE</code>除了<code>SELECT</code>权限外，还需要至少一列上的这个权限。 对于序列，这个权限允许使用 <code>nextval</code> 和 <code>setval</code> 函数。对于大对象，此权限允许写入或截断对象。</p>
+</li>
+<li><p><code>DELETE</code></p>
+<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-delete.html">DELETE</a> 从表、视图等等中删除行. (实际上，任何有效的<code>DELETE</code>命令也需要<code>SELECT</code>权限，因为它必须引用表列来确定要删除的行。)</p>
+</li>
+<li><p><code>TRUNCATE</code></p>
+<p>允许在表、视图等等上 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-truncate.html">TRUNCATE</a> 。</p>
+</li>
+<li><p><code>REFERENCES</code></p>
+<p>允许创建引用表或表的特定列的外键约束。</p>
+</li>
+<li><p><code>TRIGGER</code></p>
+<p>允许在表、视图等等上创建触发器。</p>
+</li>
+<li><p><code>CREATE</code></p>
+<p>对于数据库，允许在数据库中创建新的模式和发布。对于模式，允许在模式中创建新对象。要重命名现有对象，你必须拥有对象 ***and***所包含模式的此权限。对于表空间，允许在表空间中创建表、索引和临时文件，并允许创建将表空间作为默认表空间的数据库。（注意，撤销此特权不会更改已有对象的位置。）</p>
+</li>
+<li><p><code>CONNECT</code></p>
+<p>允许受让者连接到数据库。此权限在连接启动时进行检查(加之<code>pg_hba.conf</code>施加的任何约束).</p>
+</li>
+<li><p><code>TEMPORARY</code></p>
+<p>允许在使用数据库时创建临时表。</p>
+</li>
+<li><p><code>EXECUTE</code></p>
+<p>允许调用函数或过程，包括使用在函数之上实现的任何运算符。这是适用于函数和过程的唯一权限类型。</p>
+</li>
+<li><p><code>USAGE</code></p>
+<p>对于程序语言，允许使用语言来创建该语言的函数。 这是适用于过程语言的唯一权限类型。对于模式，允许访问模式中包含的对象（假设对象自己的权限要求也已得到满足）。 从本质上讲，这允许受让者“look up”模式中的对象。如果没有此权限，仍可以看到对象名称，例如通过查询系统目录。 此外，在撤消此权限后，现有会话可能还具有以前执行过此查找的语句，因此这不是阻止对象访问的彻底安全的方法。对于序列, 允许使用<code>currval</code> 和 <code>nextval</code> 函数.对于类型和域，允许在创建表、函数和其他模式对象时使用类型或域。 （注意，此权限不控制类型的全部 “usage” ，例如查询中出现的类型的值。 它仅防止创建依赖于类型的对象。 此权限的主要目的是控制哪些用户可以对类型创建依赖项，这可能会防止所有者以后更改类型。 ）对于外部数据包装器，允许使用外部数据包装器创建新服务器。对于外部服务器，允许使用服务器创建外部表。受让者还可以创建、更改或删除与该服务器关联的自己的用户映射。</p>
+</li>
+</ul>
+<p>其他命令所需的权限罗列在相应命令的参考页上。</p>
+<p>在创建对象时，PostgreSQL默认将某些类型对象的权限授予<code>PUBLIC</code>。 默认情况下，在表、表列、序列、外部数据包装器、外部服务器、大型对象、模式或表空间上，不向<code>PUBLIC</code>授予权限。 对于其他类型的对象，授予 <code>PUBLIC</code>的默认权限如下所示： 针对数据库的<code>CONNECT</code>和<code>TEMPORARY</code>（创建临时表）权限; 针对函数和程序的<code>EXECUTE</code>权限;以及针对语言和数据类型（包括域）的<code>USAGE</code>权限。 当然，对象所有者可以<code>REVOKE</code>默认权限和特别授予的权限。 （为了最大程度的安全性，在创建对象的同一事务中发出<code>REVOKE</code>;那么就没有其他用户能够使用该对象的窗口。） 此外，可以使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-alterdefaultprivileges.html">ALTER DEFAULT PRIVILEGES</a>命令取代这些默认权限设置。</p>
+<p><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/ddl-priv.html#PRIVILEGE-ABBREVS-TABLE">表 5.1</a>显示了<em>ACL</em>（访问控制列表）值中用于这些权限类型的单字母缩写。 你将在下面列出的 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/app-psql.html">psql</a> 命令的输出中，或者在查看系统目录的 ACL 列时看到这些字母。</p>
+<p><strong>表 5.1. ACL 权限缩写</strong></p>
+<table>
+<thead>
+<tr>
+<th>权限</th>
+<th>缩写</th>
+<th>适用对象类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SELECT</code></td>
+<td><code>r</code> (“读”)</td>
+<td><code>LARGE OBJECT</code>, <code>SEQUENCE</code>, <code>TABLE</code> (and table-like objects), table column</td>
+</tr>
+<tr>
+<td><code>INSERT</code></td>
+<td><code>a</code> (“增补”)</td>
+<td><code>TABLE</code>, table column</td>
+</tr>
+<tr>
+<td><code>UPDATE</code></td>
+<td><code>w</code> (“写”)</td>
+<td><code>LARGE OBJECT</code>, <code>SEQUENCE</code>, <code>TABLE</code>, table column</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>d</code></td>
+<td><code>TABLE</code></td>
+</tr>
+<tr>
+<td><code>TRUNCATE</code></td>
+<td><code>D</code></td>
+<td><code>TABLE</code></td>
+</tr>
+<tr>
+<td><code>REFERENCES</code></td>
+<td><code>x</code></td>
+<td><code>TABLE</code>, table column</td>
+</tr>
+<tr>
+<td><code>TRIGGER</code></td>
+<td><code>t</code></td>
+<td><code>TABLE</code></td>
+</tr>
+<tr>
+<td><code>CREATE</code></td>
+<td><code>C</code></td>
+<td><code>DATABASE</code>, <code>SCHEMA</code>, <code>TABLESPACE</code></td>
+</tr>
+<tr>
+<td><code>CONNECT</code></td>
+<td><code>c</code></td>
+<td><code>DATABASE</code></td>
+</tr>
+<tr>
+<td><code>TEMPORARY</code></td>
+<td><code>T</code></td>
+<td><code>DATABASE</code></td>
+</tr>
+<tr>
+<td><code>EXECUTE</code></td>
+<td><code>X</code></td>
+<td><code>FUNCTION</code>, <code>PROCEDURE</code></td>
+</tr>
+<tr>
+<td><code>USAGE</code></td>
+<td><code>U</code></td>
+<td><code>DOMAIN</code>, <code>FOREIGN DATA WRAPPER</code>, <code>FOREIGN SERVER</code>, <code>LANGUAGE</code>, <code>SCHEMA</code>, <code>SEQUENCE</code>, <code>TYPE</code></td>
+</tr>
+</tbody></table>
+<p><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/ddl-priv.html#PRIVILEGES-SUMMARY-TABLE">表 5.2</a> 使用上面所示的缩写总结了每种类型 SQL 对象可用的权限. 它还显示可用于检查每种对象类型的特权设置的 psql 命令。</p>
+<p><strong>表 5.2. 访问权限摘要</strong></p>
+<table>
+<thead>
+<tr>
+<th>对象类型</th>
+<th>所有权限</th>
+<th>默认 <code>PUBLIC</code> 权限</th>
+<th>psql 命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DATABASE</code></td>
+<td><code>CTc</code></td>
+<td><code>Tc</code></td>
+<td><code>\l</code></td>
+</tr>
+<tr>
+<td><code>DOMAIN</code></td>
+<td><code>U</code></td>
+<td><code>U</code></td>
+<td><code>\dD+</code></td>
+</tr>
+<tr>
+<td><code>FUNCTION</code> or <code>PROCEDURE</code></td>
+<td><code>X</code></td>
+<td><code>X</code></td>
+<td><code>\df+</code></td>
+</tr>
+<tr>
+<td><code>FOREIGN DATA WRAPPER</code></td>
+<td><code>U</code></td>
+<td>none</td>
+<td><code>\dew+</code></td>
+</tr>
+<tr>
+<td><code>FOREIGN SERVER</code></td>
+<td><code>U</code></td>
+<td>none</td>
+<td><code>\des+</code></td>
+</tr>
+<tr>
+<td><code>LANGUAGE</code></td>
+<td><code>U</code></td>
+<td><code>U</code></td>
+<td><code>\dL+</code></td>
+</tr>
+<tr>
+<td><code>LARGE OBJECT</code></td>
+<td><code>rw</code></td>
+<td>none</td>
+<td></td>
+</tr>
+<tr>
+<td><code>SCHEMA</code></td>
+<td><code>UC</code></td>
+<td>none</td>
+<td><code>\dn+</code></td>
+</tr>
+<tr>
+<td><code>SEQUENCE</code></td>
+<td><code>rwU</code></td>
+<td>none</td>
+<td><code>\dp</code></td>
+</tr>
+<tr>
+<td><code>TABLE</code> (and table-like objects)</td>
+<td><code>arwdDxt</code></td>
+<td>none</td>
+<td><code>\dp</code></td>
+</tr>
+<tr>
+<td>Table column</td>
+<td><code>arwx</code></td>
+<td>none</td>
+<td><code>\dp</code></td>
+</tr>
+<tr>
+<td><code>TABLESPACE</code></td>
+<td><code>C</code></td>
+<td>none</td>
+<td><code>\db+</code></td>
+</tr>
+<tr>
+<td><code>TYPE</code></td>
+<td><code>U</code></td>
+<td><code>U</code></td>
+<td><code>\dT+</code></td>
+</tr>
+</tbody></table>
+<p>已授予特定对象的权限显示为<code>aclitem</code>项的列表，其中每个<code>aclitem</code>项描述了特定授予者授予给一个被授与者的权限。 例如，<code>calvin=r*w/hobbes</code> 指明角色<code>calvin</code>具有<code>SELECT</code>（<code>r</code>）权限和授予选项（<code>*</code>）以及不可授予权限<code>UPDATE</code>（<code>w</code>），均由角色<code>hobbes</code>授予。 如果<code>calvin</code>对由其他授予人授予的同一对象也具有一些权限，那将显示为单独的<code>aclitem</code>条目。 <code>aclitem</code> 中的空受赠方字段代表<code>PUBLIC</code>。</p>
+<p>例如，假设用户<code>miriam</code>创建了表<code>mytable</code>并且:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GRANT SELECT ON mytable TO PUBLIC;</span><br><span class="line">GRANT SELECT, UPDATE, INSERT ON mytable TO admin;</span><br><span class="line">GRANT SELECT (col1), UPDATE (col1) ON mytable TO miriam_rw;</span><br></pre></td></tr></table></figure>
+
+<p>则 psql的 <code>\dp</code> 命令将显示:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">=&gt; \dp mytable</span><br><span class="line">                                  Access privileges</span><br><span class="line"> Schema |  Name   | Type  |   Access privileges   |   Column privileges   | Policies</span><br><span class="line">-−-−-−-−+-−-−-−-−-+-−-−-−-+-−-−-−-−-−-−-−-−-−-−-−-+-−-−-−-−-−-−-−-−-−-−-−-+-−-−-−-−-−</span><br><span class="line"> public | mytable | table | miriam=arwdDxt/miriam+| col1:                +|</span><br><span class="line">        |         |       | =r/miriam            +|   miriam_rw=rw/miriam |</span><br><span class="line">        |         |       | admin=arw/miriam      |                       |</span><br><span class="line">(1 row)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果“Access privileges”列对于给定对象为空，则表示该对象具有默认权限（也就是说，它在相关系统目录中的权限条目为空）。 默认权限始终包含所有者的所有权限，并且可以包括 <code>PUBLIC</code> 的一些权限，具体取决于对象类型，如上所述。 对象上的第一个<code>GRANT</code>或<code>REVOKE</code>将实例化默认权限（例如，生成<code>miriam_arwdDxt/miriam</code>），然后根据指定的请求修改它们。 类似的，只有具有非默认特权的列的条目才显示在“Column privileges”中。（注意：为此目的，“default privileges”始终表示对象类型的内置缺省权限。其权限受<code>ALTER DEFAULT PRIVILEGES</code> 命令影响的对象将始终显示一个显式权限条目，其中包含 <code>ALTER</code>。）</p>
+<p>注意所有者的隐式授予选项没有在访问权限显示中标记。仅当授予选项被显式授予给某人时才会出现<code>*</code>。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/08/25/Postgres/02.%E6%9D%83%E9%99%90/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">« Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/3/">Next »</a>
+      <a class="extend prev" rel="prev" href="/">« Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next »</a>
     </nav>
   
 
@@ -858,27 +1074,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">CSS</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Spring</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -890,47 +1090,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">前后端分离</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">JDBCTemplate_Spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">AOP</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SpringBoot</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring事务控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">Spring简介</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">MyBatis</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">SSM框架</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpringMVC</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringMVC拦截器</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Spring文件上传</a>
+                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
               </li>
             
             <div class="clearfix"></div>
