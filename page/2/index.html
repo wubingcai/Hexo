@@ -138,37 +138,27 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Java多线程/01.Future模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Java多线程/03.不变模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Future模式"><a href="#Future模式" class="headerlink" title="Future模式"></a>Future模式</h2><p>Future模式的核心在于：去除了主函数的等待时间，并使得原本需要等待的时间段可以用于处理其他业务逻辑（根据《Java程序性能优化》）。</p>
-<p>Future模式有点类似于商品订单。在网上购物时，提交订单后，在收货的这段时间里无需一直在家里等候，可以先干别的事情。类推到程序设计中时，当提交请求时，期望得到答复时，如果这个答复可能很慢。传统的时一直等待到这个答复收到时再去做别的事情，但如果利用Future设计模式就无需等待答复的到来，在等待答复的过程中可以干其他事情。</p>
-<p>例如如下的请求调用过程时序图。当call请求发出时，需要很长的时间才能返回。左边的图需要一直等待，等返回数据后才能继续其他操作；而右边的Future模式的图中客户端则无需等到可以做其他的事情。服务器段接收到请求后立即返回结果给客户端，这个结果并不是真实的结果（是虚拟的结果），也就是先获得一个假数据，然后执行其他操作。</p>
-<p><img src="/2022/09/06/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/01.Future%E6%A8%A1%E5%BC%8F/20141112192253656.png" alt="img"></p>
-<h2 id="Future模式Java实现"><a href="#Future模式Java实现" class="headerlink" title="Future模式Java实现"></a>Future模式Java实现</h2><p>由于Future是非常常用的多线程设计模式，因此在JDK中内置了Future模式的实现。这些类在java.util.concurrent包里面。其中最为重要的是FutureTask类，它实现了Runnable接口，作为单独的线程运行。在其run()方法中，通过Sync内部类调用Callable接口，并维护Callable接口的返回对象。当使用FutureTask.get()方法时，将返回Callable接口的返回对象。</p>
-<h4 id="Future接口"><a href="#Future接口" class="headerlink" title="Future接口"></a><code>Future</code>接口</h4><p>当<code>call()</code>方法调用完成时，结果必须存储在主线程已知的对象中，以便主线程可以知道该线程返回的结果。为了实现这个目的，可以使用<code>Future</code>对象</p>
-<p>可以将<code>Future</code>视为保存对象的结果，即时现在不保存，在<code>call()</code>方法得到返回结果之后也会保存</p>
-<p><code>Future</code>基本上是主线程跟踪进度以及其他线程的结果的一种方式</p>
-<p>实现这个接口，必须重写5种方法，下面是几种重要的方法</p>
+        <h2 id="不变模式"><a href="#不变模式" class="headerlink" title="不变模式"></a>不变模式</h2><p>在并行开发的过程中，为了确保数据的一致性和正确性，需要对数据进行同步，同步操作消耗了CPU的一定资源，可以使用一种不可改变的对象，依靠其不变性来确保并行操作在没有同步的情况下依旧保持一致性和正确性。 </p>
+<p>不变模式的使用场景主要有两个条件</p>
 <ul>
-<li><code>boolean cancel(boolean mayInterruptIfRunning)</code>用于停止任务。如果任务未启动，不会继续执行，如果已经启动，根据<code>mayInterruptIfRunning</code>参数会尝试停止，这个方法返回后<code>isDone</code>为<code>true</code>；当这个方法返回<code>true</code>的时候，<code>isCancel</code>为<code>true</code></li>
-<li><code>V get() throws InterruptedException, ExecutionException;</code> 未完成时候会等待，完成后会返回结果</li>
-<li><code>boolean isDone();</code>当任务完成后返回<code>true</code>，当任务被终止，抛异常，调用<code>cancel</code>方法的时候也会返回<code>true</code></li>
+<li>当对象被创建之后，其内部的状态和数据不再发生任何改变</li>
+<li>对象需求被共享，被多线程频繁访问</li>
 </ul>
-<p>可以看到 Callable 和 Future 做两件事-Callable 与 Runnable 类似，因为它封装了要在另一个线程上运行的任务，而 Future 用于存储从另一个线程获得的结果。实际上，future 也可以与 Runnable 一起使用。要创建线程，需要 Runnable。为了获得结果，需要 future。</p>
-<h4 id="FutureTask类"><a href="#FutureTask类" class="headerlink" title="FutureTask类"></a><code>FutureTask</code>类</h4><p>Java 库具有具体的 FutureTask 类型，该类型实现 Runnable 和 Future，并方便地将两种功能组合在一起。 可以通过为其构造函数提供 Callable 来创建FutureTask。然后，将 FutureTask 对象提供给 Thread 的构造函数以创建Thread 对象。因此，间接地使用 Callable 创建线程。</p>
-<p><em>核心原理</em></p>
-<p>在主线程中需要执行比较耗时的操作，但又不想阻塞主线程时，可以将这些作业交给<code>Future</code>对象在后台完成</p>
-<ul>
-<li>当主线程需要的时候可以通过<code>Future</code>对象获取后台作业的执行状态或者执行结果</li>
-<li>一般<code>FutureTask</code>多用于耗时的计算结果，主线程可以完成自己的任务后再去获取执行结果</li>
-<li>只有计算完成后才能使用<code>get()</code>方法获取执行结果，否则将会阻塞</li>
-<li>一旦计算开始，不能重新开始或者取消计算</li>
-<li><code>get()</code>只计算一次，因此<code>get()</code>方法放到最后面</li>
-</ul>
-<h4 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyCallableThread</span> <span class="keyword">implements</span> <span class="title">Callable</span></span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;直接new的方法&quot;</span>);</span><br><span class="line"><span class="comment">//        Thread.sleep(3000);</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;1234&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ExecutionException, InterruptedException </span>&#123;</span><br><span class="line">        FutureTask&lt;Object&gt; futureTask1 = <span class="keyword">new</span> FutureTask&lt;&gt;(<span class="keyword">new</span> MyCallableThread());</span><br><span class="line">        FutureTask futureTask2 = <span class="keyword">new</span> FutureTask&lt;&gt;(() -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;Runnable 方法&quot;</span>);</span><br><span class="line">            Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;2234&quot;</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">new</span> Thread(futureTask1, <span class="string">&quot;futureTask1&quot;</span>).start();</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"><span class="comment">//            Thread.sleep(2000);</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">        &#125;</span><br><span class="line">        Object o = futureTask1.get();</span><br><span class="line">        System.out.println(o.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 不变模式的Java实现</p>
+<p>不变模式的Java实现特别简单，只需要下面4点即可</p>
+<ol>
+<li>去除所有<code>setter()</code>方法以及修改自身属性的方法</li>
+<li>将所有属性设置成<code>private</code>，并用<code>final</code>进行标记，确保其不能被修改</li>
+<li>确保没有子类可以继承该类</li>
+<li>有一个包含了所有属性的完整构造函数</li>
+</ol>
+<p>示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> invariantpattern;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoBean</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">    <span class="keyword">private</span> String privilege;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getPassword</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getPrivilege</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> privilege;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
       
@@ -182,7 +172,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/06/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/01.Future%E6%A8%A1%E5%BC%8F/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/09/07/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/03.%E4%B8%8D%E5%8F%98%E6%A8%A1%E5%BC%8F/">展开全文 >></a>
         </p>
       
 
@@ -1074,7 +1064,31 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Java多线程</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">Future模式</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Master-Worker模式</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1083,18 +1097,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">Synchronized</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
             
             <div class="clearfix"></div>

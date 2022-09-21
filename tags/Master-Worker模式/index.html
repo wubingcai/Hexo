@@ -6,17 +6,15 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>WuBingCai</title>
+  <title>Tag: Master-Worker模式 | WuBingCai</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="7.4. 组合查询两个查询的结果可以用集合操作并、交、差进行组合。语法是 123query1 UNION [ALL] query2query1 INTERSECT [ALL] query2query1 EXCEPT [ALL] query2  *query1和query2*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如 1query1 UNION query2 UNION quer">
-<meta property="og:type" content="article">
+  <meta name="description" content="WuBingCai">
+<meta property="og:type" content="website">
 <meta property="og:title" content="WuBingCai">
-<meta property="og:url" content="http://example.com/2022/08/25/Postgres/05.%E6%9F%A5%E8%AF%A2-%E7%BB%84%E5%90%88%E6%9F%A5%E8%AF%A2/index.html">
+<meta property="og:url" content="http://example.com/tags/Master-Worker%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="WuBingCai">
-<meta property="og:description" content="7.4. 组合查询两个查询的结果可以用集合操作并、交、差进行组合。语法是 123query1 UNION [ALL] query2query1 INTERSECT [ALL] query2query1 EXCEPT [ALL] query2  *query1和query2*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如 1query1 UNION query2 UNION quer">
+<meta property="og:description" content="WuBingCai">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-08-25T10:47:40.257Z">
-<meta property="article:modified_time" content="2022-08-25T10:47:59.411Z">
 <meta property="article:author" content="WuBingCai">
 <meta name="twitter:card" content="summary">
   
@@ -138,105 +136,60 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Postgres/05.查询-组合查询" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
+            
+  
+  
     
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="7-4-组合查询"><a href="#7-4-组合查询" class="headerlink" title="7.4. 组合查询"></a>7.4. 组合查询</h2><p>两个查询的结果可以用集合操作并、交、差进行组合。语法是</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">query1 UNION [ALL] query2</span><br><span class="line">query1 INTERSECT [ALL] query2</span><br><span class="line">query1 EXCEPT [ALL] query2</span><br></pre></td></tr></table></figure>
-
-<p>*<code>query1</code><em>和</em><code>query2</code>*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query1 UNION query2 UNION query3</span><br></pre></td></tr></table></figure>
-
-<p>实际执行的是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(query1 UNION query2) UNION query3</span><br></pre></td></tr></table></figure>
-
-
-
-<p><code>UNION</code>有效地把*<code>query2</code><em>的结果附加到</em><code>query1</code>*的结果上（不过我们不能保证这就是这些行实际被返回的顺序）。此外，它将删除结果中所有重复的行， 就象<code>DISTINCT</code>做的那样，除非你使用了<code>UNION ALL</code>。</p>
-<p><code>INTERSECT</code>返回那些同时存在于*<code>query1</code><em>和</em><code>query2</code>*的结果中的行，除非声明了<code>INTERSECT ALL</code>， 否则所有重复行都被消除。</p>
-<p><code>EXCEPT</code>返回所有在*<code>query1</code><em>的结果中但是不在</em><code>query2</code><em>的结果中的行（有时侯这叫做两个查询的</em>差*）。同样的，除非声明了<code>EXCEPT ALL</code>，否则所有重复行都被消除。</p>
-<p>为了计算两个查询的并、交、差，这两个查询必须是“并操作兼容的”，也就意味着它们都返回同样数量的列， 并且对应的列有兼容的数据类型，如<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/typeconv-union-case.html">第 10.5 节</a>中描述的那样。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
+    
       
       
-      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2022" class="archive-year">2022</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/" class="archive-article-date">
+  	<time datetime="2022-09-21T08:05:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-09-21</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/">Callable接口</a>
+    </h1>
+  
 
-      
+        <div class="article-info info-on-right">
+          
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Master-Worker模式</a>
+        		</li>
+      		
+		</ul>
+	</div>
 
-      
-      <div class="clearfix"></div>
-    </div>
+          
+
+        </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-  
-<nav id="article-nav">
-  
-    <a href="/2022/08/25/Postgres/06.%E6%9F%A5%E8%AF%A2-limit%E5%92%8Coffset/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          (no title)
-        
-      </div>
-    </a>
   
   
-    <a href="/2022/08/25/Postgres/04.%E6%9F%A5%E8%AF%A2-%E9%80%89%E6%8B%A9%E5%88%97%E8%A1%A8/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title"></div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-4-%E7%BB%84%E5%90%88%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.</span> <span class="toc-text">7.4. 组合查询</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-  
-  
+    </div></section>
   
 
-  
-
-  
-
-  
+    
 
 
           </div>
@@ -258,9 +211,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
+		isPost: false,
 		isArchive: false,
-		isTag: false,
+		isTag: true,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,

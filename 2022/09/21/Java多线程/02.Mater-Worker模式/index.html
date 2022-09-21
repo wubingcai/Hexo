@@ -6,19 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>WuBingCai</title>
+  <title>Callable接口 | WuBingCai</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="7.4. 组合查询两个查询的结果可以用集合操作并、交、差进行组合。语法是 123query1 UNION [ALL] query2query1 INTERSECT [ALL] query2query1 EXCEPT [ALL] query2  *query1和query2*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如 1query1 UNION query2 UNION quer">
+  <meta name="description" content="Master-Worker模式Master-Worker模式是常用的并行模式之一，它的核心思想是：系统由两类进程协同工作，即Master进程和Worker进程，Master负责接收和分配任务，Wroker负责处理子任务。当各个Worker进程将子任务处理完成后，将结果返回给Master进程，由Master进程进行汇总，从而得到最终的结果，其具体处理过程如下图所示：   Master进程为主要进程，">
 <meta property="og:type" content="article">
-<meta property="og:title" content="WuBingCai">
-<meta property="og:url" content="http://example.com/2022/08/25/Postgres/05.%E6%9F%A5%E8%AF%A2-%E7%BB%84%E5%90%88%E6%9F%A5%E8%AF%A2/index.html">
+<meta property="og:title" content="Callable接口">
+<meta property="og:url" content="http://example.com/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/index.html">
 <meta property="og:site_name" content="WuBingCai">
-<meta property="og:description" content="7.4. 组合查询两个查询的结果可以用集合操作并、交、差进行组合。语法是 123query1 UNION [ALL] query2query1 INTERSECT [ALL] query2query1 EXCEPT [ALL] query2  *query1和query2*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如 1query1 UNION query2 UNION quer">
+<meta property="og:description" content="Master-Worker模式Master-Worker模式是常用的并行模式之一，它的核心思想是：系统由两类进程协同工作，即Master进程和Worker进程，Master负责接收和分配任务，Wroker负责处理子任务。当各个Worker进程将子任务处理完成后，将结果返回给Master进程，由Master进程进行汇总，从而得到最终的结果，其具体处理过程如下图所示：   Master进程为主要进程，">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-08-25T10:47:40.257Z">
-<meta property="article:modified_time" content="2022-08-25T10:47:59.411Z">
+<meta property="og:image" content="http://example.com/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/20141113102527554.png">
+<meta property="article:published_time" content="2022-09-21T08:05:04.000Z">
+<meta property="article:modified_time" content="2022-09-21T08:05:46.283Z">
 <meta property="article:author" content="WuBingCai">
+<meta property="article:tag" content="Master-Worker模式">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/20141113102527554.png">
   
     <link rel="alternative" href="/atom.xml" title="WuBingCai" type="application/atom+xml">
   
@@ -138,26 +141,35 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Postgres/05.查询-组合查询" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Java多线程/02.Mater-Worker模式" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Callable接口
+    </h1>
+  
+
+        
+        <a href="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/" class="archive-article-date">
+  	<time datetime="2022-09-21T08:05:04.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-09-21</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="7-4-组合查询"><a href="#7-4-组合查询" class="headerlink" title="7.4. 组合查询"></a>7.4. 组合查询</h2><p>两个查询的结果可以用集合操作并、交、差进行组合。语法是</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">query1 UNION [ALL] query2</span><br><span class="line">query1 INTERSECT [ALL] query2</span><br><span class="line">query1 EXCEPT [ALL] query2</span><br></pre></td></tr></table></figure>
+        <h2 id="Master-Worker模式"><a href="#Master-Worker模式" class="headerlink" title="Master-Worker模式"></a>Master-Worker模式</h2><p>Master-Worker模式是常用的并行模式之一，它的核心思想是：系统由两类进程协同工作，即Master进程和Worker进程，Master负责接收和分配任务，Wroker负责处理子任务。当各个Worker进程将子任务处理完成后，将结果返回给Master进程，由Master进程进行汇总，从而得到最终的结果，其具体处理过程如下图所示：</p>
+<img src="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/20141113102527554.png" alt="img" style="zoom:67%;">
 
-<p>*<code>query1</code><em>和</em><code>query2</code>*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query1 UNION query2 UNION query3</span><br></pre></td></tr></table></figure>
+<p>Master进程为主要进程，它维护一个Worker进程队列、子任务队列和子结果集。Worker进程队列中的Worker进程不停从任务队列中提取要处理的子任务，并将结果写入结果集</p>
+<p>示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> masterworkerpattern;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractWorker</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line">    <span class="comment">// 任务队列</span></span><br><span class="line">    <span class="keyword">protected</span> Queue&lt;Object&gt; workQueue;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 任务结果集</span></span><br><span class="line">    <span class="keyword">protected</span> Map&lt;String, Object&gt; resultMap;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWorkQueue</span><span class="params">(Queue workQueue)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.workQueue = workQueue;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setResultMap</span><span class="params">(Map resultMap)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.resultMap = resultMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 让子类去处理逻辑</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Object <span class="title">handle</span><span class="params">(Object input)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="comment">// 获取任务</span></span><br><span class="line">            Object input = workQueue.poll();</span><br><span class="line">            <span class="keyword">if</span> (input == <span class="keyword">null</span>) <span class="keyword">break</span>;</span><br><span class="line">            Object handle = handle(input);</span><br><span class="line">            <span class="comment">// 将处理结果写进结果集</span></span><br><span class="line">            <span class="keyword">this</span>.resultMap.put(Integer.toString(input.hashCode()), handle);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>实际执行的是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(query1 UNION query2) UNION query3</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> masterworkerpattern;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentLinkedQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Master</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 任务队列</span></span><br><span class="line">    <span class="keyword">protected</span> Queue&lt;Object&gt; workQueue = <span class="keyword">new</span> ConcurrentLinkedQueue&lt;&gt;();</span><br><span class="line">    <span class="comment">// Worker进程队列</span></span><br><span class="line">    <span class="keyword">protected</span> Map&lt;String, Thread&gt; threadMap = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line">    <span class="comment">// 子任务处理结果集</span></span><br><span class="line">    <span class="keyword">protected</span> Map&lt;String, Object&gt; resultMap = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Master</span><span class="params">(AbstractWorker worker, Integer workerCounter)</span> </span>&#123;</span><br><span class="line">        worker.setWorkQueue(<span class="keyword">this</span>.workQueue);</span><br><span class="line">        worker.setResultMap(<span class="keyword">this</span>.resultMap);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> count = <span class="number">0</span>; count &lt; workerCounter; count ++ ) &#123;</span><br><span class="line">            threadMap.put(Integer.toString(count), <span class="keyword">new</span> Thread(worker, Integer.toString(count)));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 是否所有子任务都完成了</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isComplete</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;String, Thread&gt; entry : threadMap.entrySet()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (entry.getValue().getState() != Thread.State.TERMINATED) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 提交一个子任务</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">submit</span><span class="params">(Object obj)</span> </span>&#123;</span><br><span class="line">        workQueue.add(obj);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回子任务结果集</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title">getResultMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.resultMap;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行所有的Worker进程，进行处理</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (Map.Entry&lt;String, Thread&gt; entry : threadMap.entrySet()) &#123;</span><br><span class="line">            entry.getValue().start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-
-
-<p><code>UNION</code>有效地把*<code>query2</code><em>的结果附加到</em><code>query1</code>*的结果上（不过我们不能保证这就是这些行实际被返回的顺序）。此外，它将删除结果中所有重复的行， 就象<code>DISTINCT</code>做的那样，除非你使用了<code>UNION ALL</code>。</p>
-<p><code>INTERSECT</code>返回那些同时存在于*<code>query1</code><em>和</em><code>query2</code>*的结果中的行，除非声明了<code>INTERSECT ALL</code>， 否则所有重复行都被消除。</p>
-<p><code>EXCEPT</code>返回所有在*<code>query1</code><em>的结果中但是不在</em><code>query2</code><em>的结果中的行（有时侯这叫做两个查询的</em>差*）。同样的，除非声明了<code>EXCEPT ALL</code>，否则所有重复行都被消除。</p>
-<p>为了计算两个查询的并、交、差，这两个查询必须是“并操作兼容的”，也就意味着它们都返回同样数量的列， 并且对应的列有兼容的数据类型，如<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/typeconv-union-case.html">第 10.5 节</a>中描述的那样。</p>
 
       
 
@@ -166,6 +178,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Master-Worker模式</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
@@ -179,17 +202,17 @@
   
 <nav id="article-nav">
   
-    <a href="/2022/08/25/Postgres/06.%E6%9F%A5%E8%AF%A2-limit%E5%92%8Coffset/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/01.Future%E6%A8%A1%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          (no title)
+          Callable接口
         
       </div>
     </a>
   
   
-    <a href="/2022/08/25/Postgres/04.%E6%9F%A5%E8%AF%A2-%E9%80%89%E6%8B%A9%E5%88%97%E8%A1%A8/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2022/09/14/Nacos/01.Nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/" id="article-nav-older" class="article-nav-link-wrap">
       <div class="article-nav-title"></div>
       <i class="icon-circle-right"></i>
     </a>
@@ -217,7 +240,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#7-4-%E7%BB%84%E5%90%88%E6%9F%A5%E8%AF%A2"><span class="toc-number">1.</span> <span class="toc-text">7.4. 组合查询</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Master-Worker%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.</span> <span class="toc-text">Master-Worker模式</span></a></li></ol>
                     </div>
                 </span>
             </div>
