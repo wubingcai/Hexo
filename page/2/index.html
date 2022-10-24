@@ -138,28 +138,65 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-Java多线程/03.不变模式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-RocketMQ/01.基本概念" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/23/RocketMQ/01.%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">RocketMQ基本概念</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/23/RocketMQ/01.%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/" class="archive-article-date">
+  	<time datetime="2022-10-23T15:23:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-23</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="不变模式"><a href="#不变模式" class="headerlink" title="不变模式"></a>不变模式</h2><p>在并行开发的过程中，为了确保数据的一致性和正确性，需要对数据进行同步，同步操作消耗了CPU的一定资源，可以使用一种不可改变的对象，依靠其不变性来确保并行操作在没有同步的情况下依旧保持一致性和正确性。 </p>
-<p>不变模式的使用场景主要有两个条件</p>
-<ul>
-<li>当对象被创建之后，其内部的状态和数据不再发生任何改变</li>
-<li>对象需求被共享，被多线程频繁访问</li>
+        <h1 id="RocketMQ中的基本概念"><a href="#RocketMQ中的基本概念" class="headerlink" title="RocketMQ中的基本概念"></a>RocketMQ中的基本概念</h1><ul>
+<li><code>主题Topic</code> 消息传输和存储逻辑顶级容器，用来表示同一类业务逻辑的消息，使用<code>TopicName</code>进行区分</li>
+<li><code>消息类型MessageType</code> 根据消息传输特性进行分类，主要是用来进行类型管理和安全校验<ul>
+<li>普通消息</li>
+<li>顺序消息</li>
+<li>事务消息</li>
+<li>延时/定时消息</li>
 </ul>
-<p> 不变模式的Java实现</p>
-<p>不变模式的Java实现特别简单，只需要下面4点即可</p>
-<ol>
-<li>去除所有<code>setter()</code>方法以及修改自身属性的方法</li>
-<li>将所有属性设置成<code>private</code>，并用<code>final</code>进行标记，确保其不能被修改</li>
-<li>确保没有子类可以继承该类</li>
-<li>有一个包含了所有属性的完整构造函数</li>
-</ol>
-<p>示例</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> invariantpattern;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> lombok.AllArgsConstructor;</span><br><span class="line"></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoBean</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line">    <span class="keyword">private</span> String privilege;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getPassword</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getPrivilege</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> privilege;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+</li>
+<li><code>消息队列MessageQueue</code> 队列是消息的最小存储单元，消息传输和存储的实际容器。<code>Topic</code>由多个队列组成，在<code>Topic</code>内部实现了队列数量的水平拆分和队列内部的流式存储。队列是通过<code>QueueID</code>来作唯一标识和拆分的</li>
+<li><code>消息Message</code> 消息是RocketMQ中的最小数据传输单元，生产者将业务数据的负载和拓展属性包包装成消息发送到服务端，服务端按照相关语义将消息投递给消费者</li>
+<li>消息视图<code>MessageView</code> 面向开发者提供的一种消息只读接口，通过消息视图可以获取消息内部的多个属性和负载信息，但是不能对消息进行修改</li>
+<li>消息标签<code>MessageTag</code> 消息标签是Apache RocketMQ 提供的细粒度消息分类属性，可以在主题层级之下做消息类型的细分。消费者通过订阅特定的标签来实现细粒度过滤</li>
+<li><code>消息位点 MessageQueueOffset</code> 消息是按照到达RocketMQ服务端的先后顺序存储在指定主题的多个队列中的，每条消息在队列中有唯一的Long类型坐标，这个坐标就是消息位点</li>
+<li><code>消费位点 ConsumerOffset</code> 消息在消费过后不会被立即删除，服务端会记录每个消费者组消费过的最新一条消息的位点，这个位点就是消费位点</li>
+<li><code>消息索引MessageKey</code> RocketMQ面向消息的索引属性，通过设置的消息索引可以快速查找到消息对应的内容</li>
+<li><code>生产者Producer</code> </li>
+<li><code>事务检查器TransactionChecker</code> 生产者用来指定本地事务检查和异常事务恢复的监听器</li>
+<li><code>事务状态TransactionResolution</code> 事务消息发送过程中，事务提交状态的标识，服务端通过事务状态来控制事务消息是否应该被提交和投递<ul>
+<li>事务提交</li>
+<li>事务回滚</li>
+<li>事务未决</li>
+</ul>
+</li>
+<li><code>消费者分组ConsumerGroup</code> 消费者分组指的是承载多个消费者行为一致的负载均衡分组，消费者分组不是运行中的实体，而是一种逻辑资源，通过消费者分组这个逻辑初始化多个消费者实现消费性能的水平拓展和高可用灾容</li>
+<li><code>消费者Cosumer</code></li>
+<li><code>消费结果ConsumerResult</code> PushConsumer消费监听处理器处理消息完成之后的返回结果，用来标识这次消息是否被正确处理<ul>
+<li>消费成功</li>
+<li>消费失败</li>
+</ul>
+</li>
+<li><code>订阅关系Subscription</code> 订阅关系指的是RocketMQ系统中消费者获取消息，处理消息的规则和状态配置。订阅关系由消费者分组动态注册到服务端系统，并在后续的消息传输中按照订阅关系定义的过滤规则进行消息匹配和消费进度维护</li>
+<li><code>消息过滤</code> RocketMQ服务端可以通过MessageTag进行消息过滤，确保消费者只接受到过滤后的消息集合。过滤规则的计算和匹配在RocketMQ的服务端完成</li>
+<li><code>重置消费位点</code> 以时间轴为坐标，在消息持久化存储的时间范围内，重新设置消费者分组对已订阅主题的消费进度，设置完成后消费者将接收设定时间点之后由生产者发送到Apache RocketMQ 服务端的消息</li>
+<li><code>消息轨迹</code> 一条消息在生产者发出到消费者接收并处理的过程中，由各个相关节点的时间，地点等数据汇聚成的链路</li>
+<li><code>事务消息</code> RocketMQ提供的一种高级事务消息类型，支持在分布式场景中保障消息生产和本地事务的一致性</li>
+<li><code>定时/延时消息</code> 一种高级消息类型，消息在被发送到服务端后，在指定时间之后才会被消费者消费。通过设置一定的定时时间可以实现分布式场景的延时调度触发效果</li>
+<li><code>顺序消息</code> 高级消息类型，支持消费者按照消息发送的时间先后顺序进行消费，从而支持业务场景中的顺序处理</li>
+</ul>
 
       
 
@@ -168,11 +205,33 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/07/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/03.%E4%B8%8D%E5%8F%98%E6%A8%A1%E5%BC%8F/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/23/RocketMQ/01.%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">展开全文 >></a>
         </p>
       
 
@@ -202,8 +261,484 @@
 
 
   
-    <article id="post-SpringBoot实战笔记/06.mq" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-RocketMQ/02.主题Topic" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/23/RocketMQ/02.%E4%B8%BB%E9%A2%98Topic/">主题Topic</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/23/RocketMQ/02.%E4%B8%BB%E9%A2%98Topic/" class="archive-article-date">
+  	<time datetime="2022-10-23T15:23:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="主题Topic"><a href="#主题Topic" class="headerlink" title="主题Topic"></a>主题Topic</h1><h2 id="一、模型关系"><a href="#一、模型关系" class="headerlink" title="一、模型关系"></a>一、模型关系</h2><p><img src="/2022/10/23/RocketMQ/02.%E4%B8%BB%E9%A2%98Topic/image-20221024002013063.png" alt="image-20221024002013063"></p>
+<h2 id="二、主要作用"><a href="#二、主要作用" class="headerlink" title="二、主要作用"></a>二、主要作用</h2><ol>
+<li>定义数据的分类隔离</li>
+<li>定义数据的身份和权限</li>
+</ol>
+<h2 id="三、重点概念"><a href="#三、重点概念" class="headerlink" title="三、重点概念"></a>三、重点概念</h2><ol>
+<li><p>主题是RocketMQ的顶层存储机制，所有消息资源的定义都会在主题内部完成，但主题是一个逻辑概念，并不是实际的消息容器</p>
+</li>
+<li><p>主题内部是由多个队列组成的，消息的存储和水平拓展的能力最终是由队列进行实现</p>
+</li>
+</ol>
+<h2 id="四、内部属性"><a href="#四、内部属性" class="headerlink" title="四、内部属性"></a>四、内部属性</h2><h4 id="1、主题名称"><a href="#1、主题名称" class="headerlink" title="1、主题名称"></a>1、主题名称</h4><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><p>主题的名称，用于标识主题，主题名称在集群内是全局唯一的</p>
+<h5 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h5><p>由创建时定义</p>
+<h5 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h5><p>参照RocketMQ的命名规则</p>
+<h4 id="2、队列列表"><a href="#2、队列列表" class="headerlink" title="2、队列列表"></a>2、队列列表</h4><h5 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h5><p>队列作为主题的组成单元，是消息存储的实际容器，一个主题中包含一个或多个队列，消息实际存放在主题的多个队列中</p>
+<h5 id="取值-1"><a href="#取值-1" class="headerlink" title="取值"></a>取值</h5><p>系统根据队列数量给主题分配队列，队列数量由创建主题时候定义</p>
+<h5 id="约束-1"><a href="#约束-1" class="headerlink" title="约束"></a>约束</h5><p>同上</p>
+<h4 id="3、消息类型"><a href="#3、消息类型" class="headerlink" title="3、消息类型"></a>3、消息类型</h4><h5 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h5><p>主题所支持的消息类型</p>
+<h5 id="取值-2"><a href="#取值-2" class="headerlink" title="取值"></a>取值</h5><p>创建Topic时候定义</p>
+<ul>
+<li>Normal</li>
+<li>FIFO</li>
+<li>Delay</li>
+<li>Transaction</li>
+</ul>
+<h5 id="约束-2"><a href="#约束-2" class="headerlink" title="约束"></a>约束</h5><p>每个主题只支持一种消息类型</p>
+<h2 id="五、行为约束"><a href="#五、行为约束" class="headerlink" title="五、行为约束"></a>五、行为约束</h2><h4 id="消息类型强制校验"><a href="#消息类型强制校验" class="headerlink" title="消息类型强制校验"></a>消息类型强制校验</h4><p>RocketMQ从5.0起将消息类型拆分到主题中进行独立运维和处理，因此系统会对发送的主题类型进行强制校验，如果校验不通过，服务端会拒绝消息发送请求并返回类型不匹配异常</p>
+<h5 id="校验原则"><a href="#校验原则" class="headerlink" title="校验原则"></a>校验原则</h5><ol>
+<li>消息类型必须和目标主题定义的消息类型一致</li>
+<li>主题类型必须单一且每个Topic只支持一种类型，不允许将不同类型的消息发送到同一个Topic</li>
+</ol>
+<h4 id="常见错误使用场景"><a href="#常见错误使用场景" class="headerlink" title="常见错误使用场景"></a>常见错误使用场景</h4><h5 id="发送到消息类型不匹配"><a href="#发送到消息类型不匹配" class="headerlink" title="发送到消息类型不匹配"></a>发送到消息类型不匹配</h5><p>比如创建主题时候定义的消息类型为顺序消息，发送事务消息到该主题中，此时消息发送请求会被拒绝并返回类型不一致异常</p>
+<h5 id="单一消息主题混用"><a href="#单一消息主题混用" class="headerlink" title="单一消息主题混用"></a>单一消息主题混用</h5><p>比如主题创建时候定义为普通消息，但发送普通消息和事务消息到该主题中，事务消息的发送请求会被拒绝并返回类型不一致异常</p>
+<h2 id="六、使用建议"><a href="#六、使用建议" class="headerlink" title="六、使用建议"></a>六、使用建议</h2><h4 id="1、按照业务合理拆分主题"><a href="#1、按照业务合理拆分主题" class="headerlink" title="1、按照业务合理拆分主题"></a>1、按照业务合理拆分主题</h4><h5 id="主题拆分应该遵循大类统一的原则"><a href="#主题拆分应该遵循大类统一的原则" class="headerlink" title="主题拆分应该遵循大类统一的原则"></a>主题拆分应该遵循大类统一的原则</h5><p>即相同业务域内统一功能属性的消息应该尽量划分到同一主题</p>
+<h5 id="考虑拆分的粒度"><a href="#考虑拆分的粒度" class="headerlink" title="考虑拆分的粒度"></a>考虑拆分的粒度</h5><ul>
+<li><p>消息类型是否一致</p>
+</li>
+<li><p>消息业务是否关联</p>
+</li>
+<li><p>消息量级是否一样</p>
+<p>数量级不同的消息应该使用不同的主题</p>
+</li>
+</ul>
+<h5 id="错误拆分示例"><a href="#错误拆分示例" class="headerlink" title="错误拆分示例"></a>错误拆分示例</h5><ul>
+<li><p>拆分粒度过粗</p>
+<p>会导致业务隔离性差，不利于独立运维和故障处理</p>
+</li>
+<li><p>拆分粒度过细</p>
+<p>会消耗大量资源，造成系统负载过重</p>
+</li>
+</ul>
+<h4 id="2、单一主题只收发一种消息"><a href="#2、单一主题只收发一种消息" class="headerlink" title="2、单一主题只收发一种消息"></a>2、单一主题只收发一种消息</h4><h4 id="3、主题进行避免自动化"><a href="#3、主题进行避免自动化" class="headerlink" title="3、主题进行避免自动化"></a>3、主题进行避免自动化</h4><p>自动化机制只适合在测试环境或者测试的时候使用，在正式环境中会导致Topic过多增加运维的难度和影响性能</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/23/RocketMQ/02.%E4%B8%BB%E9%A2%98Topic/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/01.疑问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">疑问</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/" class="archive-article-date">
+  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ol>
+<li><code>@AutoConfiguration</code>是干嘛用的？</li>
+<li></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/SpringBoot实战//" class="article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/02.粗略笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/02.%E7%B2%97%E7%95%A5%E7%AC%94%E8%AE%B0/">粗略笔记</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/02.%E7%B2%97%E7%95%A5%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p><code>@ContextConfiguration</code>在加载Spring应用上下文的时候做了很多事情，但是它没能完整的加载Spring Boot，Spring Boot最终是由SpringApplcation加载的。这个东西可以显式加载，也可使用SpringBootServletInitializer。Spring Application不仅加载应用程序上下文，还会开启日志，加载外部属性（application.yml或application.properties），以及其他的Spring Boot特性，使用<code>@ContextConfiguration</code>得不到这些特性，对应SpringApplication的加载方式，有<code>@SpringApplicationConfiguration</code>注解</p>
+<ul>
+<li>SpringBoot 起步依赖主要是根据 <code>classpath</code>中是否包含相关的stater</li>
+</ul>
+</li>
+<li><p>ComponentScan的目录是在启动类的包及其子包中</p>
+</li>
+<li><p><code>@Profile</code>的作用：正常情况下，不管哪个profile处于激活状态，Java配置类中申明的所有Bean都会被创建，如果我们需要根据profile来创建Bean，@Profile可以实现这样的功能</p>
+</li>
+<li><p><code>@ConfigurationProperties</code>的作用</p>
+<ul>
+<li><p>场景一：使用<code>@ConfigurationProperties</code>和<code>@Component</code>注解到Bean上，这里<code>@Componet</code>代指同一类Bean的注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将类定义成一个Bean</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="comment">// 表示使用配置文件中前缀是fuck的值来初始化Bean的属性</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;fuck&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoBean</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">action</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Demo Bean is Created, Name is &quot;</span> + <span class="keyword">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">---</span><br><span class="line"><span class="comment">// 配置文件中</span></span><br><span class="line">fuck:</span><br><span class="line">  name: <span class="string">&quot;花泽香菜&quot;</span></span><br><span class="line">---</span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line">Demo Bean is Created, Name is 花泽香菜</span><br></pre></td></tr></table></figure></li>
+<li><p>场景二：使用<code>@ConfigurationProperties</code>和<code>@Bean</code>注解在配置类的<code>Bean</code>定义方法上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;fuck&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> DemoBean2 <span class="title">getDemoBean</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  DemoBean2 demoBean2 = <span class="keyword">new</span> DemoBean2();</span><br><span class="line">  demoBean2.setName(<span class="string">&quot;哎呀卧槽&quot;</span>);</span><br><span class="line">  demoBean2.setPassword(UUID.randomUUID().toString());</span><br><span class="line">  <span class="keyword">this</span>.demoBean2 = demoBean2;</span><br><span class="line">  <span class="keyword">return</span> demoBean2;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 配置文件中同上</span></span><br><span class="line"><span class="comment">// @ConfigurationProperties会使用配置文件中的值覆盖自定义的值，为空则不覆盖</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出结果</span></span><br><span class="line">DemoBean2(name=花泽香菜, password=ced9bf47-b0e3-4bb5-9eb6-eda7a7315f9a)</span><br></pre></td></tr></table></figure></li>
+<li><p>场景三：使用<code>@ConfigurationProperties</code>注解到普通类，然后再通过<code>@EnableConfigurationProperties</code>定义为<code>Bean</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;fuck&quot;)</span></span><br><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoBean3</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">action</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;name is &quot;</span> + <span class="keyword">this</span>.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 在其他类中可以</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(&#123;DemoBean3.class&#125;)</span></span><br><span class="line"><span class="comment">// 这样就能将DemoBean3注入到IoC容器中并根据配置文件初始化属性</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>关于<code>@EnableConfigurationProperties</code>注解的使用：</p>
+<p><em><code>@EnableConfigurationProperties</code>的作用是把springboot配置文件中的值与我们的xxxProperties.java的属性进行绑定，需要配合@ConfigurationProperties使用。</em></p>
+<p>首先我想说的是，不使用@EnableConfigurationProperties能否进行属性绑定呢？答案是肯定的！我们只需要给xxxProperties.java加上@Component注解，把它放到容器中，即可实现属性绑定。</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>@RestController</code>注解</p>
+<ul>
+<li>类似于<code>@Controller</code>和<code>@Service</code>之类的能够被识别</li>
+<li>告诉Spring，控制器的所有处理方法直接写入响应体中，而不是将值放到模型中进行渲染</li>
+<li><code>@RestController</code> = <code>@Controller</code> + <code>@ResponseBody</code></li>
+</ul>
+</li>
+<li><p>```java<br>  @GetMapping(“/{id}”)<br>  public Integer getInteger(@PathVariable(“id”) Long id) {</p>
+<pre><code>// ...
+</code></pre>
+<p>  }<br>}</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">- ```java</span><br><span class="line">  @RestController </span><br><span class="line">  // @RequestMapping中的produces属性表示该Controller的所有方法只会处理Accept头信息包含&quot;application/json&quot;的请求</span><br><span class="line">  // 这个Controller不仅会限制API只会生成Json的结果，同时还会允许其他控制器处理相同路径的请求，前提是这些请求不要求Json格式的输出</span><br><span class="line">  // 如果为了允许xml格式的输出，可以将produces设置成</span><br><span class="line">  /**</span><br><span class="line">      @RequestMapping(path=&quot;/design&quot; produces=&quot;application/json text/xml&quot;)</span><br><span class="line">   */</span><br><span class="line">  @RequestMapping(path=&quot;/design&quot;,              ⇽--- 处理针对“/design”的请求 </span><br><span class="line">                  produces=&quot;application/json&quot;) </span><br><span class="line">  // @CrossOrigin允许来自任何域的客户端消费该API</span><br><span class="line">  @CrossOrigin(origins=&quot;*&quot;)                        ⇽--- 允许跨域请求 </span><br><span class="line">  public class DesignTacoController &#123; &#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/SpringBoot实战//" class="article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/02.%E7%B2%97%E7%95%A5%E7%AC%94%E8%AE%B0/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/03.SpringBoot实战" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/03.SpringBoot%E5%AE%9E%E6%88%98/">SpringBoot实战</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/03.SpringBoot%E5%AE%9E%E6%88%98/" class="archive-article-date">
+  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="SpringBoot实战"><a href="#SpringBoot实战" class="headerlink" title="SpringBoot实战"></a>SpringBoot实战</h3><h5 id="一、自定义配置"><a href="#一、自定义配置" class="headerlink" title="一、自定义配置"></a>一、自定义配置</h5><h6 id="1、编写自己配置类"><a href="#1、编写自己配置类" class="headerlink" title="1、编写自己配置类"></a>1、编写自己配置类</h6><p>如果想要自定义配置，我们只需要编写自己的配置类，Spring Boot发现我们的配置类之后会把自动配置的优先级降低，使用自定义配置。主要依赖注解<code>@ConditionalOnMissing</code>实现</p>
+<p>对于<code>DataSourceAutoConfiguration</code>自动配置类来说</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AutoConfiguration(</span></span><br><span class="line"><span class="meta">    before = &#123;SqlInitializationAutoConfiguration.class&#125;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(&#123;DataSource.class, EmbeddedDatabaseType.class&#125;)</span></span><br><span class="line"><span class="meta">@ConditionalOnMissingBean(</span></span><br><span class="line"><span class="meta">    type = &#123;&quot;io.r2dbc.spi.ConnectionFactory&quot;&#125;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties(&#123;DataSourceProperties.class&#125;)</span></span><br><span class="line"><span class="meta">@Import(&#123;DataSourcePoolMetadataProvidersConfiguration.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataSourceAutoConfiguration</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>@ConditionalOnMissing</code>的作用是当已经存在注解中指定的Bean时，被修饰的类就不会被注册成Bean，这样能保证只有一个Bean的存在，用在配置中能够保证优先自定义配置生效</li>
+<li><code>@ConditionalOnClass</code>注解主要是说明classpath中必须有<code>DataSource.class</code>, <code>EmbeddedDatabaseType.class</code>两个类存在</li>
+</ul>
+<h6 id="2、配置文件配置"><a href="#2、配置文件配置" class="headerlink" title="2、配置文件配置"></a>2、配置文件配置</h6><p>自定义配置也可以通过配置文件进行配置，配置文件的优先级是：</p>
+<ol>
+<li>命令行参数</li>
+<li>Java:comp/env里面的参JNDI属性</li>
+<li>JVM属性变量</li>
+<li>操作系统环境变量</li>
+<li>随机生成的带<code>random.*</code>前缀的属性</li>
+<li>应用程序以外的<code>application.*</code>配置文件<ul>
+<li>位置一：在相对于应用程序运行的<code>./config</code>目录</li>
+<li>位置二：在应用程序运行的目录</li>
+</ul>
+</li>
+<li>打包在程序内的<code>application.*</code>配置文件<ul>
+<li>位置一：在<code>config</code>包中</li>
+<li>位置二：在<code>classpath</code>根目录</li>
+</ul>
+</li>
+<li>通过@PropertySource标注的属性源</li>
+<li>默认属性</li>
+</ol>
+<h5 id="二、测试"><a href="#二、测试" class="headerlink" title="二、测试"></a>二、测试</h5><h5 id="三、深入Actuator"><a href="#三、深入Actuator" class="headerlink" title="三、深入Actuator"></a>三、深入Actuator</h5>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/SpringBoot实战//" class="article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/03.SpringBoot%E5%AE%9E%E6%88%98/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-SpringBoot实战笔记/06.Spring集成消息队列" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/06.Spring%E9%9B%86%E6%88%90%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">Spring集成消息队列</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/06.Spring%E9%9B%86%E6%88%90%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" class="archive-article-date">
+  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
@@ -216,133 +751,33 @@
     <div class="article-info article-info-index">
       
       
-      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/04/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/06.mq/">展开全文 >></a>
-        </p>
-      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/SpringBoot实战//" class="article-tag-list-link color3">SpringBoot实战</a>
+        		</li>
+      		
+		</ul>
+	</div>
 
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-SpringBoot实战笔记/05.SpEL表达式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="SpEL表达式"><a href="#SpEL表达式" class="headerlink" title="SpEL表达式"></a>SpEL表达式</h3><h4 id="一、什么是SpEL表达式"><a href="#一、什么是SpEL表达式" class="headerlink" title="一、什么是SpEL表达式"></a>一、什么是SpEL表达式</h4><ol>
-<li>SpEL（Spring expression Language）是一种表达式语言，主要提供一种简洁，强大的装配Bean的方式</li>
-<li>它可以通过运行期间执行的表达式将值装配到属性和构造函数中，也可以调用JDK中提供的静态常量，获取外部文件中的<code>Properties</code>配置</li>
-</ol>
-<h4 id="二、SpEL表达式定义的功能"><a href="#二、SpEL表达式定义的功能" class="headerlink" title="二、SpEL表达式定义的功能"></a>二、SpEL表达式定义的功能</h4><ul>
-<li>文字表达式</li>
-<li>布尔和关系运算符</li>
-<li>正则表达式</li>
-<li>类表达式</li>
-<li></li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/02/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/05.SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-SpringBoot实战笔记/04.@Import注解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="Import注解"><a href="#Import注解" class="headerlink" title="@Import注解"></a>@Import注解</h3><h4 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h4><ol>
-<li><code>@Import</code>只能使用在类上</li>
-<li><code>@Import</code>通过自动导入的方式将实例加入Spring的IoC容器</li>
-<li>加入IoC容器的方法有很多种，<code>@Import</code>注解可以用于导入第三方包。使用<code>@Bean</code>也可以，只是<code>@Import</code>更加便捷</li>
-</ol>
-<h3 id="三种用法"><a href="#三种用法" class="headerlink" title="三种用法"></a>三种用法</h3><ol>
-<li><h6 id="直接填写class数组的方式"><a href="#直接填写class数组的方式" class="headerlink" title="直接填写class数组的方式"></a>直接填写class数组的方式</h6><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(&#123;className1.class, className2.class ...&#125;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">classDemo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用@Import相当于在使用Bean的地方注册Bean</span></span><br><span class="line"><span class="comment">// @Component之类的是在Bean内注册Bean</span></span><br></pre></td></tr></table></figure></li>
-<li><h6 id="ImportSelector方式-重点"><a href="#ImportSelector方式-重点" class="headerlink" title="ImportSelector方式[重点]"></a>ImportSelector方式[重点]</h6><img src="/2022/09/02/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/04.@Import%E6%B3%A8%E8%A7%A3/image-20220902115353711.png" alt="image-20220902115353711" style="zoom: 50%;">
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Import(ImportSelectorDemoService.class)</span></span><br><span class="line"><span class="meta">@Component(value = &quot;useDemoService&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UseDemoService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    DemoService demoService;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">useDemo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        demoService.demo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImportSelectorDemoService</span> <span class="keyword">implements</span> <span class="title">ImportSelector</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> importingClassMetadata 表示当前<span class="doctag">@Import</span>里面的所有信息</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 实际上要导入IoC容器中的组件全类名（重点）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String[] selectImports(AnnotationMetadata importingClassMetadata) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String[]&#123;<span class="string">&quot;com.bcai.springsecuritydemo.service.DemoService&quot;</span>&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">demo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;============= 这是一个Demo =============&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><h6 id="ImportBeanDefinitionRegistrar方式"><a href="#ImportBeanDefinitionRegistrar方式" class="headerlink" title="ImportBeanDefinitionRegistrar方式"></a>ImportBeanDefinitionRegistrar方式</h6><p>这种方式和上面那种差别不大，主要区别在于注册Bean时候的实现方式</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 采用手动编写BeanDefinition和手动注册Bean的方式</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImportBeanDefinitionRegistrarDemoService</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 自定义注册Bean</span></span><br><span class="line">        <span class="comment">// 指定Bean定义信息（包含bean的类型，作用域）</span></span><br><span class="line">        RootBeanDefinition rootBeanDefinition = <span class="keyword">new</span> RootBeanDefinition(DemoService.class);</span><br><span class="line">        registry.registerBeanDefinition(<span class="string">&quot;DemoService&quot;</span>, rootBeanDefinition);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/09/02/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/04.@Import%E6%B3%A8%E8%A7%A3/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/06.Spring%E9%9B%86%E6%88%90%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">展开全文 >></a>
         </p>
       
 
@@ -375,6 +810,21 @@
     <article id="post-SpringBoot源码/01.Spring启动过程" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/22/SpringBoot%E6%BA%90%E7%A0%81/01.Spring%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">Spring启动过程</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/22/SpringBoot%E6%BA%90%E7%A0%81/01.Spring%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/" class="archive-article-date">
+  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
+</a>
+        
+      </header>
+    
     <div class="article-entry" itemprop="articleBody">
       
         <h3 id="Spring启动过程"><a href="#Spring启动过程" class="headerlink" title="Spring启动过程"></a>Spring启动过程</h3><ol>
@@ -397,11 +847,33 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot源码</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/SpringBoot源码//" class="article-tag-list-link color3">SpringBoot源码</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/08/27/SpringBoot%E6%BA%90%E7%A0%81/01.Spring%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/22/SpringBoot%E6%BA%90%E7%A0%81/01.Spring%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B/">展开全文 >></a>
         </p>
       
 
@@ -431,55 +903,13 @@
 
 
   
-    <article id="post-Postgres/07.索引-只使用索引的扫描和覆盖索引" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-PostgresSQL/复制槽/00.相关函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="11-9-只用索引的扫描和覆盖索引"><a href="#11-9-只用索引的扫描和覆盖索引" class="headerlink" title="11.9. 只用索引的扫描和覆盖索引"></a>11.9. 只用索引的扫描和覆盖索引</h2><p>PostgreSQL中的所有索引是<em>二级</em>索引,这意味着每个索引都是与表的主数据区（在PostgreSQL术语称为表的<em>堆</em>中）分开存储。这意味着在普通索引扫描中，每行检索都需要从索引和堆中取数据。 此外，虽然匹配给定的可索引<code>WHERE</code>条件的索引条目通常在一起靠近存储，但它们引用的表行可能在堆中的任何地方。 因此索引扫描的堆访问部分涉及到对堆的大量随机访问，这可能很慢，特别是在传统旋转媒介上。如 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/indexes-bitmap-scans.html">第 11.5 节</a> 中所述，位图扫描尝试通过按排序的顺序进行堆访问来减少成本，但这远远不够）。</p>
-<p>为了解决这种性能问题，PostgreSQL支持<em>只用索引的扫描</em>，这类扫描可以仅用一个索引来回答查询而不产生任何堆访问。其基本思想是直接从每一个索引项中直接返回值，而不是去参考相关的堆项。在使用这种方法时有两个根本的限制：</p>
-<ol>
-<li><p>索引类型必须支持只用索引的扫描。B-树索引总是支持只用索引的扫描。GiST 和 SP-GiST 索引只对某些操作符类支持只用索引的扫描。其他索引类型不支持这种扫描。底层的要求是索引必须在物理上存储或者可以重构出每一个索引项对应的原始数据值。GIN 索引是一个不支持只用索引的扫描的反例，因为它的每一个索引项通常只包含原始数据值的一部分。</p>
-</li>
-<li><p>查询必须只引用存储在该索引中的列。例如，给定的索引建立在表的列<code>x</code>和<code>y</code>上，而该表还有一个列<code>z</code>，这些查询可以使用只用索引的扫描：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SELECT x, y FROM tab WHERE x = &#x27;key&#x27;;</span><br><span class="line">SELECT x FROM tab WHERE x = &#x27;key&#x27; AND y &lt; 42;</span><br></pre></td></tr></table></figure>
+        <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建复制槽</span></span><br><span class="line"><span class="comment">-- 创建一个名为b_slot_test的test_decoding编码的逻辑复制槽 需要用超级用户才能创建</span></span><br><span class="line"><span class="keyword">select</span> pg_create_logical_replication_slot(<span class="string">&#x27;b_slot_test&#x27;</span>,<span class="string">&#x27;test_decoding&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 删除复制槽</span></span><br><span class="line"><span class="keyword">select</span> pg_drop_replication_slot(<span class="string">&#x27;a_slot_test&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询复制槽</span></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> pg_replication_slots;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询逻辑复制状态</span></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> pg_stat_replication;</span><br></pre></td></tr></table></figure>
 
-<p>但是这些查询不能使用只用索引的查询：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SELECT x, z FROM tab WHERE x = &#x27;key&#x27;;</span><br><span class="line">SELECT x FROM tab WHERE x = &#x27;key&#x27; AND z &lt; 42;</span><br></pre></td></tr></table></figure>
-
-<p>（如下面所讨论的，表达式索引和部分索引会让这条规则更加复杂）。</p>
-</li>
-</ol>
-<p>如果符合这两个根本要求，那么该查询所要求的所有数据值都可以从索引得到，因此才可能使用只用索引的扫描。但是对PostgreSQL中的任何表扫描还有一个额外的要求：必须验证每一个检索到的行对该查询的 MVCC 快照是“可见的”，如<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/mvcc.html">第 13 章</a>中讨论的那样。可见性信息并不存储在索引项中，只存储在堆项中。因此，乍一看似乎每一次行检索无论如何都会要求一次堆访问。如果表行最近被修改过，确实是这样。但是，对于很少更改的数据有一种方法可以解决这个问题。PostgreSQL为表堆中的每一个页面跟踪是否其中所有的行的年龄都足够大，以至于对所有当前以及未来的事务都可见。这个信息存储在该表的<em>可见性映射</em>的一个位中。在找到一个候选索引项后，只用索引的扫描会检查对应堆页面的可见性映射位。如果该位被设置，那么这一行就是可见的并且该数据库可以直接被返回。如果该位没有被设置，那么就必须访问堆项以确定这一行是否可见，这种情况下相对于标准索引扫描就没有性能优势。即便是在成功的情况下，这种方法也是把对堆的访问换成了对可见性映射的访问。不过由于可见性映射比它所描述的堆要小四个数量级，所以访问可见性映射所需的物理 I/O 要少很多。在大部分情况下，可见性映射总是会被保留在内存中的缓冲中。</p>
-<p>总之，虽然当两个根本要求满足时可以使用只用索引的扫描，但是只有该表的堆页面中有很大一部分的“所有都可见”映射位被设置时这种索引才有优势。不过，有很大一部分行不被更改的表是很常见的，这也让这一类扫描在实际中非常有用。</p>
-<p>为了有效利用仅索引扫描功能，您可以选择创建一个<em>覆盖索引</em>，它是一个特别设计的索引，包含经常运行的特殊类型查询所需要的列。由于查询通常需要检索的列不仅仅是他们搜索的列，PostgreSQL允许您创建索引,这个索引中有些列只是“负荷”而不是搜索键的一部分。这可以通过添加<code>INCLUDE</code>来完成子句来列出了额外的列。 例如，如果您通常可以运行这样的查询：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT y FROM tab WHERE x = &#x27;key&#x27;;</span><br></pre></td></tr></table></figure>
-
-<p>加快此类查询的传统方法是仅在<code>x</code>上的索引。但是，一个索引定义为</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE INDEX tab_x_y ON tab(x) INCLUDE (y);</span><br></pre></td></tr></table></figure>
-
-<p>可以将这些查询作为仅索引扫描处理，因为<code>y</code>可以从索引中获取而不需要访问堆。</p>
-<p>因为列<code>y</code>不是搜索键的一部分，它不必是索引可以处理的数据类型；它只存储在索引中，不由索引机解释。另外，如果索引是唯一的索引，则</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE UNIQUE INDEX tab_x_y ON tab(x) INCLUDE (y);</span><br></pre></td></tr></table></figure>
-
-<p>唯一性条件仅适用于<code>x </code>列，而不是<code>x</code>和<code>y</code>的组合。（如果使用和在索引中设置的类似语法，一个<code>INCLUDE</code>子句可以写在<code>UNIQUE</code>和<code>PRIMARY KEY</code>约束中。）</p>
-<p>保守地将非键负载列添加到索引是明智的，尤其是宽列。 如果索引元组超过索引类型允许的最大大小，数据插入将失败。在任何情况下，非键列都将复制索引表中的数据并放大了索引的大小，从而有可能减慢搜索速度。请记住，除非一个表足够慢以至于仅索引扫描可能不必访问堆，否则没有什么理由在一个索引中包含负载列。无论如何，如果必须访问堆元组，从堆里获取列的值并不会带来更高的开销。其他限制是表达式不被作为包含的来支持。只有B树和GiST索引当前支持包含的列。</p>
-<p>在 PostgreSQL有<code>INCLUDE</code>特性之前，人们有时会通过写负载列作为普通索引列来制作覆盖索引。它这样写：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CREATE INDEX tab_x_y ON tab(x, y);</span><br><span class="line">   </span><br></pre></td></tr></table></figure>
-
-<p>即使他们无意将<code>y</code>用作<code>WHER</code>子句的一部分，只要额外的列是尾列就可以很好的工作。 让它们成为前导字段是不明智的，原因在<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/indexes-multicolumn.html">第 11.3 节</a>中有说明。但是，此方法不支持您希望索引在键列上实施唯一性。</p>
-<p><em>Suffix truncation</em>总是从B-Tree的上层移除非键列。作为有效负载列，它们从不用于指导索引扫描。 当键列的其余前缀恰好足以描述最低B-Tree级别上的元组时，截断过程还会删除一个或多个尾随的键列。 实际中，不使用<code>INCLUDE</code>子句覆盖索引通常会避免存储在上层有效负载的列。 然而，显式地将有效负载列定义为非键列***reliably***使上层元组保持较小。</p>
-<p>原则上，只用索引的扫描可以被用于表达式索引。例如，给定一个<code>f(x)</code>上的索引（<code>x</code>是一个表列），可以把</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT f(x) FROM tab WHERE f(x) &lt; 1;</span><br></pre></td></tr></table></figure>
-
-<p>作为只用索引的扫描执行，如果<code>f()</code>是一个计算代价昂贵的函数，这会非常有吸引力。不过，PostgreSQL的规划器当前面对这类情况时并不是很聪明。只有在索引中有查询所需要的所有***列***时，规划器才会考虑用只用索引的扫描来执行一个查询。在这个例子中，除了在<code>f(x)</code>环境中之外，查询的其他部分不需要<code>x</code>，但是规划器并不能意识到这一点，因此它会得出不能使用只用索引的扫描的结论。如果只用索引的扫描足够有价值，有一种解决方法是把该索引定义在<code>(f(x), x)</code>上，其中第二个列实际上并不会被使用，它只是用来说服规划器可以使用只用索引的扫描而已。如果目标是避免重复计算<code>f(x)</code>，一个额外的警示是规划器不一定会把不在可索引<code>WHERE</code>子句中对<code>f(x)</code>的使用匹配到索引列。通常在上述那种简单查询中一切正常，但是涉及到连接的查询中就不行了。这些不足将在未来的PostgreSQL版本中修正。</p>
-<p>部分索引也和只用索引的扫描之间有着有趣的关系。考虑<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/indexes-partial.html#INDEXES-PARTIAL-EX3">例 11.3</a>中所展示的部分索引：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CREATE UNIQUE INDEX tests_success_constraint ON tests (subject, target)</span><br><span class="line">    WHERE success;</span><br></pre></td></tr></table></figure>
-
-<p>原则上，我们可以在这个索引上使用只用索引的扫描来满足查询</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT target FROM tests WHERE subject = &#x27;some-subject&#x27; AND success;</span><br></pre></td></tr></table></figure>
-
-<p>但是有一个问题：<code>WHERE</code>子句引用的是不能作为索引结果列的<code>success</code>。尽管如此，还是可以使用只用索引的扫描，因为在运行时计划不需要重新检查<code>WHERE</code>子句的那个部分：在该索引中找到的所有项必定具有<code>success = true</code>，因此在计划中检查这个部分的需要并不明显。PostgreSQL 9.6 和以后的版本将会识别这种情况，并且允许生成只用索引的扫描，但是旧版本无法这样做。</p>
 
       
 
@@ -492,7 +922,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/08/26/Postgres/07.%E7%B4%A2%E5%BC%95-%E5%8F%AA%E4%BD%BF%E7%94%A8%E7%B4%A2%E5%BC%95%E7%9A%84%E6%89%AB%E6%8F%8F%E5%92%8C%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/21/PostgresSQL/%E5%A4%8D%E5%88%B6%E6%A7%BD/00.%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0/">展开全文 >></a>
         </p>
       
 
@@ -522,23 +952,12 @@
 
 
   
-    <article id="post-Postgres/06.查询-limit和offset" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-RocketMQ/00.疑问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="7-6-LIMIT和OFFSET"><a href="#7-6-LIMIT和OFFSET" class="headerlink" title="7.6. LIMIT和OFFSET"></a>7.6. <code>LIMIT</code>和<code>OFFSET</code></h2><p><code>LIMIT</code>和<code>OFFSET</code>允许你只检索查询剩余部分产生的行的一部分：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT select_list</span><br><span class="line">    FROM table_expression</span><br><span class="line">    [ ORDER BY ... ]</span><br><span class="line">    [ LIMIT &#123; number | ALL &#125; ] [ OFFSET number ]</span><br></pre></td></tr></table></figure>
-
-
-
-<p>如果给出了一个限制计数，那么会返回数量不超过该限制的行（但可能更少些，因为查询本身可能生成的行数就比较少）。<code>LIMIT ALL</code>的效果和省略<code>LIMIT</code>子句一样，就像是<code>LIMIT</code>带有 NULL 参数一样。</p>
-<p><code>OFFSET</code>说明在开始返回行之前忽略多少行。<code>OFFSET 0</code>的效果和省略<code>OFFSET</code>子句是一样的，并且<code>LIMIT NULL</code>的效果和省略<code>LIMIT</code>子句一样，就像是<code>OFFSET</code>带有 NULL 参数一样。</p>
-<p>如果<code>OFFSET</code>和<code>LIMIT</code>都出现了， 那么在返回<code>LIMIT</code>个行之前要先忽略<code>OFFSET</code>行。</p>
-<p>如果使用<code>LIMIT</code>，那么用一个<code>ORDER BY</code>子句把结果行约束成一个唯一的顺序是很重要的。否则你就会拿到一个不可预料的该查询的行的子集。你要的可能是第十到第二十行，但以什么顺序的第十到第二十？除非你指定了<code>ORDER BY</code>，否则顺序是不知道的。</p>
-<p>查询优化器在生成查询计划时会考虑<code>LIMIT</code>，因此如果你给定<code>LIMIT</code>和<code>OFFSET</code>，那么你很可能收到不同的规划（产生不同的行顺序）。因此，使用不同的<code>LIMIT</code>/<code>OFFSET</code>值选择查询结果的不同子集***将生成不一致的结果***，除非你用<code>ORDER BY</code>强制一个可预测的顺序。这并非bug， 这是一个很自然的结果，因为 SQL 没有许诺把查询的结果按照任何特定的顺序发出，除非用了<code>ORDER BY</code>来约束顺序。</p>
-<p>被<code>OFFSET</code>子句忽略的行仍然需要在服务器内部计算；因此，一个很大的<code>OFFSET</code>的效率可能还是不够高。</p>
-
+        
       
 
       
@@ -550,7 +969,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/08/25/Postgres/06.%E6%9F%A5%E8%AF%A2-limit%E5%92%8Coffset/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/14/RocketMQ/00.%E7%96%91%E9%97%AE/">展开全文 >></a>
         </p>
       
 
@@ -580,360 +999,34 @@
 
 
   
-    <article id="post-Postgres/05.查询-组合查询" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Spring/SpEL表达式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="7-4-组合查询"><a href="#7-4-组合查询" class="headerlink" title="7.4. 组合查询"></a>7.4. 组合查询</h2><p>两个查询的结果可以用集合操作并、交、差进行组合。语法是</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">query1 UNION [ALL] query2</span><br><span class="line">query1 INTERSECT [ALL] query2</span><br><span class="line">query1 EXCEPT [ALL] query2</span><br></pre></td></tr></table></figure>
-
-<p>*<code>query1</code><em>和</em><code>query2</code>*都是可以使用以上所有特性的查询。集合操作也可以嵌套和级连，例如</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query1 UNION query2 UNION query3</span><br></pre></td></tr></table></figure>
-
-<p>实际执行的是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(query1 UNION query2) UNION query3</span><br></pre></td></tr></table></figure>
-
-
-
-<p><code>UNION</code>有效地把*<code>query2</code><em>的结果附加到</em><code>query1</code>*的结果上（不过我们不能保证这就是这些行实际被返回的顺序）。此外，它将删除结果中所有重复的行， 就象<code>DISTINCT</code>做的那样，除非你使用了<code>UNION ALL</code>。</p>
-<p><code>INTERSECT</code>返回那些同时存在于*<code>query1</code><em>和</em><code>query2</code>*的结果中的行，除非声明了<code>INTERSECT ALL</code>， 否则所有重复行都被消除。</p>
-<p><code>EXCEPT</code>返回所有在*<code>query1</code><em>的结果中但是不在</em><code>query2</code><em>的结果中的行（有时侯这叫做两个查询的</em>差*）。同样的，除非声明了<code>EXCEPT ALL</code>，否则所有重复行都被消除。</p>
-<p>为了计算两个查询的并、交、差，这两个查询必须是“并操作兼容的”，也就意味着它们都返回同样数量的列， 并且对应的列有兼容的数据类型，如<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/typeconv-union-case.html">第 10.5 节</a>中描述的那样。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/08/25/Postgres/05.%E6%9F%A5%E8%AF%A2-%E7%BB%84%E5%90%88%E6%9F%A5%E8%AF%A2/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
+      <header class="article-header">
         
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
-    <article id="post-Postgres/04.查询-选择列表" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="7-3-3-DISTINCT"><a href="#7-3-3-DISTINCT" class="headerlink" title="7.3.3. DISTINCT"></a>7.3.3. <code>DISTINCT</code></h3><p>在处理完选择列表之后，结果表可以可选的删除重复行。我们可以直接在<code>SELECT</code>后面写上<code>DISTINCT</code>关键字来指定：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT DISTINCT select_list ...</span><br></pre></td></tr></table></figure>
-
-<p>（如果不用<code>DISTINCT</code>你可以用<code>ALL</code>关键词来指定获得的所有行的缺省行为）。</p>
-<p>显然，如果两行里至少有一个列有不同的值，那么我们认为它是可区分的。空值在这种比较中被认为是相同的。</p>
-<p>另外，我们还可以用任意表达式来判断什么行可以被认为是可区分的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT DISTINCT ON (expression [, expression ...]) select_list ...</span><br></pre></td></tr></table></figure>
-
-<p>这里*<code>expression</code>*是任意值表达式，它为所有行计算。如果一个行集合里所有表达式的值是一样的， 那么我们认为它们是重复的并且因此只有第一行保留在输出中。请注意这里的一个集合的“第一行”是不可预料的， 除非你在足够多的列上对该查询排了序，保证到达<code>DISTINCT</code>过滤器的行的顺序是唯一的（<code>DISTINCT ON</code>处理是发生在<code>ORDER BY</code>排序后面的）。</p>
-<p><code>DISTINCT ON</code>子句不是 SQL 标准的一部分， 有时候有人认为它是一个糟糕的风格，因为它的结果是不可判定的。 如果有选择的使用<code>GROUP BY</code>和在<code>FROM</code>中的子查询，那么我们可以避免使用这个构造， 但是通常它是更方便的候选方法。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/08/25/Postgres/04.%E6%9F%A5%E8%AF%A2-%E9%80%89%E6%8B%A9%E5%88%97%E8%A1%A8/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/11/Spring/SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/">SpEL表达式</a>
+    </h1>
   
-    <article id="post-Postgres/02.权限" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
+
+        
+        <a href="/2022/10/11/Spring/SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="archive-article-date">
+  	<time datetime="2022-10-11T06:44:59.685Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-11</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="权限"><a href="#权限" class="headerlink" title="权限"></a>权限</h1><p>一旦一个对象被创建，它会被分配一个所有者。所有者通常是执行创建语句的角色。对于大部分类型的对象，初始状态下只有所有者（或者超级用户）能够对该对象做任何事情。为了允许其他角色使用它，必须分配<em>权限</em>。</p>
-<p>有多种不同的权限：<code>SELECT</code>、<code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code>、<code>TRUNCATE</code>、<code>REFERENCES</code>、<code>TRIGGER</code>、<code>CREATE</code>、<code>CONNECT</code>、<code>TEMPORARY</code>、<code>EXECUTE</code>以及<code>USAGE</code>。可以应用于一个特定对象的权限随着对象的类型（表、函数等）而不同。</p>
-<p>修改或销毁一个对象的权力通常是只有所有者才有的权限。</p>
-<p>一个对象可以通过该对象类型相应的<code>ALTER</code>命令来重新分配所有者，例如</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name OWNER <span class="keyword">TO</span> new_owner;</span><br></pre></td></tr></table></figure>
+        <h3 id="SpEL表达式"><a href="#SpEL表达式" class="headerlink" title="SpEL表达式"></a>SpEL表达式</h3><p>SpEL表达式概述<br>1、什么是SpEL表达式<br>SpEL:(spring expression language) 是一种表达式语言，是一种强大,简洁的装配Bean的方式。<br>他可以通过运行期间执行的表达式将值装配到我们的属性或构造函数当中,也可以调用JDK中提供的静态常量,获取外部Properties文件中的的配置。<br>2、SpEL表达式的作用<br>能够更加简单，多元的装配Bean，弥补了XML静态注入的不足。<br>简化开发，减少了一些逻辑、配置的编写，使代码更加简洁。</p>
+<p><strong>SpEL表达式的格式：<code>#&#123;表达式&#125;</code></strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> </span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;MyMessage&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.jp.MyMessage&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;message&quot;</span> <span class="attr">value</span>=<span class="string">&quot;#&#123;systemProperties[&#x27;user.language&#x27;]&#125;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>超级用户总是可以做到这点，普通角色只有同时是对象的当前所有者（或者是拥有角色的一个成员）以及新拥有角色的一个成员时才能做同样的事。</p>
-<p>要分配权限，可以使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-grant.html">GRANT</a>命令。例如，如果<code>joe</code>是一个已有角色，而<code>accounts</code>是一个已有表，更新该表的权限可以按如下方式授权：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> UPDATE <span class="keyword">ON</span> accounts <span class="keyword">TO</span> joe;</span><br></pre></td></tr></table></figure>
+<p>解释:这里使用了表达式<code>#&#123;systemProperties[&#39;user.language&#39;]&#125;</code>来设置值，用来检索用户语言系统的属性</p>
+<p>注解的方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.jp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyMessage2</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Value(&quot;#&#123;systemProperties[&#x27;user.language&#x27;]&#125;&quot;)</span></span><br><span class="line">	<span class="keyword">private</span> String message;</span><br><span class="line"> </span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> message;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>用<code>ALL</code>取代特定权限会把与对象类型相关的所有权限全部授权。</p>
-<p>一个特殊的名为<code>PUBLIC</code>的“角色”可以用来向系统中的每一个角色授予一个权限。同时，在数据库中有很多用户时可以设置“组”角色来帮助管理权限。详见<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/user-manag.html">第 21 章</a>。</p>
-<p>为了撤销一个权限，使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-revoke.html">REVOKE</a> 命令：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">REVOKE</span> <span class="keyword">ALL</span> <span class="keyword">ON</span> accounts <span class="keyword">FROM</span> PUBLIC;</span><br></pre></td></tr></table></figure>
-
-<p>对象拥有者的特殊权限（即执行<code>DROP</code>、<code>GRANT</code>、<code>REVOKE</code>等的权力）总是隐式地属于拥有者，并且不能被授予或撤销。但是对象拥有者可以选择撤销他们自己的普通权限，例如把一个表变得对他们自己和其他人只读。</p>
-<p>一般情况下，只有对象拥有者（或者超级用户）可以授予或撤销一个对象上的权限。但是可以在授予权限时使用“<em><strong>with grant option</strong></em>”来允许接收人将权限转授给其他人。如果后来授予选项被撤销，则所有从接收人那里获得的权限（直接或者通过授权链获得）都将被撤销。更多详情请见<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-grant.html">GRANT</a>和<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-revoke.html">REVOKE</a>参考页。</p>
-<p>有效的权限如下:</p>
-<ul>
-<li><p><code>SELECT</code></p>
-<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-select.html">SELECT</a> 从任何列、或特定的列、表、视图、物化视图、或其他类似表格的对象。 也允许使用 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-copy.html">COPY</a> TO. 还需要这个权限来引用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-update.html">UPDATE</a> 或 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-delete.html">DELETE</a>中现有的列值。 对于序列，这个权限还允许使用<code>currval</code> 函数。对于大对象，此权限允许读取对象。</p>
-</li>
-<li><p><code>INSERT</code></p>
-<p>允许将新行的 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-insert.html">INSERT</a> 加入表、视图等等。 可以在特定列上授予，在这种情况下<code>INSERT</code>命令中只有那些列可以被分配（其他列将因此而收到默认值）。 还允许使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-copy.html">COPY</a> FROM。</p>
-</li>
-<li><p><code>UPDATE</code></p>
-<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-update.html">UPDATE</a> 更新任何列、或指定列、表、视图等等。 (实际上，任何有效的<code>UPDATE</code>命令也需要<code>SELECT</code>权限，因为它必须引用表列来确定要更新的行，和/或计算列的新值。) <code>SELECT ... FOR UPDATE</code>和<code>SELECT ... FOR SHARE</code>除了<code>SELECT</code>权限外，还需要至少一列上的这个权限。 对于序列，这个权限允许使用 <code>nextval</code> 和 <code>setval</code> 函数。对于大对象，此权限允许写入或截断对象。</p>
-</li>
-<li><p><code>DELETE</code></p>
-<p>允许 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-delete.html">DELETE</a> 从表、视图等等中删除行. (实际上，任何有效的<code>DELETE</code>命令也需要<code>SELECT</code>权限，因为它必须引用表列来确定要删除的行。)</p>
-</li>
-<li><p><code>TRUNCATE</code></p>
-<p>允许在表、视图等等上 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-truncate.html">TRUNCATE</a> 。</p>
-</li>
-<li><p><code>REFERENCES</code></p>
-<p>允许创建引用表或表的特定列的外键约束。</p>
-</li>
-<li><p><code>TRIGGER</code></p>
-<p>允许在表、视图等等上创建触发器。</p>
-</li>
-<li><p><code>CREATE</code></p>
-<p>对于数据库，允许在数据库中创建新的模式和发布。对于模式，允许在模式中创建新对象。要重命名现有对象，你必须拥有对象 ***and***所包含模式的此权限。对于表空间，允许在表空间中创建表、索引和临时文件，并允许创建将表空间作为默认表空间的数据库。（注意，撤销此特权不会更改已有对象的位置。）</p>
-</li>
-<li><p><code>CONNECT</code></p>
-<p>允许受让者连接到数据库。此权限在连接启动时进行检查(加之<code>pg_hba.conf</code>施加的任何约束).</p>
-</li>
-<li><p><code>TEMPORARY</code></p>
-<p>允许在使用数据库时创建临时表。</p>
-</li>
-<li><p><code>EXECUTE</code></p>
-<p>允许调用函数或过程，包括使用在函数之上实现的任何运算符。这是适用于函数和过程的唯一权限类型。</p>
-</li>
-<li><p><code>USAGE</code></p>
-<p>对于程序语言，允许使用语言来创建该语言的函数。 这是适用于过程语言的唯一权限类型。对于模式，允许访问模式中包含的对象（假设对象自己的权限要求也已得到满足）。 从本质上讲，这允许受让者“look up”模式中的对象。如果没有此权限，仍可以看到对象名称，例如通过查询系统目录。 此外，在撤消此权限后，现有会话可能还具有以前执行过此查找的语句，因此这不是阻止对象访问的彻底安全的方法。对于序列, 允许使用<code>currval</code> 和 <code>nextval</code> 函数.对于类型和域，允许在创建表、函数和其他模式对象时使用类型或域。 （注意，此权限不控制类型的全部 “usage” ，例如查询中出现的类型的值。 它仅防止创建依赖于类型的对象。 此权限的主要目的是控制哪些用户可以对类型创建依赖项，这可能会防止所有者以后更改类型。 ）对于外部数据包装器，允许使用外部数据包装器创建新服务器。对于外部服务器，允许使用服务器创建外部表。受让者还可以创建、更改或删除与该服务器关联的自己的用户映射。</p>
-</li>
-</ul>
-<p>其他命令所需的权限罗列在相应命令的参考页上。</p>
-<p>在创建对象时，PostgreSQL默认将某些类型对象的权限授予<code>PUBLIC</code>。 默认情况下，在表、表列、序列、外部数据包装器、外部服务器、大型对象、模式或表空间上，不向<code>PUBLIC</code>授予权限。 对于其他类型的对象，授予 <code>PUBLIC</code>的默认权限如下所示： 针对数据库的<code>CONNECT</code>和<code>TEMPORARY</code>（创建临时表）权限; 针对函数和程序的<code>EXECUTE</code>权限;以及针对语言和数据类型（包括域）的<code>USAGE</code>权限。 当然，对象所有者可以<code>REVOKE</code>默认权限和特别授予的权限。 （为了最大程度的安全性，在创建对象的同一事务中发出<code>REVOKE</code>;那么就没有其他用户能够使用该对象的窗口。） 此外，可以使用<a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/sql-alterdefaultprivileges.html">ALTER DEFAULT PRIVILEGES</a>命令取代这些默认权限设置。</p>
-<p><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/ddl-priv.html#PRIVILEGE-ABBREVS-TABLE">表 5.1</a>显示了<em>ACL</em>（访问控制列表）值中用于这些权限类型的单字母缩写。 你将在下面列出的 <a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/app-psql.html">psql</a> 命令的输出中，或者在查看系统目录的 ACL 列时看到这些字母。</p>
-<p><strong>表 5.1. ACL 权限缩写</strong></p>
-<table>
-<thead>
-<tr>
-<th>权限</th>
-<th>缩写</th>
-<th>适用对象类型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>SELECT</code></td>
-<td><code>r</code> (“读”)</td>
-<td><code>LARGE OBJECT</code>, <code>SEQUENCE</code>, <code>TABLE</code> (and table-like objects), table column</td>
-</tr>
-<tr>
-<td><code>INSERT</code></td>
-<td><code>a</code> (“增补”)</td>
-<td><code>TABLE</code>, table column</td>
-</tr>
-<tr>
-<td><code>UPDATE</code></td>
-<td><code>w</code> (“写”)</td>
-<td><code>LARGE OBJECT</code>, <code>SEQUENCE</code>, <code>TABLE</code>, table column</td>
-</tr>
-<tr>
-<td><code>DELETE</code></td>
-<td><code>d</code></td>
-<td><code>TABLE</code></td>
-</tr>
-<tr>
-<td><code>TRUNCATE</code></td>
-<td><code>D</code></td>
-<td><code>TABLE</code></td>
-</tr>
-<tr>
-<td><code>REFERENCES</code></td>
-<td><code>x</code></td>
-<td><code>TABLE</code>, table column</td>
-</tr>
-<tr>
-<td><code>TRIGGER</code></td>
-<td><code>t</code></td>
-<td><code>TABLE</code></td>
-</tr>
-<tr>
-<td><code>CREATE</code></td>
-<td><code>C</code></td>
-<td><code>DATABASE</code>, <code>SCHEMA</code>, <code>TABLESPACE</code></td>
-</tr>
-<tr>
-<td><code>CONNECT</code></td>
-<td><code>c</code></td>
-<td><code>DATABASE</code></td>
-</tr>
-<tr>
-<td><code>TEMPORARY</code></td>
-<td><code>T</code></td>
-<td><code>DATABASE</code></td>
-</tr>
-<tr>
-<td><code>EXECUTE</code></td>
-<td><code>X</code></td>
-<td><code>FUNCTION</code>, <code>PROCEDURE</code></td>
-</tr>
-<tr>
-<td><code>USAGE</code></td>
-<td><code>U</code></td>
-<td><code>DOMAIN</code>, <code>FOREIGN DATA WRAPPER</code>, <code>FOREIGN SERVER</code>, <code>LANGUAGE</code>, <code>SCHEMA</code>, <code>SEQUENCE</code>, <code>TYPE</code></td>
-</tr>
-</tbody></table>
-<p><a target="_blank" rel="noopener" href="http://www.postgres.cn/docs/12/ddl-priv.html#PRIVILEGES-SUMMARY-TABLE">表 5.2</a> 使用上面所示的缩写总结了每种类型 SQL 对象可用的权限. 它还显示可用于检查每种对象类型的特权设置的 psql 命令。</p>
-<p><strong>表 5.2. 访问权限摘要</strong></p>
-<table>
-<thead>
-<tr>
-<th>对象类型</th>
-<th>所有权限</th>
-<th>默认 <code>PUBLIC</code> 权限</th>
-<th>psql 命令</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>DATABASE</code></td>
-<td><code>CTc</code></td>
-<td><code>Tc</code></td>
-<td><code>\l</code></td>
-</tr>
-<tr>
-<td><code>DOMAIN</code></td>
-<td><code>U</code></td>
-<td><code>U</code></td>
-<td><code>\dD+</code></td>
-</tr>
-<tr>
-<td><code>FUNCTION</code> or <code>PROCEDURE</code></td>
-<td><code>X</code></td>
-<td><code>X</code></td>
-<td><code>\df+</code></td>
-</tr>
-<tr>
-<td><code>FOREIGN DATA WRAPPER</code></td>
-<td><code>U</code></td>
-<td>none</td>
-<td><code>\dew+</code></td>
-</tr>
-<tr>
-<td><code>FOREIGN SERVER</code></td>
-<td><code>U</code></td>
-<td>none</td>
-<td><code>\des+</code></td>
-</tr>
-<tr>
-<td><code>LANGUAGE</code></td>
-<td><code>U</code></td>
-<td><code>U</code></td>
-<td><code>\dL+</code></td>
-</tr>
-<tr>
-<td><code>LARGE OBJECT</code></td>
-<td><code>rw</code></td>
-<td>none</td>
-<td></td>
-</tr>
-<tr>
-<td><code>SCHEMA</code></td>
-<td><code>UC</code></td>
-<td>none</td>
-<td><code>\dn+</code></td>
-</tr>
-<tr>
-<td><code>SEQUENCE</code></td>
-<td><code>rwU</code></td>
-<td>none</td>
-<td><code>\dp</code></td>
-</tr>
-<tr>
-<td><code>TABLE</code> (and table-like objects)</td>
-<td><code>arwdDxt</code></td>
-<td>none</td>
-<td><code>\dp</code></td>
-</tr>
-<tr>
-<td>Table column</td>
-<td><code>arwx</code></td>
-<td>none</td>
-<td><code>\dp</code></td>
-</tr>
-<tr>
-<td><code>TABLESPACE</code></td>
-<td><code>C</code></td>
-<td>none</td>
-<td><code>\db+</code></td>
-</tr>
-<tr>
-<td><code>TYPE</code></td>
-<td><code>U</code></td>
-<td><code>U</code></td>
-<td><code>\dT+</code></td>
-</tr>
-</tbody></table>
-<p>已授予特定对象的权限显示为<code>aclitem</code>项的列表，其中每个<code>aclitem</code>项描述了特定授予者授予给一个被授与者的权限。 例如，<code>calvin=r*w/hobbes</code> 指明角色<code>calvin</code>具有<code>SELECT</code>（<code>r</code>）权限和授予选项（<code>*</code>）以及不可授予权限<code>UPDATE</code>（<code>w</code>），均由角色<code>hobbes</code>授予。 如果<code>calvin</code>对由其他授予人授予的同一对象也具有一些权限，那将显示为单独的<code>aclitem</code>条目。 <code>aclitem</code> 中的空受赠方字段代表<code>PUBLIC</code>。</p>
-<p>例如，假设用户<code>miriam</code>创建了表<code>mytable</code>并且:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GRANT SELECT ON mytable TO PUBLIC;</span><br><span class="line">GRANT SELECT, UPDATE, INSERT ON mytable TO admin;</span><br><span class="line">GRANT SELECT (col1), UPDATE (col1) ON mytable TO miriam_rw;</span><br></pre></td></tr></table></figure>
-
-<p>则 psql的 <code>\dp</code> 命令将显示:</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">=&gt; \dp mytable</span><br><span class="line">                                  Access privileges</span><br><span class="line"> Schema |  Name   | Type  |   Access privileges   |   Column privileges   | Policies</span><br><span class="line">-−-−-−-−+-−-−-−-−-+-−-−-−-+-−-−-−-−-−-−-−-−-−-−-−-+-−-−-−-−-−-−-−-−-−-−-−-+-−-−-−-−-−</span><br><span class="line"> public | mytable | table | miriam=arwdDxt/miriam+| col1:                +|</span><br><span class="line">        |         |       | =r/miriam            +|   miriam_rw=rw/miriam |</span><br><span class="line">        |         |       | admin=arw/miriam      |                       |</span><br><span class="line">(1 row)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>如果“Access privileges”列对于给定对象为空，则表示该对象具有默认权限（也就是说，它在相关系统目录中的权限条目为空）。 默认权限始终包含所有者的所有权限，并且可以包括 <code>PUBLIC</code> 的一些权限，具体取决于对象类型，如上所述。 对象上的第一个<code>GRANT</code>或<code>REVOKE</code>将实例化默认权限（例如，生成<code>miriam_arwdDxt/miriam</code>），然后根据指定的请求修改它们。 类似的，只有具有非默认特权的列的条目才显示在“Column privileges”中。（注意：为此目的，“default privileges”始终表示对象类型的内置缺省权限。其权限受<code>ALTER DEFAULT PRIVILEGES</code> 命令影响的对象将始终显示一个显式权限条目，其中包含 <code>ALTER</code>。）</p>
-<p>注意所有者的隐式授予选项没有在访问权限显示中标记。仅当授予选项被显式授予给某人时才会出现<code>*</code>。</p>
 
       
 
@@ -942,11 +1035,33 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">SpEL</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Spring//" class="article-tag-list-link color2">Spring</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/08/25/Postgres/02.%E6%9D%83%E9%99%90/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/11/Spring/SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/">展开全文 >></a>
         </p>
       
 
@@ -978,7 +1093,7 @@
   
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">« Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next »</a>
+      <a class="extend prev" rel="prev" href="/">« Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">Next »</a>
     </nav>
   
 
@@ -1064,7 +1179,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+                <a href="javascript:void(0)" class="js-tag color2">README</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1072,7 +1187,35 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Kafka</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Dubbo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpEL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SpringBoot实战</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SpringBoot源码</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">RocketMQ</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1081,10 +1224,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Future模式</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1097,6 +1236,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">Synchronized</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
             
             <div class="clearfix"></div>
