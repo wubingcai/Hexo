@@ -6,19 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>WuBingCai</title>
+  <title>生产者Producer | WuBingCai</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Nacos配置中心">
+  <meta name="description" content="生产者Producer定义生产者是Rocket系统中用来构建并传输消息到服务端的运行实体 可定义的传输行为发送方式生产者通过API接口设置消息的发送方式  同步传输 异步传输  批量发送生产者可通过API定义消息批量发送的属性  批量发送的消息条数 批量发送的消息大小  事务行为RocketMQ支持事务行为，需要生产者配合进行事务检查等行为保障事务的一致性 生产者和主题的关系为多对多关系 内部属性">
 <meta property="og:type" content="article">
-<meta property="og:title" content="WuBingCai">
-<meta property="og:url" content="http://example.com/2022/09/14/Nacos/01.Nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/index.html">
+<meta property="og:title" content="生产者Producer">
+<meta property="og:url" content="http://example.com/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/index.html">
 <meta property="og:site_name" content="WuBingCai">
-<meta property="og:description" content="Nacos配置中心">
+<meta property="og:description" content="生产者Producer定义生产者是Rocket系统中用来构建并传输消息到服务端的运行实体 可定义的传输行为发送方式生产者通过API接口设置消息的发送方式  同步传输 异步传输  批量发送生产者可通过API定义消息批量发送的属性  批量发送的消息条数 批量发送的消息大小  事务行为RocketMQ支持事务行为，需要生产者配合进行事务检查等行为保障事务的一致性 生产者和主题的关系为多对多关系 内部属性">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-09-14T15:41:17.647Z">
-<meta property="article:modified_time" content="2022-09-14T15:41:38.942Z">
+<meta property="og:image" content="http://example.com/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/image-20221025002607166.png">
+<meta property="article:published_time" content="2022-10-24T12:33:00.000Z">
+<meta property="article:modified_time" content="2022-10-24T16:51:30.915Z">
 <meta property="article:author" content="WuBingCai">
+<meta property="article:tag" content="RocketMQ">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/image-20221025002607166.png">
   
     <link rel="alternative" href="/atom.xml" title="WuBingCai" type="application/atom+xml">
   
@@ -138,12 +141,67 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Nacos/01.Nacos配置中心" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-RocketMQ/05.生产者Producer" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      生产者Producer
+    </h1>
+  
+
+        
+        <a href="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/" class="archive-article-date">
+  	<time datetime="2022-10-24T12:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-24</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Nacos配置中心"><a href="#Nacos配置中心" class="headerlink" title="Nacos配置中心"></a>Nacos配置中心</h2>
+        <h1 id="生产者Producer"><a href="#生产者Producer" class="headerlink" title="生产者Producer"></a>生产者Producer</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>生产者是Rocket系统中用来构建并传输消息到服务端的运行实体</p>
+<h4 id="可定义的传输行为"><a href="#可定义的传输行为" class="headerlink" title="可定义的传输行为"></a>可定义的传输行为</h4><h5 id="发送方式"><a href="#发送方式" class="headerlink" title="发送方式"></a>发送方式</h5><p>生产者通过API接口设置消息的发送方式</p>
+<ul>
+<li>同步传输</li>
+<li>异步传输</li>
+</ul>
+<h5 id="批量发送"><a href="#批量发送" class="headerlink" title="批量发送"></a>批量发送</h5><p>生产者可通过API定义消息批量发送的属性</p>
+<ul>
+<li>批量发送的消息条数</li>
+<li>批量发送的消息大小</li>
+</ul>
+<h5 id="事务行为"><a href="#事务行为" class="headerlink" title="事务行为"></a>事务行为</h5><p>RocketMQ支持事务行为，需要生产者配合进行事务检查等行为保障事务的一致性</p>
+<h5 id="生产者和主题的关系为多对多关系"><a href="#生产者和主题的关系为多对多关系" class="headerlink" title="生产者和主题的关系为多对多关系"></a>生产者和主题的关系为多对多关系</h5><p><img src="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/image-20221025002607166.png" alt="image-20221025002607166"></p>
+<h2 id="内部属性"><a href="#内部属性" class="headerlink" title="内部属性"></a>内部属性</h2><h4 id="一、客户端ID"><a href="#一、客户端ID" class="headerlink" title="一、客户端ID"></a>一、客户端ID</h4><h5 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h5><p>集群内全局唯一的生产者客户端标识，用于区分不同的生产者</p>
+<h5 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h5><p>客户端ID由RocketMQ的SDK自动生成，不支持修改，仅在运维场景下用于日志查看，问题定位，不支持修改</p>
+<h4 id="二、通信参数"><a href="#二、通信参数" class="headerlink" title="二、通信参数"></a>二、通信参数</h4><h5 id="接入点信息（必选）"><a href="#接入点信息（必选）" class="headerlink" title="接入点信息（必选）"></a>接入点信息（必选）</h5><p>连接服务器的接入地址，用于识别服务端集群。接入点必须按照格式配置，建议使用域名，避免IP变更导致无法进行热点迁移</p>
+<h5 id="身份认证信息（可选）"><a href="#身份认证信息（可选）" class="headerlink" title="身份认证信息（可选）"></a>身份认证信息（可选）</h5><p>客户端用于身份验证的凭证信息，仅在服务端开启身份识别和认证时需要传输</p>
+<h5 id="请求超时时间（可选）"><a href="#请求超时时间（可选）" class="headerlink" title="请求超时时间（可选）"></a>请求超时时间（可选）</h5><p>客户端网络的请求超时时间</p>
+<h4 id="三、预绑定主题列表"><a href="#三、预绑定主题列表" class="headerlink" title="三、预绑定主题列表"></a>三、预绑定主题列表</h4><h5 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h5><p>RocketMQ生产者需要将消息发送到的主题列表</p>
+<h5 id="主要作用"><a href="#主要作用" class="headerlink" title="主要作用"></a>主要作用</h5><p>事务消息（必须设置）：事务消息场景下，生产者在故障恢复，重启恢复的时候需要检查事务消息中的主题是否有未提交的事务消息。避免生产者在发送新消息后，主题中的旧事务消息一直处于未提交状态，造成业务延迟</p>
+<p>非事务消息（建议设置）：<em>服务端</em>会在生产者初始化时根据预绑定主题列表检查目标主题的访问权限和合法性，而不需要等到应用启动之后再进行检查</p>
+<p>如果没有设置，当后面的目标主题动态变更，RocketMq会对主题进行动态校验</p>
+<h5 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h5><p>对于事务消息，预绑定主题列表必须设置，且需要和事务检查器一起配合使用</p>
+<h4 id="四、事务检查器"><a href="#四、事务检查器" class="headerlink" title="四、事务检查器"></a>四、事务检查器</h4><h5 id="定义-3"><a href="#定义-3" class="headerlink" title="定义"></a>定义</h5><p>RocketMQ的事务机制中，为了保证异常场景下的事务一致性，生产者需要主动实现事务检查器的接口</p>
+<h5 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h5><p>发送事务消息时，事务检查器必须设置，且需要和预绑定主题列表一起配合使用</p>
+<h4 id="五、发送重试策略"><a href="#五、发送重试策略" class="headerlink" title="五、发送重试策略"></a>五、发送重试策略</h4><p>生产者在发送消息时候的重试策略</p>
+<h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><h5 id="不建议单一进程创建大量生产者"><a href="#不建议单一进程创建大量生产者" class="headerlink" title="不建议单一进程创建大量生产者"></a>不建议单一进程创建大量生产者</h5><p>RocketMQ的生产者和主题是多对多关系，支持一个生产者向多个主题发送消息。对于生产者的创建和初始化，应该遵循<strong>够用即可</strong>，<strong>最大化复用</strong>的原则。如果遇到需要向多个主题发送消息的情况，没有必要为每个主题都创建生产者</p>
+<h5 id="不建议频繁创建和销毁生产者"><a href="#不建议频繁创建和销毁生产者" class="headerlink" title="不建议频繁创建和销毁生产者"></a>不建议频繁创建和销毁生产者</h5><p>RocketMQ的生产者是可以重复利用的底层资源，类似于数据库的连接池。没有必要在发送消息的时候创建生产者，在发送结束之后销毁生产者。这样频繁的创建和销毁会在服务端生成大量的短连接请求，严重影响系统性能</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正确</span></span><br><span class="line">Producer p = ProducerBuilder.build();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    Message m= MessageBuilder.build();</span><br><span class="line">    p.send(m);</span><br><span class="line"> &#125;</span><br><span class="line">p.shutdown();</span><br><span class="line"><span class="comment">// 错误</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    Producer p = ProducerBuilder.build();</span><br><span class="line">    Message m= MessageBuilder.build();</span><br><span class="line">    p.send(m);</span><br><span class="line">    p.shutdown();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
       
 
       
@@ -151,7 +209,29 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
 
@@ -164,18 +244,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2022/10/24/RocketMQ/04.%E6%B6%88%E6%81%AFMessage/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          Callable接口
+          消息Message
         
       </div>
     </a>
   
   
-    <a href="/2022/09/09/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/07.ReentrantLock/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title"></div>
+    <a href="/2022/10/24/RocketMQ/07.%E6%B6%88%E8%B4%B9%E8%80%85Consumer/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">消费者Consumer</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -202,7 +282,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="toc-number">1.</span> <span class="toc-text">Nacos配置中心</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85Producer"><span class="toc-number">1.</span> <span class="toc-text">生产者Producer</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-number">1.1.</span> <span class="toc-text">定义</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%AF%E5%AE%9A%E4%B9%89%E7%9A%84%E4%BC%A0%E8%BE%93%E8%A1%8C%E4%B8%BA"><span class="toc-number">1.1.0.1.</span> <span class="toc-text">可定义的传输行为</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%91%E9%80%81%E6%96%B9%E5%BC%8F"><span class="toc-number">1.1.0.1.1.</span> <span class="toc-text">发送方式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%89%B9%E9%87%8F%E5%8F%91%E9%80%81"><span class="toc-number">1.1.0.1.2.</span> <span class="toc-text">批量发送</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%8B%E5%8A%A1%E8%A1%8C%E4%B8%BA"><span class="toc-number">1.1.0.1.3.</span> <span class="toc-text">事务行为</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E5%92%8C%E4%B8%BB%E9%A2%98%E7%9A%84%E5%85%B3%E7%B3%BB%E4%B8%BA%E5%A4%9A%E5%AF%B9%E5%A4%9A%E5%85%B3%E7%B3%BB"><span class="toc-number">1.1.0.1.4.</span> <span class="toc-text">生产者和主题的关系为多对多关系</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E5%B1%9E%E6%80%A7"><span class="toc-number">1.2.</span> <span class="toc-text">内部属性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AFID"><span class="toc-number">1.2.0.1.</span> <span class="toc-text">一、客户端ID</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="toc-number">1.2.0.1.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%96%E5%80%BC"><span class="toc-number">1.2.0.1.2.</span> <span class="toc-text">取值</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%80%9A%E4%BF%A1%E5%8F%82%E6%95%B0"><span class="toc-number">1.2.0.2.</span> <span class="toc-text">二、通信参数</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8E%A5%E5%85%A5%E7%82%B9%E4%BF%A1%E6%81%AF%EF%BC%88%E5%BF%85%E9%80%89%EF%BC%89"><span class="toc-number">1.2.0.2.1.</span> <span class="toc-text">接入点信息（必选）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E4%BF%A1%E6%81%AF%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="toc-number">1.2.0.2.2.</span> <span class="toc-text">身份认证信息（可选）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="toc-number">1.2.0.2.3.</span> <span class="toc-text">请求超时时间（可选）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%A2%84%E7%BB%91%E5%AE%9A%E4%B8%BB%E9%A2%98%E5%88%97%E8%A1%A8"><span class="toc-number">1.2.0.3.</span> <span class="toc-text">三、预绑定主题列表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="toc-number">1.2.0.3.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E4%BD%9C%E7%94%A8"><span class="toc-number">1.2.0.3.2.</span> <span class="toc-text">主要作用</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BA%A6%E6%9D%9F"><span class="toc-number">1.2.0.3.3.</span> <span class="toc-text">约束</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%BA%8B%E5%8A%A1%E6%A3%80%E6%9F%A5%E5%99%A8"><span class="toc-number">1.2.0.4.</span> <span class="toc-text">四、事务检查器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-3"><span class="toc-number">1.2.0.4.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">1.2.0.4.2.</span> <span class="toc-text">使用</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%91%E9%80%81%E9%87%8D%E8%AF%95%E7%AD%96%E7%95%A5"><span class="toc-number">1.2.0.5.</span> <span class="toc-text">五、发送重试策略</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="toc-number">1.3.</span> <span class="toc-text">使用建议</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%8D%E5%BB%BA%E8%AE%AE%E5%8D%95%E4%B8%80%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA%E5%A4%A7%E9%87%8F%E7%94%9F%E4%BA%A7%E8%80%85"><span class="toc-number">1.3.0.0.1.</span> <span class="toc-text">不建议单一进程创建大量生产者</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%8D%E5%BB%BA%E8%AE%AE%E9%A2%91%E7%B9%81%E5%88%9B%E5%BB%BA%E5%92%8C%E9%94%80%E6%AF%81%E7%94%9F%E4%BA%A7%E8%80%85"><span class="toc-number">1.3.0.0.2.</span> <span class="toc-text">不建议频繁创建和销毁生产者</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
                     </div>
                 </span>
             </div>

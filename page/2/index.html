@@ -138,6 +138,389 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-RocketMQ/05.生产者Producer" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/">生产者Producer</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/" class="archive-article-date">
+  	<time datetime="2022-10-24T12:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-24</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="生产者Producer"><a href="#生产者Producer" class="headerlink" title="生产者Producer"></a>生产者Producer</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>生产者是Rocket系统中用来构建并传输消息到服务端的运行实体</p>
+<h4 id="可定义的传输行为"><a href="#可定义的传输行为" class="headerlink" title="可定义的传输行为"></a>可定义的传输行为</h4><h5 id="发送方式"><a href="#发送方式" class="headerlink" title="发送方式"></a>发送方式</h5><p>生产者通过API接口设置消息的发送方式</p>
+<ul>
+<li>同步传输</li>
+<li>异步传输</li>
+</ul>
+<h5 id="批量发送"><a href="#批量发送" class="headerlink" title="批量发送"></a>批量发送</h5><p>生产者可通过API定义消息批量发送的属性</p>
+<ul>
+<li>批量发送的消息条数</li>
+<li>批量发送的消息大小</li>
+</ul>
+<h5 id="事务行为"><a href="#事务行为" class="headerlink" title="事务行为"></a>事务行为</h5><p>RocketMQ支持事务行为，需要生产者配合进行事务检查等行为保障事务的一致性</p>
+<h5 id="生产者和主题的关系为多对多关系"><a href="#生产者和主题的关系为多对多关系" class="headerlink" title="生产者和主题的关系为多对多关系"></a>生产者和主题的关系为多对多关系</h5><p><img src="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/image-20221025002607166.png" alt="image-20221025002607166"></p>
+<h2 id="内部属性"><a href="#内部属性" class="headerlink" title="内部属性"></a>内部属性</h2><h4 id="一、客户端ID"><a href="#一、客户端ID" class="headerlink" title="一、客户端ID"></a>一、客户端ID</h4><h5 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h5><p>集群内全局唯一的生产者客户端标识，用于区分不同的生产者</p>
+<h5 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h5><p>客户端ID由RocketMQ的SDK自动生成，不支持修改，仅在运维场景下用于日志查看，问题定位，不支持修改</p>
+<h4 id="二、通信参数"><a href="#二、通信参数" class="headerlink" title="二、通信参数"></a>二、通信参数</h4><h5 id="接入点信息（必选）"><a href="#接入点信息（必选）" class="headerlink" title="接入点信息（必选）"></a>接入点信息（必选）</h5><p>连接服务器的接入地址，用于识别服务端集群。接入点必须按照格式配置，建议使用域名，避免IP变更导致无法进行热点迁移</p>
+<h5 id="身份认证信息（可选）"><a href="#身份认证信息（可选）" class="headerlink" title="身份认证信息（可选）"></a>身份认证信息（可选）</h5><p>客户端用于身份验证的凭证信息，仅在服务端开启身份识别和认证时需要传输</p>
+<h5 id="请求超时时间（可选）"><a href="#请求超时时间（可选）" class="headerlink" title="请求超时时间（可选）"></a>请求超时时间（可选）</h5><p>客户端网络的请求超时时间</p>
+<h4 id="三、预绑定主题列表"><a href="#三、预绑定主题列表" class="headerlink" title="三、预绑定主题列表"></a>三、预绑定主题列表</h4><h5 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h5><p>RocketMQ生产者需要将消息发送到的主题列表</p>
+<h5 id="主要作用"><a href="#主要作用" class="headerlink" title="主要作用"></a>主要作用</h5><p>事务消息（必须设置）：事务消息场景下，生产者在故障恢复，重启恢复的时候需要检查事务消息中的主题是否有未提交的事务消息。避免生产者在发送新消息后，主题中的旧事务消息一直处于未提交状态，造成业务延迟</p>
+<p>非事务消息（建议设置）：<em>服务端</em>会在生产者初始化时根据预绑定主题列表检查目标主题的访问权限和合法性，而不需要等到应用启动之后再进行检查</p>
+<p>如果没有设置，当后面的目标主题动态变更，RocketMq会对主题进行动态校验</p>
+<h5 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h5><p>对于事务消息，预绑定主题列表必须设置，且需要和事务检查器一起配合使用</p>
+<h4 id="四、事务检查器"><a href="#四、事务检查器" class="headerlink" title="四、事务检查器"></a>四、事务检查器</h4><h5 id="定义-3"><a href="#定义-3" class="headerlink" title="定义"></a>定义</h5><p>RocketMQ的事务机制中，为了保证异常场景下的事务一致性，生产者需要主动实现事务检查器的接口</p>
+<h5 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h5><p>发送事务消息时，事务检查器必须设置，且需要和预绑定主题列表一起配合使用</p>
+<h4 id="五、发送重试策略"><a href="#五、发送重试策略" class="headerlink" title="五、发送重试策略"></a>五、发送重试策略</h4><p>生产者在发送消息时候的重试策略</p>
+<h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><h5 id="不建议单一进程创建大量生产者"><a href="#不建议单一进程创建大量生产者" class="headerlink" title="不建议单一进程创建大量生产者"></a>不建议单一进程创建大量生产者</h5><p>RocketMQ的生产者和主题是多对多关系，支持一个生产者向多个主题发送消息。对于生产者的创建和初始化，应该遵循<strong>够用即可</strong>，<strong>最大化复用</strong>的原则。如果遇到需要向多个主题发送消息的情况，没有必要为每个主题都创建生产者</p>
+<h5 id="不建议频繁创建和销毁生产者"><a href="#不建议频繁创建和销毁生产者" class="headerlink" title="不建议频繁创建和销毁生产者"></a>不建议频繁创建和销毁生产者</h5><p>RocketMQ的生产者是可以重复利用的底层资源，类似于数据库的连接池。没有必要在发送消息的时候创建生产者，在发送结束之后销毁生产者。这样频繁的创建和销毁会在服务端生成大量的短连接请求，严重影响系统性能</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正确</span></span><br><span class="line">Producer p = ProducerBuilder.build();</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    Message m= MessageBuilder.build();</span><br><span class="line">    p.send(m);</span><br><span class="line"> &#125;</span><br><span class="line">p.shutdown();</span><br><span class="line"><span class="comment">// 错误</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i =<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    Producer p = ProducerBuilder.build();</span><br><span class="line">    Message m= MessageBuilder.build();</span><br><span class="line">    p.send(m);</span><br><span class="line">    p.shutdown();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-RocketMQ/07.消费者Consumer" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/24/RocketMQ/07.%E6%B6%88%E8%B4%B9%E8%80%85Consumer/">消费者Consumer</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/24/RocketMQ/07.%E6%B6%88%E8%B4%B9%E8%80%85Consumer/" class="archive-article-date">
+  	<time datetime="2022-10-24T12:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-24</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="消费者Consumer"><a href="#消费者Consumer" class="headerlink" title="消费者Consumer"></a>消费者Consumer</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>RocketMQ框架中用来接收并处理消息的应用程序</p>
+<p>消费端可以定义的传输行为有：（这里为什么不叫属性，应该是这些东西是属性的集合，应用场景更多在传输中）</p>
+<ul>
+<li><p>消费者身份</p>
+<p>消费者必须通过消费者身份关联一个消费者分组，从而获取分组内的统一行为</p>
+</li>
+<li><p>消费者类型</p>
+<p>消费者的拉取消息的方式不同决定了消费者类型的不同，主要的分类有：</p>
+<ol>
+<li><p><em>PushSimple类型</em> </p>
+<p>消费者设置监听器，监听服务端推送的消息</p>
+</li>
+<li><p><em>SimpleConsumer类型</em></p>
+</li>
+<li><p><em>PullConsumer类型</em></p>
+</li>
+</ol>
+</li>
+<li><p>消费者本地运行配置</p>
+<p>就是消费者本地运行的配置，主要包括消费线程数，消息并发度等</p>
+</li>
+</ul>
+<h2 id="内部属性"><a href="#内部属性" class="headerlink" title="内部属性"></a>内部属性</h2><h4 id="一、消费者分组名称"><a href="#一、消费者分组名称" class="headerlink" title="一、消费者分组名称"></a>一、消费者分组名称</h4><h5 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h5><p>当前消费者关联的消费者分组的名称，消费者必须通过关联消费者分组获取消费行为</p>
+<h5 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h5><p>同消费者分组的取值，通过控制台或者客户端API进行创建</p>
+<h4 id="二、客户端ID"><a href="#二、客户端ID" class="headerlink" title="二、客户端ID"></a>二、客户端ID</h4><h5 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h5><p>消费者客户端的全局唯一标识符</p>
+<h5 id="取值-1"><a href="#取值-1" class="headerlink" title="取值"></a>取值</h5><p>由RocketMQ的SDK自动生成，主要用于日志查看，问题定位等场景，不支持修改</p>
+<h4 id="三、通信参数"><a href="#三、通信参数" class="headerlink" title="三、通信参数"></a>三、通信参数</h4><p>分类</p>
+<ul>
+<li><p>接入点信息（必选） </p>
+<p>连接服务端的接入地址</p>
+</li>
+<li><p>身份认证信息（可选）</p>
+<p>如果服务端开启身份认证，需要配置身份认证信息</p>
+</li>
+<li><p>请求超时时间（可选）</p>
+<p>客户端网络请求超时时间</p>
+</li>
+</ul>
+<h4 id="四、预绑定订阅关系列表"><a href="#四、预绑定订阅关系列表" class="headerlink" title="四、预绑定订阅关系列表"></a>四、预绑定订阅关系列表</h4><h5 id="定义-3"><a href="#定义-3" class="headerlink" title="定义"></a>定义</h5><p>用来指定消费者的订阅关系列表，RocketMQ服务端可在消费者初始化阶段，根据预绑定的订阅关系列表对目标主题进行权限和合法性校验，无需等到应用启动后才开始校验</p>
+<h5 id="取值-2"><a href="#取值-2" class="headerlink" title="取值"></a>取值</h5><p>建议在应用启动的时候就明确订阅关系列表。如果没有设置或者进行了动态变更，RocketMQ客户端会对目标主题进行动态补充校验</p>
+<h4 id="五、消息监听器"><a href="#五、消息监听器" class="headerlink" title="五、消息监听器"></a>五、消息监听器</h4><h5 id="定义-4"><a href="#定义-4" class="headerlink" title="定义"></a>定义</h5><p>服务端将消息推送给消费者后，消费者调用消费逻辑的监听器</p>
+<h5 id="取值-3"><a href="#取值-3" class="headerlink" title="取值"></a>取值</h5><p>客户端自己写</p>
+<h5 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h5><p>使用PushConusmer消费类型的时候，必须设置监听器</p>
+<h2 id="行为约束"><a href="#行为约束" class="headerlink" title="行为约束"></a>行为约束</h2><h5 id="投递顺序"><a href="#投递顺序" class="headerlink" title="投递顺序"></a>投递顺序</h5><h5 id="消费重试策略"><a href="#消费重试策略" class="headerlink" title="消费重试策略"></a>消费重试策略</h5><h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><h5 id="不建议在一个应用内创建大量消费者"><a href="#不建议在一个应用内创建大量消费者" class="headerlink" title="不建议在一个应用内创建大量消费者"></a>不建议在一个应用内创建大量消费者</h5><h5 id="不建议频繁创建和销毁消费者"><a href="#不建议频繁创建和销毁消费者" class="headerlink" title="不建议频繁创建和销毁消费者"></a>不建议频繁创建和销毁消费者</h5>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/24/RocketMQ/07.%E6%B6%88%E8%B4%B9%E8%80%85Consumer/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-RocketMQ/06.消费者分组ConsumerGroup" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2022/10/24/RocketMQ/06.%E6%B6%88%E8%B4%B9%E8%80%85%E5%88%86%E7%BB%84ConsumerGroup/">消费者分组ConsumerGroup</a>
+    </h1>
+  
+
+        
+        <a href="/2022/10/24/RocketMQ/06.%E6%B6%88%E8%B4%B9%E8%80%85%E5%88%86%E7%BB%84ConsumerGroup/" class="archive-article-date">
+  	<time datetime="2022-10-24T12:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-24</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="消费者分组ConsumerGroup"><a href="#消费者分组ConsumerGroup" class="headerlink" title="消费者分组ConsumerGroup"></a>消费者分组ConsumerGroup</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>消费者分组是RocketMQ中承载多个消费行为一致性的消费者的负载均衡分组</p>
+<p>和消费者不同，消费者并不是运行实体，而是逻辑资源</p>
+<p>在消费者分组中，可以统一定义消费行为。同一个分组下的多个消费者按照分组内统一的消费行为和负载均衡策略消费消息</p>
+<h5 id="统一定义的消费行为"><a href="#统一定义的消费行为" class="headerlink" title="统一定义的消费行为"></a>统一定义的消费行为</h5><ul>
+<li><p>订阅关系</p>
+<p>RocketMQ以消费者分组的粒度管理订阅关系，实现订阅关系的管理和追溯</p>
+</li>
+<li><p>投递顺序性</p>
+<p>服务端将消息投递给消费者消费时，支持顺序投递和并发投递，投递方式在消费者分组中统一配置</p>
+</li>
+<li><p>消费重试策略</p>
+<p>消费者消费失败时候的重试策略，包括重试次数，死信设置等</p>
+<h6 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h6><ul>
+<li><p>最大重试次数</p>
+<p>消费者可以被投递的最大重试次数，超过最大重试次数还没有被消费成功，消息会被投递到死信队列之中</p>
+</li>
+<li><p>重试间隔</p>
+<p>RocketMQ服务端重新投递消息的时间间隔</p>
+</li>
+</ul>
+</li>
+<li><p>订阅关系集合</p>
+<p>当前消费者分组关联的订阅关系集合</p>
+<ul>
+<li>消费者订阅的主题</li>
+<li>消息的过滤规则</li>
+</ul>
+<p>订阅关系由消费者动态注册到消费者分组中</p>
+<p>RocketMQ会持久化订阅关系并匹配消息的消费进度    </p>
+</li>
+</ul>
+<h2 id="行为约束"><a href="#行为约束" class="headerlink" title="行为约束"></a>行为约束</h2><p>在RocketMQ的领域模型中，消费者的管理通过消费者分组实现，同一个消费者分组下的消费者分担消息的消费</p>
+<p>为了实现上面目的，需要在同一个消费者分组下面保持消息的一致性</p>
+<ol>
+<li>投递顺序</li>
+<li>消息重试策略</li>
+</ol>
+<h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><h5 id="按照业务合理拆分分组"><a href="#按照业务合理拆分分组" class="headerlink" title="按照业务合理拆分分组"></a>按照业务合理拆分分组</h5><p>RocketMQ的消息和主题是多对多的关系，对于消费者分组的设计和拆分，应该遵循以下原则</p>
+<ul>
+<li><p>消费者的投递顺序一致</p>
+<p>同一个消费者分组下的消费者的消息投递顺序是一致的，统一都是顺序投递或者并发投递，不同业务场景不能混用</p>
+</li>
+<li><p>消费者业务类型一致</p>
+<p>一般消费者分组和主题对应，不同业务域对消息的要求不同。这里主要指的是消息过滤属性，消息重试策略的不同。因此不同业务域应该使用不同的消费者分组，消费者分组和主题应该是对应关系，同时应该避免一个消费者分组消费超过10个主题</p>
+</li>
+</ul>
+<h5 id="消费者分组应该尽量避免自动化管理"><a href="#消费者分组应该尽量避免自动化管理" class="headerlink" title="消费者分组应该尽量避免自动化管理"></a>消费者分组应该尽量避免自动化管理</h5><p>在RocketMQ的架构中，消费者分组属于状态管理类的逻辑资源，每个消费者分组都会涉及到消息状态、堆积信息、可观测指标和监控采集数据。因此，生产环境应该严格把控，不能随意CRUD</p>
+<p>RocketMQ虽然提供了自动创建消费者分组的功能，但是这个功能应该被关闭，避免创建大量无意义的消费者分组，无法管理和回收，造成浪费</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2022/10/24/RocketMQ/06.%E6%B6%88%E8%B4%B9%E8%80%85%E5%88%86%E7%BB%84ConsumerGroup/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-RocketMQ/01.基本概念" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -368,94 +751,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2022/10/23/RocketMQ/02.%E4%B8%BB%E9%A2%98Topic/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-SpringBoot实战笔记/01.疑问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">疑问</a>
-    </h1>
-  
-
-        
-        <a href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/" class="archive-article-date">
-  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ol>
-<li><code>@AutoConfiguration</code>是干嘛用的？</li>
-<li></li>
-</ol>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot实战</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/SpringBoot实战//" class="article-tag-list-link color3">SpringBoot实战</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">展开全文 >></a>
         </p>
       
 
@@ -903,130 +1198,30 @@
 
 
   
-    <article id="post-PostgresSQL/复制槽/00.相关函数" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 创建复制槽</span></span><br><span class="line"><span class="comment">-- 创建一个名为b_slot_test的test_decoding编码的逻辑复制槽 需要用超级用户才能创建</span></span><br><span class="line"><span class="keyword">select</span> pg_create_logical_replication_slot(<span class="string">&#x27;b_slot_test&#x27;</span>,<span class="string">&#x27;test_decoding&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 删除复制槽</span></span><br><span class="line"><span class="keyword">select</span> pg_drop_replication_slot(<span class="string">&#x27;a_slot_test&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询复制槽</span></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> pg_replication_slots;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查询逻辑复制状态</span></span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> pg_stat_replication;</span><br></pre></td></tr></table></figure>
-
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/21/PostgresSQL/%E5%A4%8D%E5%88%B6%E6%A7%BD/00.%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-RocketMQ/00.疑问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/14/RocketMQ/00.%E7%96%91%E9%97%AE/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Spring/SpEL表达式" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-SpringBoot实战笔记/01.疑问" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/11/Spring/SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/">SpEL表达式</a>
+      <a class="article-title" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">疑问</a>
     </h1>
   
 
         
-        <a href="/2022/10/11/Spring/SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="archive-article-date">
-  	<time datetime="2022-10-11T06:44:59.685Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-11</time>
+        <a href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/" class="archive-article-date">
+  	<time datetime="2022-10-22T14:22:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-22</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="SpEL表达式"><a href="#SpEL表达式" class="headerlink" title="SpEL表达式"></a>SpEL表达式</h3><p>SpEL表达式概述<br>1、什么是SpEL表达式<br>SpEL:(spring expression language) 是一种表达式语言，是一种强大,简洁的装配Bean的方式。<br>他可以通过运行期间执行的表达式将值装配到我们的属性或构造函数当中,也可以调用JDK中提供的静态常量,获取外部Properties文件中的的配置。<br>2、SpEL表达式的作用<br>能够更加简单，多元的装配Bean，弥补了XML静态注入的不足。<br>简化开发，减少了一些逻辑、配置的编写，使代码更加简洁。</p>
-<p><strong>SpEL表达式的格式：<code>#&#123;表达式&#125;</code></strong></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.springframework.org/schema/beans&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> </span></span><br><span class="line"><span class="tag">	<span class="attr">xmlns:context</span>=<span class="string">&quot;http://www.springframework.org/schema/context&quot;</span></span></span><br><span class="line"><span class="tag">	<span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;</span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/beans </span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/beans/spring-beans.xsd</span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/context</span></span></span><br><span class="line"><span class="string"><span class="tag">		http://www.springframework.org/schema/context/spring-context.xsd&quot;</span>&gt;</span></span><br><span class="line">	</span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;MyMessage&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.jp.MyMessage&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;message&quot;</span> <span class="attr">value</span>=<span class="string">&quot;#&#123;systemProperties[&#x27;user.language&#x27;]&#125;&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>解释:这里使用了表达式<code>#&#123;systemProperties[&#39;user.language&#39;]&#125;</code>来设置值，用来检索用户语言系统的属性</p>
-<p>注解的方式</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.jp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyMessage2</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Value(&quot;#&#123;systemProperties[&#x27;user.language&#x27;]&#125;&quot;)</span></span><br><span class="line">	<span class="keyword">private</span> String message;</span><br><span class="line"> </span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getMessage</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> message;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+        <ol>
+<li><code>@AutoConfiguration</code>是干嘛用的？</li>
+<li></li>
+</ol>
 
       
 
@@ -1040,7 +1235,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">SpEL</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">SpringBoot实战</a>
         		</li>
       		
 		</ul>
@@ -1052,7 +1247,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Spring//" class="article-tag-list-link color2">Spring</a>
+        			<a href="/categories/SpringBoot实战//" class="article-tag-list-link color3">SpringBoot实战</a>
         		</li>
       		
 		</ul>
@@ -1061,7 +1256,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/11/Spring/SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F/">展开全文 >></a>
+          <a class="article-more-a" href="/2022/10/22/SpringBoot%E5%AE%9E%E6%88%98%E7%AC%94%E8%AE%B0/01.%E7%96%91%E9%97%AE/">展开全文 >></a>
         </p>
       
 
@@ -1183,11 +1378,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Kafka</a>
+                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1195,35 +1386,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">JVM</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">SpEL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringBoot实战</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">SpringBoot源码</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">RocketMQ</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Java多线程</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">Future模式</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Java多线程</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1239,7 +1410,31 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">ElasticSearch</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">SpEL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">RocketMQ</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SpringBoot实战</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">SpringBoot源码</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">Kafka</a>
               </li>
             
             <div class="clearfix"></div>

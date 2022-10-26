@@ -6,18 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>WuBingCai</title>
+  <title>消费者Consumer | WuBingCai</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Nacos配置中心">
+  <meta name="description" content="消费者Consumer定义RocketMQ框架中用来接收并处理消息的应用程序 消费端可以定义的传输行为有：（这里为什么不叫属性，应该是这些东西是属性的集合，应用场景更多在传输中）  消费者身份 消费者必须通过消费者身份关联一个消费者分组，从而获取分组内的统一行为  消费者类型 消费者的拉取消息的方式不同决定了消费者类型的不同，主要的分类有：  PushSimple类型  消费者设置监听器，监听服务">
 <meta property="og:type" content="article">
-<meta property="og:title" content="WuBingCai">
-<meta property="og:url" content="http://example.com/2022/09/14/Nacos/01.Nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/index.html">
+<meta property="og:title" content="消费者Consumer">
+<meta property="og:url" content="http://example.com/2022/10/24/RocketMQ/07.%E6%B6%88%E8%B4%B9%E8%80%85Consumer/index.html">
 <meta property="og:site_name" content="WuBingCai">
-<meta property="og:description" content="Nacos配置中心">
+<meta property="og:description" content="消费者Consumer定义RocketMQ框架中用来接收并处理消息的应用程序 消费端可以定义的传输行为有：（这里为什么不叫属性，应该是这些东西是属性的集合，应用场景更多在传输中）  消费者身份 消费者必须通过消费者身份关联一个消费者分组，从而获取分组内的统一行为  消费者类型 消费者的拉取消息的方式不同决定了消费者类型的不同，主要的分类有：  PushSimple类型  消费者设置监听器，监听服务">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-09-14T15:41:17.647Z">
-<meta property="article:modified_time" content="2022-09-14T15:41:38.942Z">
+<meta property="article:published_time" content="2022-10-24T12:33:00.000Z">
+<meta property="article:modified_time" content="2022-10-25T15:30:57.591Z">
 <meta property="article:author" content="WuBingCai">
+<meta property="article:tag" content="RocketMQ">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="WuBingCai" type="application/atom+xml">
@@ -138,12 +139,70 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Nacos/01.Nacos配置中心" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-RocketMQ/07.消费者Consumer" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      消费者Consumer
+    </h1>
+  
+
+        
+        <a href="/2022/10/24/RocketMQ/07.%E6%B6%88%E8%B4%B9%E8%80%85Consumer/" class="archive-article-date">
+  	<time datetime="2022-10-24T12:33:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-24</time>
+</a>
+        
+      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Nacos配置中心"><a href="#Nacos配置中心" class="headerlink" title="Nacos配置中心"></a>Nacos配置中心</h2>
+        <h1 id="消费者Consumer"><a href="#消费者Consumer" class="headerlink" title="消费者Consumer"></a>消费者Consumer</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>RocketMQ框架中用来接收并处理消息的应用程序</p>
+<p>消费端可以定义的传输行为有：（这里为什么不叫属性，应该是这些东西是属性的集合，应用场景更多在传输中）</p>
+<ul>
+<li><p>消费者身份</p>
+<p>消费者必须通过消费者身份关联一个消费者分组，从而获取分组内的统一行为</p>
+</li>
+<li><p>消费者类型</p>
+<p>消费者的拉取消息的方式不同决定了消费者类型的不同，主要的分类有：</p>
+<ol>
+<li><p><em>PushSimple类型</em> </p>
+<p>消费者设置监听器，监听服务端推送的消息</p>
+</li>
+<li><p><em>SimpleConsumer类型</em></p>
+</li>
+<li><p><em>PullConsumer类型</em></p>
+</li>
+</ol>
+</li>
+<li><p>消费者本地运行配置</p>
+<p>就是消费者本地运行的配置，主要包括消费线程数，消息并发度等</p>
+</li>
+</ul>
+<h2 id="内部属性"><a href="#内部属性" class="headerlink" title="内部属性"></a>内部属性</h2><h4 id="一、消费者分组名称"><a href="#一、消费者分组名称" class="headerlink" title="一、消费者分组名称"></a>一、消费者分组名称</h4><h5 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h5><p>当前消费者关联的消费者分组的名称，消费者必须通过关联消费者分组获取消费行为</p>
+<h5 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h5><p>同消费者分组的取值，通过控制台或者客户端API进行创建</p>
+<h4 id="二、客户端ID"><a href="#二、客户端ID" class="headerlink" title="二、客户端ID"></a>二、客户端ID</h4><h5 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h5><p>消费者客户端的全局唯一标识符</p>
+<h5 id="取值-1"><a href="#取值-1" class="headerlink" title="取值"></a>取值</h5><p>由RocketMQ的SDK自动生成，主要用于日志查看，问题定位等场景，不支持修改</p>
+<h4 id="三、通信参数"><a href="#三、通信参数" class="headerlink" title="三、通信参数"></a>三、通信参数</h4><p>分类</p>
+<ul>
+<li><p>接入点信息（必选） </p>
+<p>连接服务端的接入地址</p>
+</li>
+<li><p>身份认证信息（可选）</p>
+<p>如果服务端开启身份认证，需要配置身份认证信息</p>
+</li>
+<li><p>请求超时时间（可选）</p>
+<p>客户端网络请求超时时间</p>
+</li>
+</ul>
+<h4 id="四、预绑定订阅关系列表"><a href="#四、预绑定订阅关系列表" class="headerlink" title="四、预绑定订阅关系列表"></a>四、预绑定订阅关系列表</h4><h5 id="定义-3"><a href="#定义-3" class="headerlink" title="定义"></a>定义</h5><p>用来指定消费者的订阅关系列表，RocketMQ服务端可在消费者初始化阶段，根据预绑定的订阅关系列表对目标主题进行权限和合法性校验，无需等到应用启动后才开始校验</p>
+<h5 id="取值-2"><a href="#取值-2" class="headerlink" title="取值"></a>取值</h5><p>建议在应用启动的时候就明确订阅关系列表。如果没有设置或者进行了动态变更，RocketMQ客户端会对目标主题进行动态补充校验</p>
+<h4 id="五、消息监听器"><a href="#五、消息监听器" class="headerlink" title="五、消息监听器"></a>五、消息监听器</h4><h5 id="定义-4"><a href="#定义-4" class="headerlink" title="定义"></a>定义</h5><p>服务端将消息推送给消费者后，消费者调用消费逻辑的监听器</p>
+<h5 id="取值-3"><a href="#取值-3" class="headerlink" title="取值"></a>取值</h5><p>客户端自己写</p>
+<h5 id="约束"><a href="#约束" class="headerlink" title="约束"></a>约束</h5><p>使用PushConusmer消费类型的时候，必须设置监听器</p>
+<h2 id="行为约束"><a href="#行为约束" class="headerlink" title="行为约束"></a>行为约束</h2><h5 id="投递顺序"><a href="#投递顺序" class="headerlink" title="投递顺序"></a>投递顺序</h5><h5 id="消费重试策略"><a href="#消费重试策略" class="headerlink" title="消费重试策略"></a>消费重试策略</h5><h2 id="使用建议"><a href="#使用建议" class="headerlink" title="使用建议"></a>使用建议</h2><h5 id="不建议在一个应用内创建大量消费者"><a href="#不建议在一个应用内创建大量消费者" class="headerlink" title="不建议在一个应用内创建大量消费者"></a>不建议在一个应用内创建大量消费者</h5><h5 id="不建议频繁创建和销毁消费者"><a href="#不建议频繁创建和销毁消费者" class="headerlink" title="不建议频繁创建和销毁消费者"></a>不建议频繁创建和销毁消费者</h5>
       
 
       
@@ -151,7 +210,29 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/RocketMQ//" class="article-tag-list-link color4">RocketMQ</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
 
@@ -164,18 +245,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2022/09/21/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/02.Mater-Worker%E6%A8%A1%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2022/10/24/RocketMQ/05.%E7%94%9F%E4%BA%A7%E8%80%85Producer/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          Callable接口
+          生产者Producer
         
       </div>
     </a>
   
   
-    <a href="/2022/09/09/Java%E5%A4%9A%E7%BA%BF%E7%A8%8B/07.ReentrantLock/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title"></div>
+    <a href="/2022/10/24/RocketMQ/06.%E6%B6%88%E8%B4%B9%E8%80%85%E5%88%86%E7%BB%84ConsumerGroup/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">消费者分组ConsumerGroup</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -202,7 +283,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Nacos%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="toc-number">1.</span> <span class="toc-text">Nacos配置中心</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85Consumer"><span class="toc-number">1.</span> <span class="toc-text">消费者Consumer</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89"><span class="toc-number">1.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E5%B1%9E%E6%80%A7"><span class="toc-number">1.2.</span> <span class="toc-text">内部属性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%B6%88%E8%B4%B9%E8%80%85%E5%88%86%E7%BB%84%E5%90%8D%E7%A7%B0"><span class="toc-number">1.2.0.1.</span> <span class="toc-text">一、消费者分组名称</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="toc-number">1.2.0.1.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%96%E5%80%BC"><span class="toc-number">1.2.0.1.2.</span> <span class="toc-text">取值</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AFID"><span class="toc-number">1.2.0.2.</span> <span class="toc-text">二、客户端ID</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="toc-number">1.2.0.2.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%96%E5%80%BC-1"><span class="toc-number">1.2.0.2.2.</span> <span class="toc-text">取值</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%80%9A%E4%BF%A1%E5%8F%82%E6%95%B0"><span class="toc-number">1.2.0.3.</span> <span class="toc-text">三、通信参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%A2%84%E7%BB%91%E5%AE%9A%E8%AE%A2%E9%98%85%E5%85%B3%E7%B3%BB%E5%88%97%E8%A1%A8"><span class="toc-number">1.2.0.4.</span> <span class="toc-text">四、预绑定订阅关系列表</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-3"><span class="toc-number">1.2.0.4.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%96%E5%80%BC-2"><span class="toc-number">1.2.0.4.2.</span> <span class="toc-text">取值</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%B6%88%E6%81%AF%E7%9B%91%E5%90%AC%E5%99%A8"><span class="toc-number">1.2.0.5.</span> <span class="toc-text">五、消息监听器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%AE%9A%E4%B9%89-4"><span class="toc-number">1.2.0.5.1.</span> <span class="toc-text">定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%96%E5%80%BC-3"><span class="toc-number">1.2.0.5.2.</span> <span class="toc-text">取值</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BA%A6%E6%9D%9F"><span class="toc-number">1.2.0.5.3.</span> <span class="toc-text">约束</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A1%8C%E4%B8%BA%E7%BA%A6%E6%9D%9F"><span class="toc-number">1.3.</span> <span class="toc-text">行为约束</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%8A%95%E9%80%92%E9%A1%BA%E5%BA%8F"><span class="toc-number">1.3.0.0.1.</span> <span class="toc-text">投递顺序</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E9%87%8D%E8%AF%95%E7%AD%96%E7%95%A5"><span class="toc-number">1.3.0.0.2.</span> <span class="toc-text">消费重试策略</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="toc-number">1.4.</span> <span class="toc-text">使用建议</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%8D%E5%BB%BA%E8%AE%AE%E5%9C%A8%E4%B8%80%E4%B8%AA%E5%BA%94%E7%94%A8%E5%86%85%E5%88%9B%E5%BB%BA%E5%A4%A7%E9%87%8F%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-number">1.4.0.0.1.</span> <span class="toc-text">不建议在一个应用内创建大量消费者</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%8D%E5%BB%BA%E8%AE%AE%E9%A2%91%E7%B9%81%E5%88%9B%E5%BB%BA%E5%92%8C%E9%94%80%E6%AF%81%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-number">1.4.0.0.2.</span> <span class="toc-text">不建议频繁创建和销毁消费者</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
                     </div>
                 </span>
             </div>
